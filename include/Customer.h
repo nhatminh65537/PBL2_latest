@@ -1,12 +1,9 @@
 #ifndef CUSTOMER_H
 #define CUSTOMER_H
 #include <vector>
-
-
-#include "Appointment.h"
-#include "Database.h"
-#include "Member.h"
 #include "define.h"
+#include "Member.h"
+#include "Appointment.h"
 
 using namespace std;
 
@@ -23,9 +20,9 @@ class Customer : public Member {
             friend ostream& operator<<(ostream&, const Customer&);
             friend istream& operator>>(istream&, Customer&);
         ~Customer() override;
-        void BookAppointment(Database<Appointment>& db,const vector<Service>& serviceList) const;
-        void CancelAppointment(Database<Appointment>& db,const string& appointmentID) const;
-        void ViewAppointment(const Database<Appointment>& db) const;
+        void BookAppointment(const vector<Service>& serviceList) const;
+        void CancelAppointment(const string& appointmentID) const;
+        void ViewAppointment() const;
     private:
 };
 

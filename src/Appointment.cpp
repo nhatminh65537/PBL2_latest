@@ -2,7 +2,6 @@
 
 #include <algorithm>
 #include <ranges>
-#include <bits/ranges_algo.h>
 
 Appointment::Appointment(const string& appointmentID,
                          const string& customerID,
@@ -28,7 +27,7 @@ void Appointment::Show() const {
     cout << '\n';
 }
 
-const string & Appointment::GetCustomerID() const {
+const string& Appointment::GetCustomerID() const {
     return this->customerID;
 }
 

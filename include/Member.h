@@ -2,7 +2,7 @@
 #define MEMBER_H
 #include <iostream>
 #include <string>
-#include "Identifiable.h"
+#include "define.h"
 
 using namespace std;
 

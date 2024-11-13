@@ -1,8 +1,0 @@
-1134 Tran-Duc Long helloworld 1 19 0912345678
-123 Tran-Duc Long helloworld 1 19 0912345678
-1234 Tran-Duc Long helloworld 1 19 0912345678
-124 Tran-Duc Long helloworld 1 19 0912345678
-1244 Tran-Duc Long helloworld 1 19 0912345678
-1254 Tran-Duc Long helloworld 1 19 0912345678
-1334 Tran-Duc Long helloworld 1 19 0912345678
-9 Tran-Duc Long helloworld 1 19 0912345678

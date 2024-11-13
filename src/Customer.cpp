@@ -11,21 +11,26 @@ Customer::~Customer()
     //dtor
 }
 
-void Customer::BookAppointment(Database<Appointment> &db, const vector<Service>& serviceList) const {
-    string appointmentID = to_string(db.Count()+1);
+void Customer::BookAppointment(const vector<Service>& serviceList) const {
+    string appointmentID = to_string(dbAppointments.Count()+1);
     if (appointmentID.size() < 6)  appointmentID = string(6 - appointmentID.size(),'0') + appointmentID;
 
-    db.Insert(Appointment(appointmentID,this->GetID(),serviceList));
+    dbAppointments.Insert(Appointment(appointmentID,this->ID,serviceList));
 }
 
-void Customer::CancelAppointment(Database<Appointment> &db, const string &appointmentID) const {
-    db.Delete(appointmentID);
+void Customer::CancelAppointment(const string &appointmentID) const {
+    if(dbAppointments.Get(appointmentID).GetCustomerID() == this->ID) {
+        dbAppointments.Delete(appointmentID);
+    }
+    else {
+        cout << "You cannot delete this appointment\n";
+    }
 }
 
-void Customer::ViewAppointment(const Database<Appointment>& db) const{
-    for (const auto& x : db) {
-        if (this->GetID() == db.Get(x.first).GetCustomerID()) {
-            db.Get(x.first).Show();
+void Customer::ViewAppointment() const{
+    for (const auto& [key,object] : dbAppointments) {
+        if (this->GetID() == object.GetCustomerID()) {
+            object.Show();
         }
     }
 }

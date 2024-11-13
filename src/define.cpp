@@ -4,6 +4,7 @@
 #include "define.h"
 #include "stdexcept"
 
+
 string ServiceToString(const Service& service) {
     switch (service) {
         case CatToc: return "Cat toc";
@@ -54,3 +55,33 @@ string Replace(const string& s, const char& oldChar, const char& newChar) {
     }
     return result;
 }
+
+int ToNum(const string& s) {
+    if (!isNumber(s)) return -1;
+    int ans=0;
+    for (const char& x : s) {
+        ans = ans * 10 + (x - '0');
+    }
+    return ans;
+}
+
+
+bool isBetween(const int& v, const int& L, const int& R) {
+    return (v >= L && v <= R);
+}
+
+bool isBetween(const char& v, const char& L, const char& R) {
+    return (v >= L && v <= R);
+}
+
+bool isDigit(const char &x) {
+    return isBetween(x,'0','9');
+}
+
+bool isNumber(const string& s) {
+    for (const char& x : s) {
+        if (!isBetween(x, '0', '9'))    return false;
+    }
+    return true;
+}
+
