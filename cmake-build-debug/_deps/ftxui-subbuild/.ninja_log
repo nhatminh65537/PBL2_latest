@@ -1,0 +1,21 @@
+# ninja log v6
+1	39	7530924958341744	ftxui-populate-prefix/src/ftxui-populate-stamp/ftxui-populate-mkdir	7dd7978896b8a728
+1	39	7530924958341744	D:/code_and_study/DUT/PBL2_Clion/cmake-build-debug/_deps/ftxui-subbuild/ftxui-populate-prefix/src/ftxui-populate-stamp/ftxui-populate-mkdir	7dd7978896b8a728
+40	28227	7530925240223435	ftxui-populate-prefix/src/ftxui-populate-stamp/ftxui-populate-download	1e39721182165a02
+40	28227	7530925240223435	D:/code_and_study/DUT/PBL2_Clion/cmake-build-debug/_deps/ftxui-subbuild/ftxui-populate-prefix/src/ftxui-populate-stamp/ftxui-populate-download	1e39721182165a02
+31103	31150	7530925269460793	CMakeFiles/ftxui-populate-complete	20bbdbb509a84b0e
+28227	30924	7530925267192650	D:/code_and_study/DUT/PBL2_Clion/cmake-build-debug/_deps/ftxui-subbuild/ftxui-populate-prefix/src/ftxui-populate-stamp/ftxui-populate-update_disconnected	70d2be3d5507e7f4
+28227	30924	7530925267192650	ftxui-populate-prefix/src/ftxui-populate-stamp/ftxui-populate-update_disconnected	70d2be3d5507e7f4
+30924	30960	7530925267553788	D:/code_and_study/DUT/PBL2_Clion/cmake-build-debug/_deps/ftxui-subbuild/ftxui-populate-prefix/src/ftxui-populate-stamp/ftxui-populate-patch_disconnected	e8dd87a3d839b8fc
+30960	30995	7530925267903682	ftxui-populate-prefix/src/ftxui-populate-stamp/ftxui-populate-configure	2fcadfbc3e85292a
+30924	30960	7530925267553788	ftxui-populate-prefix/src/ftxui-populate-stamp/ftxui-populate-patch_disconnected	e8dd87a3d839b8fc
+30960	30995	7530925267903682	D:/code_and_study/DUT/PBL2_Clion/cmake-build-debug/_deps/ftxui-subbuild/ftxui-populate-prefix/src/ftxui-populate-stamp/ftxui-populate-configure	2fcadfbc3e85292a
+30995	31030	7530925268254372	ftxui-populate-prefix/src/ftxui-populate-stamp/ftxui-populate-build	da3e88024c098cfa
+30995	31030	7530925268254372	D:/code_and_study/DUT/PBL2_Clion/cmake-build-debug/_deps/ftxui-subbuild/ftxui-populate-prefix/src/ftxui-populate-stamp/ftxui-populate-build	da3e88024c098cfa
+31030	31067	7530925268624746	ftxui-populate-prefix/src/ftxui-populate-stamp/ftxui-populate-install	148460349f216126
+31030	31067	7530925268624746	D:/code_and_study/DUT/PBL2_Clion/cmake-build-debug/_deps/ftxui-subbuild/ftxui-populate-prefix/src/ftxui-populate-stamp/ftxui-populate-install	148460349f216126
+31067	31103	7530925268981446	ftxui-populate-prefix/src/ftxui-populate-stamp/ftxui-populate-test	3821a03d44a4de78
+31067	31103	7530925268981446	D:/code_and_study/DUT/PBL2_Clion/cmake-build-debug/_deps/ftxui-subbuild/ftxui-populate-prefix/src/ftxui-populate-stamp/ftxui-populate-test	3821a03d44a4de78
+31103	31150	7530925269460793	ftxui-populate-prefix/src/ftxui-populate-stamp/ftxui-populate-done	20bbdbb509a84b0e
+31103	31150	7530925269460793	D:/code_and_study/DUT/PBL2_Clion/cmake-build-debug/_deps/ftxui-subbuild/CMakeFiles/ftxui-populate-complete	20bbdbb509a84b0e
+31103	31150	7530925269460793	D:/code_and_study/DUT/PBL2_Clion/cmake-build-debug/_deps/ftxui-subbuild/ftxui-populate-prefix/src/ftxui-populate-stamp/ftxui-populate-done	20bbdbb509a84b0e

@@ -1,0 +1,14 @@
+# Target labels
+ ftxui-populate
+# Source files and their labels
+D:/code_and_study/DUT/PBL2_Clion/cmake-build-debug/_deps/ftxui-subbuild/CMakeFiles/ftxui-populate
+D:/code_and_study/DUT/PBL2_Clion/cmake-build-debug/_deps/ftxui-subbuild/CMakeFiles/ftxui-populate.rule
+D:/code_and_study/DUT/PBL2_Clion/cmake-build-debug/_deps/ftxui-subbuild/CMakeFiles/ftxui-populate-complete.rule
+D:/code_and_study/DUT/PBL2_Clion/cmake-build-debug/_deps/ftxui-subbuild/ftxui-populate-prefix/src/ftxui-populate-stamp/ftxui-populate-build.rule
+D:/code_and_study/DUT/PBL2_Clion/cmake-build-debug/_deps/ftxui-subbuild/ftxui-populate-prefix/src/ftxui-populate-stamp/ftxui-populate-configure.rule
+D:/code_and_study/DUT/PBL2_Clion/cmake-build-debug/_deps/ftxui-subbuild/ftxui-populate-prefix/src/ftxui-populate-stamp/ftxui-populate-download.rule
+D:/code_and_study/DUT/PBL2_Clion/cmake-build-debug/_deps/ftxui-subbuild/ftxui-populate-prefix/src/ftxui-populate-stamp/ftxui-populate-install.rule
+D:/code_and_study/DUT/PBL2_Clion/cmake-build-debug/_deps/ftxui-subbuild/ftxui-populate-prefix/src/ftxui-populate-stamp/ftxui-populate-mkdir.rule
+D:/code_and_study/DUT/PBL2_Clion/cmake-build-debug/_deps/ftxui-subbuild/ftxui-populate-prefix/src/ftxui-populate-stamp/ftxui-populate-patch_disconnected.rule
+D:/code_and_study/DUT/PBL2_Clion/cmake-build-debug/_deps/ftxui-subbuild/ftxui-populate-prefix/src/ftxui-populate-stamp/ftxui-populate-test.rule
+D:/code_and_study/DUT/PBL2_Clion/cmake-build-debug/_deps/ftxui-subbuild/ftxui-populate-prefix/src/ftxui-populate-stamp/ftxui-populate-update_disconnected.rule

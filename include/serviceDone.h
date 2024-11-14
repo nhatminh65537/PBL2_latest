@@ -25,8 +25,6 @@ class serviceDone : public Identifiable
         friend ostream& operator<<(ostream& os,const serviceDone& obj);
         friend istream& operator>>(istream& is,serviceDone& obj);
         friend bool operator<(const serviceDone& a,const serviceDone& b);
-    protected:
-
     private:
         string customerID;
         string workerID;

@@ -29,7 +29,7 @@ add_executable(PBL2_Clion main.cpp
             src/Appointment.cpp
             src/define.cpp
             src/Stylist.cpp
-        src/time.cpp
+            src/Datetime.cpp
 )
 
 # Dùng các thành phần trong thư viện FTXUI

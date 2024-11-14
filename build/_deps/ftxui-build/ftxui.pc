@@ -1,0 +1,9 @@
+prefix="C:/Program Files (x86)/PBL2_Clion"
+libdir="C:/Program Files (x86)/PBL2_Clion/lib"
+includedir="C:/Program Files (x86)/PBL2_Clion/include"
+
+Name: ftxui
+Description: 
+Version: 5.0.0
+Cflags: -I${includedir}
+Libs: -L${libdir} -lftxui-component -lftxui-dom -lftxui-screen
