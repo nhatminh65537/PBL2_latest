@@ -1,3 +1,0 @@
-"D:\root\CLion 2024.2\bin\cmake\win\x64\bin\cmake.exe" -E rm -f CMakeFiles\PBL2_Clion.dir/objects.a
-C:\msys64\ucrt64\bin\ar.exe qc CMakeFiles\PBL2_Clion.dir/objects.a @CMakeFiles\PBL2_Clion.dir\objects1.rsp
-C:\msys64\ucrt64\bin\c++.exe  -std=c++20 -Wl,--whole-archive CMakeFiles\PBL2_Clion.dir/objects.a -Wl,--no-whole-archive -o PBL2_Clion.exe -Wl,--out-implib,libPBL2_Clion.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\PBL2_Clion.dir\linkLibs.rsp
