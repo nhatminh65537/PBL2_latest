@@ -1,0 +1,9 @@
+create build folder cd it and init:
+    cmake .. -G "MinGW Makefiles"
+or with default generator
+    cmake ..
+    cmake --build .
+
+int build folder with debug or release:
+    cmake -DCMAKE_BUILD_TYPE=Release ..
+    cmake -DCMAKE_BUILD_TYPE=Debug ..
