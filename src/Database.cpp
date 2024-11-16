@@ -15,18 +15,19 @@ template class Database<Customer>;
 
 template<typename T>
 Database<T>::Database(const string& path) : path(path) {
-    LoadData();
-    initAttributeMap();
+    loadData();
+    initMap();
+    initIndex();
 }
 
 template<typename T>
 Database<T>::~Database() {
-    this->Save();
+    this->save();
 }
 
 
 template<typename T>
-void Database<T>::LoadData(){
+void Database<T>::loadData(){
     ifstream inputFile(this->path.c_str(), ios::in);
     if (!inputFile.is_open()) {
         cerr << "File " << this->path << " not found!";
@@ -40,7 +41,7 @@ void Database<T>::LoadData(){
 }
 
 template<typename T>
-void Database<T>::Save() {
+void Database<T>::save() {
     ofstream outputFile(this->path.c_str());
     if (!outputFile.is_open()) {
         cerr << "File " << this->path << " not found!";
@@ -67,17 +68,24 @@ void Database<T>::Update(const string& ID,const string& attributeName, const str
         cerr << ID << " does not exists in database\n";
         exit(1);
     }
-    this->attributeMap[attributeName](this->_list[ID],newVal);
+    if (!updateMap.contains(attributeName)) {
+        cerr << attributeName << " does not exists in updateMap\n";
+        exit(1);
+    }
+    removeIndex(ID);
+    updateMap[attributeName](this->_list.at(ID),newVal);
+    addIndex(ID);
 }
 
 template<typename T>
 void Database<T>::Insert(const T& obj) {
     // If object is already in map
     if (this->_list.contains(obj.GetID())){
-        cerr << obj.GetID() << " already exists\n";
+        cerr << "ID " << obj.GetID() << " already exists\n";
         exit(1);
     }
     this->_list[obj.GetID()] = obj;
+    addIndex(obj.GetID());
 }
 
 template<typename T>
@@ -87,6 +95,7 @@ void Database<T>::Delete(const string& id){
         cerr << id << " does not exist\n";
         exit(1);
     }
+    removeIndex(id);
     this->_list.erase(id);
 }
 
@@ -96,6 +105,12 @@ void Database<T>::Show() const {
         cout << it.second << '\n';
     }
 }
+
+template<typename T>
+string Database<T>::GetPath() const {
+    return this->path;
+}
+
 
 template<typename T>
 typename map<string,T>::const_iterator Database<T>::begin() const {
@@ -114,7 +129,7 @@ int Database<T>::Count() const{
 
 template<typename T>
 bool Database<T>::IsExist(const string &ID) const {
-    return this->_list.contains(ID);// this->_list.find(ID) != this->_list.end()
+    return this->_list.contains(ID);
 }
 
 template<typename T>
@@ -131,32 +146,97 @@ T Database<T>::Get(const string &ID) const {
     return this->_list.at(ID);
 }
 
+// Private method
+
+template<typename T>
+void Database<T>::index(const string& attribute) {
+    if (indexMapList.contains(attribute)) {
+        cerr << "Attribute " << attribute << " already exists\n";
+        return;
+    }
+    if (!attributeMap.contains(attribute)) {
+        cerr << "Attribute " << attribute << " does not exists\n";
+        return;
+    }
+    multimap<string,string>indexMap;
+    for (const auto& [ID,obj] : this->_list) {
+        indexMap.insert({attributeMap[attribute](obj),ID});
+    }
+    indexMapList[attribute] = indexMap;
+}
+
+template<typename T>
+void Database<T>::addIndex(const string& ID) {
+    T obj = this->_list.at(ID);
+    for (auto& [attribute,indexMap] : indexMapList) { // update indexMapList
+        if (attributeMap.contains(attribute)) {
+            indexMap.insert({attributeMap[attribute](obj), ID});
+        }
+    }
+}
+
+template<typename T>
+void Database<T>::removeIndex(const string& id) {
+    T obj = this->_list.at(id);
+    for (auto& [attribute,indexMap] : indexMapList) {
+        if (!attributeMap.contains(attribute)) continue;
+
+        auto range = indexMap.equal_range(attributeMap[attribute](obj));
+        for (auto it = range.first; it != range.second; ++it) {
+            if (it->second == id) {
+                indexMap.erase(it);
+                break;
+            }
+        }
+    }
+}
+
 template<>
-void Database<serviceDone>::initAttributeMap(){
-    // lambda function
-    attributeMap["serviceDoneID"] = [](serviceDone& obj,const string& newVal){
-        obj.SetID(newVal);
+void Database<serviceDone>::initIndex() {
+    index("customerID");
+    index("workerID");
+}
+
+template<>
+void Database<Appointment>::initIndex() {
+
+}
+
+template<>
+void Database<Customer>::initIndex() {
+}
+
+template<>
+void Database<serviceDone>::initMap(){
+    attributeMap["customerID"] = [](const serviceDone& obj) -> string {
+        return obj.GetCustomerID();
     };
-    attributeMap["customerID"] = [](serviceDone& obj,const string& newVal){
+    attributeMap["workerID"] = [](const serviceDone& obj) -> string {
+        return obj.GetWorkerID();
+    };
+    attributeMap["serviceID"] = [](const serviceDone& obj) -> string {
+        return obj.GetServiceID();
+    };
+    updateMap["customerID"] = [](serviceDone& obj, const string& newVal) {
         obj.SetCustomerID(newVal);
     };
-    attributeMap["workerID"] = [](serviceDone& obj,const string& newVal){
+    updateMap["workerID"] = [](serviceDone& obj, const string& newVal) {
         obj.SetWorkerID(newVal);
     };
-    attributeMap["serviceID"] = [](serviceDone& obj,const string& newVal){
+    updateMap["serviceID"] = [](serviceDone& obj, const string& newVal) {
         obj.SetServiceID(newVal);
     };
-    attributeMap["feedback"] = [](serviceDone& obj,const string& newVal){
-        obj.SetFeedBack('"' + newVal + '"'); // Thêm 2 dấu " ở đầu và cuối để phân biệt feedback với các phần khác
+    updateMap["feedback"] = [](serviceDone& obj, const string& newVal) {
+        obj.SetFeedBack('"' + newVal + '"'); // Thêm 2 dấu " để đúng format của feedback.
     };
 }
 
 template<>
-void Database<Appointment>::initAttributeMap() {
+void Database<Appointment>::initMap() {
 
 }
 
 template<>
-void Database<Customer>::initAttributeMap() {
+void Database<Customer>::initMap() {
 
 }

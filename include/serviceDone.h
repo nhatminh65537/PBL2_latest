@@ -9,9 +9,8 @@ using namespace std;
 class serviceDone : public Identifiable
 {
     public:
-        serviceDone();
-        serviceDone(const string& ID, const string& customerID,const string& workerID,
-                    const string& serviceID,const string& feedback,const bool& isBooked);
+        serviceDone(const string& ID="null", const string& customerID="null",const string& workerID="null",
+                    const string& serviceID="null",const string& feedback="\"null\"",const bool& isBooked=false);
         ~serviceDone() override;
         [[nodiscard]] const string& GetCustomerID() const;
         void SetCustomerID(const string&);

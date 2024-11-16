@@ -2,23 +2,13 @@
 
 using namespace std;
 
-serviceDone::serviceDone()
-{
-    this->ID = "null";
-    this->customerID = "null";
-    this->workerID = "null";
-    this->serviceID = "null";
-    this->feedback = "\"null\"";
-    this->isBooked = false;
-}
-
 serviceDone::serviceDone(const string& ID, const string& customerID,const string& workerID,
                          const string& serviceID,const string& feedback,const bool& isBooked){
     this->ID = ID;
     this->customerID = customerID;
     this->workerID = workerID;
     this->serviceID = serviceID;
-    this->feedback = feedback;
+    this->feedback = '"'+ feedback + '"'; // Thêm cặp dấu " để đúng với format của feedback. "content"
     this->isBooked = isBooked;
 }
 

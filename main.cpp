@@ -1,10 +1,38 @@
 #include <iostream>
-#include "Datetime.h"
-// Thư viện Time chưa hoàn thiện, thiếu phần check xem lịch có nằm ở quá khứ hay không
+#include "define.h"
+#include "Database.h"
+#include "serviceDone.h"
+#include "Customer.h"
+
 using namespace std;
 
 int main() {
-  Datetime hehe = Datetime::Now();
-  hehe.Show();
-  return 0;
+    dbServiceDone.Show();
+    cout << "=======================================\n";
+    for (auto it : dbServiceDone.indexMapList) {
+        cout << it.first << "\n";
+        for (auto it2 : it.second) {
+            cout << it2.first << " " << it2.second << "\n";
+        }
+    }
+    dbServiceDone.Update("2","customerID","hehe");
+    dbServiceDone.Update("2","workerID","hehe");
+    dbServiceDone.Update("3","workerID","hehe");
+    cout << "=======================================\n";
+    for (auto it : dbServiceDone.indexMapList) {
+        cout << it.first << "\n";
+        for (auto it2 : it.second) {
+            cout << it2.first << " " << it2.second << "\n";
+        }
+    }
+    cout << "=======================================\n";
+    dbServiceDone.Delete("2");
+     for (auto it : dbServiceDone.indexMapList) {
+         cout << it.first << "\n";
+         for (auto it2 : it.second) {
+             cout << it2.first << " " << it2.second << "\n";
+         }
+     }
+
+    return 0;
 }

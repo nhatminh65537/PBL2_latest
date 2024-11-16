@@ -33,7 +33,7 @@ enum Service{
     GoiDau
 };
 
-inline Database<serviceDone>dbCustomer (SERVICE_DONE_FILE);
+inline Database<serviceDone>dbServiceDone (SERVICE_DONE_FILE);
 inline Database<Appointment>dbAppointments (APPOINTMENTS_FILE);
 inline Database<Customer>dbCustomers (CUSTOMERS_FILE);
 
