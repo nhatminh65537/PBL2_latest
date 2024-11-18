@@ -65,6 +65,7 @@ bool Datetime::isValidTime() const {
 
 bool Datetime::isValidAppointment() const {
     if(!this->isValidTime()) return false;
+    return true;
 }
 
 void Datetime::Show() const {

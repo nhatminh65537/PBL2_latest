@@ -1,17 +1,21 @@
 #include "Database.h"
-
 #include <Customer.h>
-
-#include "serviceDone.h"
-#include "Appointment.h"
 #include <iostream>
 #include <fstream>
+#include "serviceDone.h"
+#include "Appointment.h"
 
 using namespace std;
 
 template class Database<serviceDone>;
 template class Database<Appointment>;
 template class Database<Customer>;
+
+template<typename T>
+Database<T>& Database<T>::Connect(const string& path) {
+    static Database<T> database(path);
+    return database;
+}
 
 template<typename T>
 Database<T>::Database(const string& path) : path(path) {
@@ -128,8 +132,22 @@ int Database<T>::Count() const{
 }
 
 template<typename T>
-bool Database<T>::IsExist(const string &ID) const {
-    return this->_list.contains(ID);
+bool Database<T>::IsExist(const string& attr, const string &val) const {
+    if (!this->attributeMap.contains(attr)) { // class T does not have this attribute
+        cerr << attr << " does not exists\n";
+        exit(1);
+    }
+    if (this->indexMapList.contains(attr)) { // If this attribute is indexed
+        return this->indexMapList.at(attr).contains(val); // There exists a value <val> of attribute <attr>
+    }
+    else {
+        for (const auto& [ID,obj] : this->_list) {
+            if(this->attributeMap.at(attr)(obj) == val) {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 template<typename T>
@@ -144,6 +162,29 @@ T Database<T>::Get(const string &ID) const {
         exit(1);
     }
     return this->_list.at(ID);
+}
+
+template <typename T>
+vector<T> Database<T>::Query(const string& attr,const string& val) {
+    if (!this->attributeMap.contains(attr)) { // class T does not have this attribute
+        cerr << attr << " does not exists\n";
+        exit(1);
+    }
+    vector<T> res;
+    if (this->indexMapList.contains(attr)) { // If this attribute is indexed
+        auto range = this->indexMapList[attr].equal_range(val);
+        for (auto it = range.first; it != range.second;++it) {
+            res.push_back(this->_list[it->second]);
+        }
+    }
+    else {
+        for (const auto& [ID,obj] : this->_list) {
+            if(this->attributeMap.at(attr)(obj) == val) {
+                res.push_back(obj);
+            }
+        }
+    }
+    return res;
 }
 
 // Private method
@@ -208,6 +249,9 @@ void Database<Customer>::initIndex() {
 
 template<>
 void Database<serviceDone>::initMap(){
+    attributeMap["ID"] = [](const serviceDone& obj) -> string {
+        return obj.GetID();
+    };
     attributeMap["customerID"] = [](const serviceDone& obj) -> string {
         return obj.GetCustomerID();
     };
@@ -216,6 +260,12 @@ void Database<serviceDone>::initMap(){
     };
     attributeMap["serviceID"] = [](const serviceDone& obj) -> string {
         return obj.GetServiceID();
+    };
+    attributeMap["feedback"] = [](const serviceDone& obj) -> string {
+        return obj.GetFeedBack();
+    };
+    attributeMap["bookStatus"] = [](const serviceDone& obj) -> string {
+        return to_string(obj.GetBookStatus());
     };
     updateMap["customerID"] = [](serviceDone& obj, const string& newVal) {
         obj.SetCustomerID(newVal);
@@ -227,7 +277,10 @@ void Database<serviceDone>::initMap(){
         obj.SetServiceID(newVal);
     };
     updateMap["feedback"] = [](serviceDone& obj, const string& newVal) {
-        obj.SetFeedBack('"' + newVal + '"'); // Thêm 2 dấu " để đúng format của feedback.
+        obj.SetFeedBack(newVal); // Thêm 2 dấu " để đúng format của feedback.
+    };
+    updateMap["bookStatus"] = [](serviceDone& obj, const string& newVal) {
+        obj.SetBookStatus(static_cast<bool>(ToNum(newVal)));
     };
 }
 

@@ -14,9 +14,7 @@
 using namespace std;
 
 
-const string SERVICE_DONE_FILE = "../database/service-done.txt";
-const string APPOINTMENTS_FILE = "../database/appointments.txt";
-const string CUSTOMERS_FILE = "../database/customers.txt";
+
 
 class Appointment;
 class Customer;
@@ -32,10 +30,6 @@ enum Service{
     TaoKieu,
     GoiDau
 };
-
-inline Database<serviceDone>dbServiceDone (SERVICE_DONE_FILE);
-inline Database<Appointment>dbAppointments (APPOINTMENTS_FILE);
-inline Database<Customer>dbCustomers (CUSTOMERS_FILE);
 
 string ServiceToString(const Service&);
 Service StringToService(const string&);

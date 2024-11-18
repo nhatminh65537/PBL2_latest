@@ -1,5 +1,7 @@
 #include "Customer.h"
 
+Database<Appointment>& dbAppointments = Database<Appointment>::Connect(APPOINTMENTS_FILE);
+
 Customer::Customer(const string& ID, const string &firstName, const string &lastName, const bool &gender, const int &age,
     const string &phoneNumber, const string &username, const string &password)
         : Member(ID,firstName,lastName,gender,age,phoneNumber,username,password){

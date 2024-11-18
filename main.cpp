@@ -7,32 +7,11 @@
 using namespace std;
 
 int main() {
-    dbServiceDone.Show();
-    cout << "=======================================\n";
-    for (auto it : dbServiceDone.indexMapList) {
-        cout << it.first << "\n";
-        for (auto it2 : it.second) {
-            cout << it2.first << " " << it2.second << "\n";
-        }
+    Database<serviceDone>& dbServiceDone = Database<serviceDone>::Connect(SERVICE_DONE_FILE);
+    //dbServiceDone.Show();
+    vector<serviceDone> vt = dbServiceDone.Query("feedback","hehe");
+    for (auto x : vt) {
+        cout << x << '\n';
     }
-    dbServiceDone.Update("2","customerID","hehe");
-    dbServiceDone.Update("2","workerID","hehe");
-    dbServiceDone.Update("3","workerID","hehe");
-    cout << "=======================================\n";
-    for (auto it : dbServiceDone.indexMapList) {
-        cout << it.first << "\n";
-        for (auto it2 : it.second) {
-            cout << it2.first << " " << it2.second << "\n";
-        }
-    }
-    cout << "=======================================\n";
-    dbServiceDone.Delete("2");
-     for (auto it : dbServiceDone.indexMapList) {
-         cout << it.first << "\n";
-         for (auto it2 : it.second) {
-             cout << it2.first << " " << it2.second << "\n";
-         }
-     }
-
     return 0;
 }

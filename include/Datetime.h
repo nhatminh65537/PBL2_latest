@@ -17,7 +17,7 @@ public:
     [[nodiscard]]bool isValidTime() const;
     [[nodiscard]]bool isValidAppointment() const;
     [[nodiscard]]int MonthDays() const;
-    [[nodiscard]]void Show() const;
+    void Show() const;
     static Datetime Now();
 private:
     int minute, hour, day, month, year;
