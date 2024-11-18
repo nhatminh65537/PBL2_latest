@@ -1,12 +1,13 @@
 #include <iostream>
+
+#ifndef TEST_UI
+
 #include "define.h"
 #include "Database.h"
 #include "serviceDone.h"
 #include "Customer.h"
 
-using namespace std;
-
-int main() {
+void test() {
     dbServiceDone.Show();
     cout << "=======================================\n";
     for (auto it : dbServiceDone.indexMapList) {
@@ -32,7 +33,25 @@ int main() {
          for (auto it2 : it.second) {
              cout << it2.first << " " << it2.second << "\n";
          }
-     }
+    }
+}
 
+#else
+
+#include "ui.h"
+
+std::function<void()> currentScreen = screenWelcome;
+void test() {
+    while(currentScreen != nullptr) {
+        currentScreen();
+    }
+}
+#endif
+
+using namespace std;
+
+
+int main() {
+    test();
     return 0;
 }
