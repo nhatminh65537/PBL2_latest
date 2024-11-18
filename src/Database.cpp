@@ -105,9 +105,12 @@ void Database<T>::Delete(const string& id){
 
 template<typename T>
 void Database<T>::Show() {
+
     if (!this->resultList.empty()) {
-        for (const auto& it : this->resultList) {
-            cout << it << '\n';
+        if (this->resultList[0].GetID() != "null"){
+            for (const auto& it : this->resultList) {
+                cout << it << '\n';
+            }
         }
         this->resultList.clear();
         return;
@@ -202,7 +205,10 @@ Database<T>& Database<T>::Query(const string& attr,const string& val) {
             }
         }
     }
-
+    if (res.empty()) {
+        T obj;
+        res.push_back(obj);
+    }
     this->resultList = move(res); // Hàm "move" là chuyển quyền sở hữu data từ res qua this->resultList  => Tăng hiệu suất
     return *this;
 }

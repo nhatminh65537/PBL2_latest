@@ -8,7 +8,9 @@ using namespace std;
 
 int main() {
     Database<serviceDone>& dbServiceDone = Database<serviceDone>::Connect(SERVICE_DONE_FILE);
-    dbServiceDone.Query("feedback","hehe").Query("workerID","null").Show();
+    dbServiceDone.Query("feedback","hehe").Show();
+    cout << "======================================\n";
+    dbServiceDone.Query("ID","hehe").Show();
     cout << "======================================\n";
     dbServiceDone.Show();
     cout << "======================================\n";
