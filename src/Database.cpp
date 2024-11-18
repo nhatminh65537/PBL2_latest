@@ -104,7 +104,14 @@ void Database<T>::Delete(const string& id){
 }
 
 template<typename T>
-void Database<T>::Show() const {
+void Database<T>::Show() {
+    if (!this->resultList.empty()) {
+        for (const auto& it : this->resultList) {
+            cout << it << '\n';
+        }
+        this->resultList.clear();
+        return;
+    }
     for (const auto& it : this->_list){
         cout << it.second << '\n';
     }
@@ -134,7 +141,7 @@ int Database<T>::Count() const{
 template<typename T>
 bool Database<T>::IsExist(const string& attr, const string &val) const {
     if (!this->attributeMap.contains(attr)) { // class T does not have this attribute
-        cerr << attr << " does not exists\n";
+        cerr << "Attribute " << attr << " does not exist\n";
         exit(1);
     }
     if (this->indexMapList.contains(attr)) { // If this attribute is indexed
@@ -158,33 +165,51 @@ bool Database<T>::IsEmpty() const {
 template<typename T>
 T Database<T>::Get(const string &ID) const {
     if (!this->_list.contains(ID)) {
-        cerr << ID << " does not exists\n";
+        cerr << ID << " does not exist\n";
         exit(1);
     }
     return this->_list.at(ID);
 }
 
 template <typename T>
-vector<T> Database<T>::Query(const string& attr,const string& val) {
+Database<T>& Database<T>::Query(const string& attr,const string& val) {
     if (!this->attributeMap.contains(attr)) { // class T does not have this attribute
-        cerr << attr << " does not exists\n";
+        cerr << "Attribute " << attr << " does not exist\n";
         exit(1);
     }
+
     vector<T> res;
-    if (this->indexMapList.contains(attr)) { // If this attribute is indexed
-        auto range = this->indexMapList[attr].equal_range(val);
-        for (auto it = range.first; it != range.second;++it) {
-            res.push_back(this->_list[it->second]);
-        }
-    }
-    else {
-        for (const auto& [ID,obj] : this->_list) {
-            if(this->attributeMap.at(attr)(obj) == val) {
+    if (!this->resultList.empty()) {
+        for (const auto& obj : this->resultList) {
+            if (this->attributeMap.at(attr)(obj) == val) {
                 res.push_back(obj);
             }
         }
     }
-    return res;
+
+    else {
+        if (this->indexMapList.contains(attr)) { // If this attribute is indexed
+            auto range = this->indexMapList[attr].equal_range(val);
+            for (auto it = range.first; it != range.second;++it) {
+                res.push_back(this->_list[it->second]);
+            }
+        }
+        else {
+            for (const auto& [ID,obj] : this->_list) {
+                if(this->attributeMap.at(attr)(obj) == val) {
+                    res.push_back(obj);
+                }
+            }
+        }
+    }
+
+    this->resultList = move(res); // Hàm "move" là chuyển quyền sở hữu data từ res qua this->resultList  => Tăng hiệu suất
+    return *this;
+}
+
+template<typename T>
+vector<T> Database<T>::GetResults() const {
+    return this->resultList;
 }
 
 // Private method
