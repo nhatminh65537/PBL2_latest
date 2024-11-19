@@ -214,8 +214,13 @@ Database<T>& Database<T>::Query(const string& attr,const string& val) {
 }
 
 template<typename T>
-vector<T> Database<T>::GetResults() const {
-    return this->resultList;
+vector<T> Database<T>::GetResults() {
+    vector<T> res = this->resultList;
+    if (res.empty()) {
+        for (const auto& [ID,obj] : this->_list) res.push_back(obj);
+    }
+    this->resultList.clear();
+    return res;
 }
 
 // Private method

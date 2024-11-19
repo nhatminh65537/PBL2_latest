@@ -37,7 +37,7 @@ class Database
 
         [[nodiscard]] T Get(const string& ID) const;
         [[nodiscard]] Database<T>& Query(const string& attribute,const string& val);
-        [[nodiscard]] vector<T> GetResults() const;
+        [[nodiscard]] vector<T> GetResults();
     private:
         explicit Database(const string&  path); // Thêm keyword explicit để tránh implicit conversions (ép kiểu ngầm định)
         Database(const Database&) = delete; // Singleton design pattern

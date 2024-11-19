@@ -7,11 +7,9 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++20")
 
-
-
 include_directories(include)
+include_directories(FTXUI/include)
 
-# Sử dụng FetchContent để tải FTXUI, dùng cho xử lý đồ họa trên terminal.
 include(FetchContent)
 set(FETCHCONTENT_UPDATES_DISCONNECTED ON)
 FetchContent_Declare(ftxui
@@ -21,15 +19,17 @@ FetchContent_Declare(ftxui
 FetchContent_MakeAvailable(ftxui)
 
 add_executable(PBL2_Clion main.cpp
-            src/Database.cpp
-            src/serviceDone.cpp
-            src/Identifiable.cpp
-            src/Member.cpp
-            src/Customer.cpp
-            src/Appointment.cpp
-            src/define.cpp
-            src/Stylist.cpp
-            src/Datetime.cpp
+        src/Database.cpp
+        src/serviceDone.cpp
+        src/Identifiable.cpp
+        src/Member.cpp
+        src/Customer.cpp
+        src/Appointment.cpp
+        src/define.cpp
+        src/Stylist.cpp
+        src/Datetime.cpp
+        #FTXUI/src/call.cpp 2 dòng này đang bị lỗi  undefined reference to `currentScreen'
+        #FTXUI/src/ui.cpp
 )
 
 # Dùng các thành phần trong thư viện FTXUI

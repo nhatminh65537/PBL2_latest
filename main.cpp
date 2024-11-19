@@ -1,23 +1,21 @@
 #include <iostream>
-#include "define.h"
 #include "Database.h"
 #include "serviceDone.h"
-#include "Customer.h"
 
 using namespace std;
 
+void test() {
+    Database<serviceDone>& dbServiceDone = Database<serviceDone>::Connect(SERVICE_DONE_FILE);
+    //dbServiceDone.Show();
+    //dbServiceDone.Query("feedback","hehe").Show();
+    vector<serviceDone> vt = dbServiceDone.Query("feedback","hehe").GetResults();
+    for (const serviceDone &v : vt) v.Show();
+    vector<serviceDone> dt = dbServiceDone.GetResults();
+    for (const serviceDone &v : dt) v.Show();
+}
+
+
 int main() {
-    // Customer a("123","Tran Duc","Long",true,19,"123123123","longtran","123456");
-    // Customer b;
-    // vector<Service> services = {CatToc,NhuomToc};
-    // Database<Appointment>& db = Database<Appointment>::Connect(APPOINTMENTS_FILE);
-    // db.Show();
-    // //a.Show();
-    // //a.BookAppointment(dt,services);
-    // b.ViewAppointment();
-    Datetime a;
-    Datetime b = a + 5;
-    a.Show();
-    (a-(+(-5))).Show();
+    test();
     return 0;
 }

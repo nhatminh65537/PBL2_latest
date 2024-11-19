@@ -54,12 +54,12 @@ void serviceDone::SetBookStatus(const bool& status) {
 
 
 void serviceDone::Show() const {
-    cout << "ID " << this->ID << '\n';
-    cout << "CustomerID " << this->customerID << '\n';
-    cout << "WorkerID " << this->workerID << '\n';
-    cout << "ServiceID " << this->serviceID << '\n';
-    cout << "Feedback " << this->feedback << '\n';
-    cout << "BookStatus " << this->bookStatus << '\n';
+    cout << "ID: " << this->ID << '\n';
+    cout << "CustomerID: " << this->customerID << '\n';
+    cout << "WorkerID: " << this->workerID << '\n';
+    cout << "ServiceID: " << this->serviceID << '\n';
+    cout << "Feedback: " << this->feedback << '\n';
+    cout << "BookStatus: " << (this->bookStatus? "Yes" : "No") << '\n';
 }
 
 
