@@ -7,18 +7,17 @@
 using namespace std;
 
 int main() {
-    Database<serviceDone>& dbServiceDone = Database<serviceDone>::Connect(SERVICE_DONE_FILE);
-    dbServiceDone.Query("feedback","hehe").Show();
-    cout << "======================================\n";
-    dbServiceDone.Query("ID","hehe").Show();
-    cout << "======================================\n";
-    dbServiceDone.Show();
-    cout << "======================================\n";
-    dbServiceDone.Query("feedback","huhu").Show();
-    cout << "======================================\n";
-    vector<serviceDone> vt = dbServiceDone.Query("feedback","hehe").GetResults();
-    for (const auto& x : vt) {
-        cout << x << '\n';
-    }
+    // Customer a("123","Tran Duc","Long",true,19,"123123123","longtran","123456");
+    // Customer b;
+    // vector<Service> services = {CatToc,NhuomToc};
+    // Database<Appointment>& db = Database<Appointment>::Connect(APPOINTMENTS_FILE);
+    // db.Show();
+    // //a.Show();
+    // //a.BookAppointment(dt,services);
+    // b.ViewAppointment();
+    Datetime a;
+    Datetime b = a + 5;
+    a.Show();
+    (a-(+(-5))).Show();
     return 0;
 }

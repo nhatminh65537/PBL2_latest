@@ -1,4 +1,5 @@
 #include "Customer.h"
+#include "Database.h"
 
 Database<Appointment>& dbAppointments = Database<Appointment>::Connect(APPOINTMENTS_FILE);
 
@@ -13,11 +14,11 @@ Customer::~Customer()
     //dtor
 }
 
-void Customer::BookAppointment(const vector<Service>& serviceList) const {
+void Customer::BookAppointment(const Datetime& date,const vector<Service>& serviceList) const {
     string appointmentID = to_string(dbAppointments.Count()+1);
     if (appointmentID.size() < 6)  appointmentID = string(6 - appointmentID.size(),'0') + appointmentID;
 
-    dbAppointments.Insert(Appointment(appointmentID,this->ID,serviceList));
+    dbAppointments.Insert(Appointment(appointmentID,date,this->ID,serviceList));
 }
 
 void Customer::CancelAppointment(const string &appointmentID) const {
@@ -25,7 +26,7 @@ void Customer::CancelAppointment(const string &appointmentID) const {
         dbAppointments.Delete(appointmentID);
     }
     else {
-        cout << "You cannot delete this appointment\n";
+        cout << "You don't have any appointments with ID " << appointmentID << '\n';
     }
 }
 

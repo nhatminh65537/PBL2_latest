@@ -2,14 +2,14 @@
 #include <Customer.h>
 #include <iostream>
 #include <fstream>
-#include "serviceDone.h"
-#include "Appointment.h"
+#include <utility>
 
 using namespace std;
 
 template class Database<serviceDone>;
 template class Database<Appointment>;
 template class Database<Customer>;
+//template class Database<Member>;
 
 template<typename T>
 Database<T>& Database<T>::Connect(const string& path) {
@@ -18,7 +18,7 @@ Database<T>& Database<T>::Connect(const string& path) {
 }
 
 template<typename T>
-Database<T>::Database(const string& path) : path(path) {
+Database<T>::Database(const string&  path) : path(path) {
     loadData();
     initMap();
     initIndex();

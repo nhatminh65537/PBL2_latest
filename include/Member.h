@@ -1,8 +1,7 @@
 #ifndef MEMBER_H
 #define MEMBER_H
-#include <iostream>
 #include <string>
-#include "define.h"
+#include "Identifiable.h"
 
 using namespace std;
 

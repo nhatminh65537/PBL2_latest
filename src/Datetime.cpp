@@ -1,6 +1,8 @@
 #include "Datetime.h"
 #include "define.h"
+
 #include <stdexcept>
+#include <iostream>
 
 Datetime::Datetime(const int& minute, const int& hour, const int& day, const int& month, const int& year)
     : minute(minute),hour(hour),day(day),month(month),year(year){
@@ -50,7 +52,7 @@ bool Datetime::isLeapYear() const {
 }
 
 int Datetime::MonthDays() const {
-    int daysInMonth[] = {0, 31, 28, 31, 30, 31, 30, 31, 30, 31, 30, 31, 30, 31, 30, 31};
+    int daysInMonth[] = {0, 31, 28, 31,30,31,30,31,31,30,31,30,31};
     if (this->isLeapYear())  daysInMonth[2] = 29;
     return daysInMonth[this->month];
 }
@@ -69,13 +71,47 @@ bool Datetime::isValidAppointment() const {
 }
 
 void Datetime::Show() const {
-    const char* format = "%02d:%02d %d/%d/%d";
+    const char* format = "%02d:%02d %d/%d/%d\n";
     printf(format,this->hour,this->minute,this->day,this->month,this->year);
 }
 
+void Datetime::nextDay() {
+    this->day = (this->day % this->MonthDays()) + 1;
+    if (this->day==1) {
+        this->month = (this->month % 12) + 1;
+        if(this->month==1) this->year++;
+    }
+}
+
+void Datetime::prevDay() {
+    if(this->day==1) {
+        if (this->month==1) {
+            this->year--;
+            this->month=12;
+        }
+        else this->month--;
+        this->day = this->MonthDays();
+    }
+    else this->day--;
+}
+
+Datetime Datetime::operator+(const int& days) const {
+    Datetime res = *this;
+    if (days<0) for (int i=1;i<=-1*days;++i) res.prevDay();
+    else for (int i=1;i<=days;++i) res.nextDay();
+    return res;
+}
+
+Datetime Datetime::operator-(const int& days) const {
+    Datetime res = *this;
+    if (days<0) for (int i=1;i<=-1*days;++i) res.nextDay();
+    else for (int i=1;i<=days;++i) res.prevDay();
+    return res;
+}
+
 Datetime Datetime::Now() {
-    time_t now = time(0);
-    tm* t = localtime(&now);
+    const time_t now = time(nullptr);
+    const tm* t = localtime(&now);
     return Datetime(t->tm_min,t->tm_hour,t->tm_mday,t->tm_mon+1,t->tm_year+1900);
 }
 

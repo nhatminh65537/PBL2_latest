@@ -1,7 +1,8 @@
 #include <ctime>
+
 class Datetime {
 public:
-    explicit Datetime(const int& = 20, const int& = 4, const int& = 1, const int& = 1, const int& = 1900);
+    explicit Datetime(const int& = 1, const int& = 1, const int& = 1, const int& = 1, const int& = 1900);
     ~Datetime();
     void SetMinute(const int&);
     void SetHour(const int&);
@@ -18,6 +19,12 @@ public:
     [[nodiscard]]bool isValidAppointment() const;
     [[nodiscard]]int MonthDays() const;
     void Show() const;
+    void nextDay();
+    void prevDay();
+    Datetime operator+(const int& days) const;
+    Datetime operator-(const int& days) const;
+
+
     static Datetime Now();
 private:
     int minute, hour, day, month, year;

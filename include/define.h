@@ -5,7 +5,6 @@
 #ifndef DEFINE_H
 #define DEFINE_H
 
-#include "Database.h"
 #include <string>
 #include <vector>
 

@@ -4,9 +4,11 @@
 #include <ranges>
 
 Appointment::Appointment(const string& appointmentID,
+                        const Datetime& startTime,
                          const string& customerID,
                          const vector<Service>& serviceList) {
     this->ID = appointmentID;
+    this->startTime = startTime;
     this->customerID = customerID;
     this->serviceList = serviceList;
 }
@@ -33,6 +35,14 @@ const string& Appointment::GetCustomerID() const {
 
 void Appointment::SetCustomerID(const string& customerID) {
     this->customerID = customerID;
+}
+
+const Datetime& Appointment::GetStartTime() const {
+    return this->startTime;
+}
+
+void Appointment::SetStartTime(const Datetime& date) {
+    this->startTime = date;
 }
 
 

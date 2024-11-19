@@ -3,6 +3,10 @@
 #include <string>
 #include <map>
 #include <functional>
+#include "Customer.h"
+#include "serviceDone.h"
+#include "Appointment.h"
+#include "Member.h"
 #include "Identifiable.h"
 
 const string SERVICE_DONE_FILE = "../database/service-done.txt";
@@ -35,7 +39,7 @@ class Database
         [[nodiscard]] Database<T>& Query(const string& attribute,const string& val);
         [[nodiscard]] vector<T> GetResults() const;
     private:
-        explicit Database(const string& path); // Thêm keyword explicit để tránh implicit conversions (ép kiểu ngầm định)
+        explicit Database(const string&  path); // Thêm keyword explicit để tránh implicit conversions (ép kiểu ngầm định)
         Database(const Database&) = delete; // Singleton design pattern
         Database& operator=(const Database&) = delete; // Singleton design pattern
 

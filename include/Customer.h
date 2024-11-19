@@ -20,7 +20,7 @@ class Customer : public Member {
         friend ostream& operator<<(ostream&, const Customer&);
         friend istream& operator>>(istream&, Customer&);
         ~Customer() override;
-        void BookAppointment(const vector<Service>& serviceList) const;
+        void BookAppointment(const Datetime& date,const vector<Service>& serviceList) const;
         void CancelAppointment(const string& appointmentID) const;
         void ViewAppointment() const;
     private:

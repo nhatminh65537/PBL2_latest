@@ -1,4 +1,7 @@
 #include "Member.h"
+#include <iostream>
+
+using namespace std;
 
 Member::Member(const string& ID,const string &firstName, const string &lastName, const bool &gender, const int &age,
     const string &phoneNumber, const string &username, const string &password) {
