@@ -30,6 +30,7 @@ if (TEST_UI)
         add_executable(PBL2_Clion main.cpp
                 src/ui.cpp 
                 src/call.cpp
+                ui_demo.cpp
         )
 else()
         add_executable(PBL2_Clion main.cpp
