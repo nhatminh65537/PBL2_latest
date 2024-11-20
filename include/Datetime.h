@@ -1,4 +1,7 @@
 #include <ctime>
+#include <iostream>
+
+using namespace std;
 
 class Datetime {
 public:
@@ -19,13 +22,20 @@ public:
     [[nodiscard]]bool isValidAppointment() const;
     [[nodiscard]]int MonthDays() const;
     void Show() const;
-    void nextDay();
-    void prevDay();
+    void NextDay();
+    void PrevDay();
     Datetime operator+(const int& days) const;
     Datetime operator-(const int& days) const;
 
+    friend istream& operator>>(istream&, Datetime&);
+    friend ostream& operator<<(ostream&, const Datetime&);
+    friend bool IsSameDay(const Datetime&, const Datetime&);
+    friend bool IsSameMonth(const Datetime&, const Datetime&);
+    friend bool IsSameYear(const Datetime&, const Datetime&);
+    friend bool IsBetween(const Datetime&,const Datetime&,const Datetime&);
 
     static Datetime Now();
 private:
     int minute, hour, day, month, year;
+    static tm ToTm(const Datetime& dt);
 };

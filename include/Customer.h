@@ -17,9 +17,14 @@ class Customer : public Member {
         const string& username="null",
         const string& password="null");
 
+        ~Customer() override;
+
         friend ostream& operator<<(ostream&, const Customer&);
         friend istream& operator>>(istream&, Customer&);
-        ~Customer() override;
+
+        bool Login(const string &, const string &) const override;
+        bool Logout() const override;
+
         void BookAppointment(const Datetime& date,const vector<Service>& serviceList) const;
         void CancelAppointment(const string& appointmentID) const;
         void ViewAppointment() const;

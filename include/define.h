@@ -37,10 +37,10 @@ vector<string> Split(const string&,const char& );
 string Replace(const string&,const char&,const char&);
 int ToNum(const string&);
 
-bool isDigit(const char& x);
-bool isNumber(const string&);
-bool isBetween(const int&, const int&, const int&);
-bool isBetween(const char&, const char&, const char&);
+bool IsDigit(const char& x);
+bool IsNumber(const string&);
+bool IsBetween(const int&, const int&, const int&);
+bool IsBetween(const char&, const char&, const char&);
 
 
 #endif //DEFINE_H

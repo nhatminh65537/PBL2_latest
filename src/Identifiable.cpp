@@ -1,4 +1,5 @@
 #include "Identifiable.h"
+#include <iostream>
 
 Identifiable::Identifiable(const string& ID)
 {
@@ -7,7 +8,7 @@ Identifiable::Identifiable(const string& ID)
 
 Identifiable::~Identifiable()
 {
-    //dtor
+
 }
 
 const string& Identifiable::GetID() const {

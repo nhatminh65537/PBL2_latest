@@ -1,15 +1,17 @@
 #include "Database.h"
-#include <Customer.h>
 #include <iostream>
 #include <fstream>
 #include <utility>
+#include "serviceDone.h"
+#include "Customer.h"
+#include "Stylist.h"
 
 using namespace std;
 
 template class Database<serviceDone>;
 template class Database<Appointment>;
 template class Database<Customer>;
-//template class Database<Member>;
+template class Database<Stylist>;
 
 template<typename T>
 Database<T>& Database<T>::Connect(const string& path) {
@@ -109,14 +111,14 @@ void Database<T>::Show() {
     if (!this->resultList.empty()) {
         if (this->resultList[0].GetID() != "null"){
             for (const auto& it : this->resultList) {
-                cout << it << '\n';
+                it.Show();
             }
         }
         this->resultList.clear();
         return;
     }
     for (const auto& it : this->_list){
-        cout << it.second << '\n';
+        it.second.Show();
     }
 }
 
@@ -228,11 +230,11 @@ vector<T> Database<T>::GetResults() {
 template<typename T>
 void Database<T>::index(const string& attribute) {
     if (indexMapList.contains(attribute)) {
-        cerr << "Attribute " << attribute << " already exists\n";
+        cerr << "Attribute " << attribute << " was already indexed\n";
         return;
     }
     if (!attributeMap.contains(attribute)) {
-        cerr << "Attribute " << attribute << " does not exists\n";
+        cerr << "Attribute " << attribute << " does not exist\n";
         return;
     }
     multimap<string,string>indexMap;
@@ -276,11 +278,20 @@ void Database<serviceDone>::initIndex() {
 
 template<>
 void Database<Appointment>::initIndex() {
-
+    index("stylistID");
+    index("customerID");
 }
 
 template<>
 void Database<Customer>::initIndex() {
+    index("firstName");
+    index("lastName");
+}
+
+template<>
+void Database<Stylist>::initIndex() {
+    index("firstName");
+    index("lastName");
 }
 
 template<>
@@ -313,7 +324,7 @@ void Database<serviceDone>::initMap(){
         obj.SetServiceID(newVal);
     };
     updateMap["feedback"] = [](serviceDone& obj, const string& newVal) {
-        obj.SetFeedBack(newVal); // Thêm 2 dấu " để đúng format của feedback.
+        obj.SetFeedBack(newVal);
     };
     updateMap["bookStatus"] = [](serviceDone& obj, const string& newVal) {
         obj.SetBookStatus(static_cast<bool>(ToNum(newVal)));
@@ -322,10 +333,74 @@ void Database<serviceDone>::initMap(){
 
 template<>
 void Database<Appointment>::initMap() {
-
+    attributeMap["ID"] = [](const Appointment& obj) -> string {
+        return obj.GetID();
+    };
+    attributeMap["stylistID"] = [](const Appointment& obj) -> string {
+        return obj.GetStylistID();
+    };
+    attributeMap["customerID"] = [](const Appointment& obj) -> string {
+        return obj.GetCustomerID();
+    };
+    updateMap["stylistID"] = [](Appointment& obj, const string& newVal) {
+        obj.SetStylistID(newVal);
+    };
+    updateMap["customerID"] = [](Appointment& obj, const string& newVal) {
+        obj.SetCustomerID(newVal);
+    };
+    updateMap["startTime"] = [](Appointment& obj, const string& newVal) {
+        vector<string> tokens = Split(newVal,'/'); // minmin/hourhour/dd/mm/yyyy
+        if (tokens.size()<5) throw runtime_error("Datetime error");
+        obj.SetStartTime(Datetime(ToNum(tokens[0]),ToNum(tokens[1]),ToNum(tokens[2]),ToNum(tokens[3]),ToNum(tokens[4])));
+    };
 }
 
 template<>
 void Database<Customer>::initMap() {
+    attributeMap["ID"] = [](const Customer& obj) -> string {
+        return obj.GetID();
+    };
+    attributeMap["firstName"] = [](const Customer& obj) -> string {
+        return obj.GetFirstName();
+    };
+    attributeMap["lastName"] = [](const Customer& obj) -> string {
+        return obj.GetLastName();
+    };
+    attributeMap["gender"] = [](const Customer& obj) -> string {
+        return (obj.GetGender() == 1 ? "Male" : "Female");
+    };
+    attributeMap["age"] = [](const Customer& obj) -> string {
+        return to_string(obj.GetAge());
+    };
+    attributeMap["username"] = [](const Customer& obj) -> string {
+        return obj.GetUserName();
+    };
+    attributeMap["password"] = [](const Customer& obj) -> string {
+        return "HASHED_PASSWORD_YOU_CANNOT_ACCESS";
+    };
+}
 
+template<>
+void Database<Stylist>::initMap() {
+    attributeMap["ID"] = [](const Stylist& obj) -> string {
+        return obj.GetID();
+    };
+    attributeMap["firstName"] = [](const Stylist& obj) -> string {
+        return obj.GetFirstName();
+    };
+    attributeMap["lastName"] = [](const Stylist& obj) -> string {
+        return obj.GetLastName();
+    };
+    attributeMap["gender"] = [](const Stylist& obj) -> string {
+        return (obj.GetGender() == 1 ? "Male" : "Female");
+    };
+    attributeMap["age"] = [](const Stylist& obj) -> string {
+        return to_string(obj.GetAge());
+    };
+    attributeMap["username"] = [](const Stylist& obj) -> string {
+        return obj.GetUserName();
+    };
+    attributeMap["password"] = [](const Stylist& obj) -> string {
+        return "HASHED_PASSWORD_YOU_CANNOT_ACCESS";
+    };
 }

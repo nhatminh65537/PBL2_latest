@@ -10,7 +10,7 @@ using namespace std;
 
 class Stylist : public Member {
 public:
-    Stylist(const string& ID,
+    Stylist(const string& ID="null",
             const string& firstName="null",
             const string& lastName="null",
             const bool& gender=false,const int& age=0,
@@ -18,8 +18,16 @@ public:
             const string& username="null",
             const string& password="null");
     ~Stylist() override;
-    void viewSchedule() const;
-    void viewScheduleByDay(const Datetime& dt=Datetime::Now()) const;
-    private:
+    bool Login(const string&,const string&) const override;
+    bool Logout() const override;
+
+    void ViewSchedule() const;
+    void ViewScheduleByDay(const Datetime& dt=Datetime::Now()) const;
+
+    friend ostream& operator<<(ostream&,const Stylist&);
+    friend istream& operator>>(istream&,Stylist&);
+
     vector<Appointment> schedule;
+    private:
+
 };

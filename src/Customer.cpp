@@ -18,7 +18,7 @@ void Customer::BookAppointment(const Datetime& date,const vector<Service>& servi
     string appointmentID = to_string(dbAppointments.Count()+1);
     if (appointmentID.size() < 6)  appointmentID = string(6 - appointmentID.size(),'0') + appointmentID;
 
-    dbAppointments.Insert(Appointment(appointmentID,date,this->ID,serviceList));
+    dbAppointments.Insert(Appointment(appointmentID,date,this->ID,"null",serviceList));
 }
 
 void Customer::CancelAppointment(const string &appointmentID) const {
@@ -37,6 +37,19 @@ void Customer::ViewAppointment() const{
         }
     }
 }
+
+bool Customer::Login(const string& username,const string& password) const {
+    Database<Customer>& db = Database<Customer>::Connect(CUSTOMERS_FILE);
+    if (db.IsExist("username",username)&&db.IsExist("password",password)) {
+        return true;
+    }
+    return false;
+}
+
+bool Customer::Logout() const {
+    return true;
+}
+
 
 ostream& operator<<(ostream& os, const Customer& obj) {
     os << obj.ID << ' ' << Replace(obj.firstName,' ','-')  << ' ' << Replace(obj.lastName,' ','-') << ' '

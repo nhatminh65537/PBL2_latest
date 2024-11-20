@@ -3,17 +3,14 @@
 #include <string>
 #include <map>
 #include <functional>
-#include "Customer.h"
-#include "serviceDone.h"
-#include "Appointment.h"
-#include "Member.h"
-#include "Identifiable.h"
+
+using namespace std;
 
 const string SERVICE_DONE_FILE = "../database/service-done.txt";
 const string APPOINTMENTS_FILE = "../database/appointments.txt";
 const string CUSTOMERS_FILE = "../database/customers.txt";
+const string STYLISTS_FILE = "../database/stylists.txt";
 
-using namespace std;
 
 template<typename T>
 class Database
