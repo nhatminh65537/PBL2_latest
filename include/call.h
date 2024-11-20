@@ -2,6 +2,7 @@
 #define CALL_H
 
 #define SERVICES_COUNT 7
+#define STYLISTS_COUNT 5 // exclude "None"
 
 #include <string>
 #include <vector>
@@ -46,4 +47,10 @@ std::string callGetCurrentUserUsername();
 void callUpdateCurrentUserName(std::string firstname, std::string lastname);
 void callUpdateCurrentPassword(std::string oldPassword, std::string newPassword, std::string confirmpassword);
 void callUpdateCurrentPersonInfo(std::string phonenumber, std::string age, int gender);
+
+std::vector<std::string> callGetCurrentUserHistoryList(int day, int month, int year, std::array<bool, SERVICES_COUNT> services, int status);
+
+void callGetAppointmentDetailByID(std::string id, std::string& status, std::string& date, std::string& time, std::vector<std::string>& services, 
+std::vector<std::string>& ,std::string& requirement);
+void callCancelAppointment(std::string id);
 #endif // CALL_H

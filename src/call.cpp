@@ -142,3 +142,47 @@ void callUpdateCurrentPersonInfo(std::string phonenumber, std::string age, int g
         throw ERROR_CODE::UPDATE_PROFILE_PERSONINFO_EMPTY;
     // update database
 }
+
+std::vector<std::string> callGetCurrentUserHistoryList(int day, int month, int year, std::array<bool, SERVICES_COUNT> services, int status)
+{
+    /*
+    day = 0 => all day
+    month = 0 => all month
+    year = 0 => all year
+    day = x (not 0)=> Day x in month
+    month = x (not 0)=> month x
+    year = x (not 0) => 2020 + x
+    services[0] = true => Service 0 (in enum) is selected
+    status = 0 => all status
+    status = 1 => done
+    status = 2 => pending
+    status = 3 => cancel
+    format list:
+    "<ID> <Status> <Date> <Time> <Services, ...>"
+    */
+    std::vector<std::string> historyList;
+    // example
+    historyList.push_back("001 Done    01/01/2021 08:00 Cat toc, Goi dau");
+    historyList.push_back("002 Pending 01/02/2022 09:00 Nhuom toc, Uon toc");
+    historyList.push_back("003 Cancel  31/01/2023 10:00 Tay toc");
+    return historyList;
+}
+
+void callGetAppointmentDetailByID(std::string id, std::string& status, std::string& date, std::string& time, std::vector<std::string>& services, std::vector<std::string>& stylists, std::string& requirement)
+{
+    // get appointment detail by id
+    // example
+    status = "Done";
+    date = "01/01/2021";
+    time = "08:00";
+    services = {"Cat toc", "Goi dau"};
+    stylists = {"Stylist 1", "Stylist 2"};
+    requirement = "None";
+}
+
+void callCancelAppointment(std::string id)
+{
+    // Huy lich co id
+    // example
+    
+}
