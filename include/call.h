@@ -3,6 +3,7 @@
 
 #define SERVICES_COUNT 7
 #define STYLISTS_COUNT 5 // exclude "None"
+#define REVERSE_NAME true
 
 #include <string>
 #include <vector>
@@ -29,7 +30,12 @@ namespace ERROR_CODE
     const int UPDATE_PROFILE_INVALID_PASSWORD = 252;
     const int UPDATE_PROFILE_PASSWORD_NOT_MATCH = 253;
     const int UPDATE_PROFILE_PERSONINFO_EMPTY = 254;
+
+    
 }
+
+std::string makeName(std::string firstname, std::string lastname, bool reverse = REVERSE_NAME);
+void breakName(std::string name, std::string& firstname, std::string& lastname, bool reverse = REVERSE_NAME);
 
 void callLogin(std::string username, std::string password, int role);
 void callRegister(std:: string firstname, std::string lastname, std::string username, std::string password, std::string confirmpassword, std::string phonenumber, std::string age, int gender, int role);
@@ -50,7 +56,17 @@ void callUpdateCurrentPersonInfo(std::string phonenumber, std::string age, int g
 
 std::vector<std::string> callGetCurrentUserHistoryList(int day, int month, int year, std::array<bool, SERVICES_COUNT> services, int status);
 
-void callGetAppointmentDetailByID(std::string id, std::string& status, std::string& date, std::string& time, std::vector<std::string>& services, 
+void callGetAppointmentDetailByID(std::string id, std::string& name, std::string& status, std::string& date, std::string& time, std::vector<std::string>& services, 
 std::vector<std::string>& ,std::string& requirement);
 void callCancelAppointment(std::string id);
+
+std::vector<std::string> callGetApointmentHistoryList(int day, int month, int year, int hour, int minute, std::array<bool, SERVICES_COUNT> services, int status, std::string customerID, int& containerAppointmentHistoryList);
+
+std::vector<std::string> callGetStylistList(std::array<bool, SERVICES_COUNT> services, int gender, std::string name, std::string age, int& count);
+void callGetStylistDetailByID(std::string id, std::string& name, std::string& gender, std::string& age, std::string& phone, std::vector<std::string>& service, std::string& username, std::string& password);
+void callDeleteStylist(std::string id);
+
+void callUpdateStylist (std::string id, std::string firstname, std::string lastname, int gender, std::string age, std::string phonenumber, std::string username, std::string password, std::array<bool, SERVICES_COUNT>);
+
+void callAddStylist(std::string firstname, std::string lastname, int gender, std::string age, std::string phonenumber, std::string username, std::string password, std::array<bool, SERVICES_COUNT> services);
 #endif // CALL_H

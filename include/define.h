@@ -49,5 +49,6 @@ bool isNumber(const string&);
 bool isBetween(const int&, const int&, const int&);
 bool isBetween(const char&, const char&, const char&);
 
+// Member *m;
 
 #endif //DEFINE_H

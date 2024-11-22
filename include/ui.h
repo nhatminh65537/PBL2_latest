@@ -14,5 +14,4 @@ void screenCustomer();
 void screenStylist();
 void screenAdmin();
 
-
 #endif // UI_H
