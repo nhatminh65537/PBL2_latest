@@ -9,12 +9,6 @@
 #include <vector>
 
 
-
-using namespace std;
-
-
-
-
 class Appointment;
 class Customer;
 class serviceDone;
@@ -30,15 +24,15 @@ enum Service{
     GoiDau
 };
 
-string ServiceToString(const Service&);
-Service StringToService(const string&);
+std::string ServiceToString(const Service&);
+Service StringToService(const std::string&);
 
-vector<string> Split(const string&,const char& );
-string Replace(const string&,const char&,const char&);
-int ToNum(const string&);
+std::vector<std::string> Split(const std::string&,const char& );
+std::string Replace(const std::string&,const char&,const char&);
+int ToNum(const std::string&);
 
 bool IsDigit(const char& x);
-bool IsNumber(const string&);
+bool IsNumber(const std::string&);
 bool IsBetween(const int&, const int&, const int&);
 bool IsBetween(const char&, const char&, const char&);
 

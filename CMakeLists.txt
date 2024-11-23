@@ -9,8 +9,6 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++20")
 
 
 include_directories(include)
-include_directories(FTXUI/include)
-
 
 include(FetchContent)
 set(FETCHCONTENT_UPDATES_DISCONNECTED ON)
@@ -30,8 +28,9 @@ add_executable(PBL2_Clion main.cpp
         src/define.cpp
         src/Stylist.cpp
         src/Datetime.cpp
-        #FTXUI/src/call.cpp 2 dòng này đang bị lỗi  undefined reference to `currentScreen'
-        #FTXUI/src/ui.cpp
+        include/ui.h
+        #src/call.cpp 2 dòng này đang bị lỗi  undefined reference to `currentScreen'
+        #src/ui.cpp
 )
 
 # Dùng các thành phần trong thư viện FTXUI

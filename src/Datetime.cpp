@@ -1,7 +1,5 @@
 #include "Datetime.h"
 
-#include <cassert>
-
 #include "define.h"
 
 #include <stdexcept>
@@ -118,17 +116,17 @@ Datetime Datetime::Now() {
     return Datetime(t->tm_min,t->tm_hour,t->tm_mday,t->tm_mon+1,t->tm_year+1900);
 }
 
-istream& operator>>(istream& is,Datetime& dt) {
-    string str;
+std::istream& operator>>(std::istream& is,Datetime& dt) {
+    std::string str;
     is >> str;
     if(str.empty()) return is;
-    vector<string> tokens = Split(str,'/'); // minmin/hourhour/dd/mm/yyyy
-    if (tokens.size()<5) throw runtime_error("Datetime error");
+    std::vector<std::string> tokens = Split(str,'/'); // minmin/hourhour/dd/mm/yyyy
+    if (tokens.size()<5) throw std::runtime_error("Datetime error");
     dt = Datetime(ToNum(tokens[0]),ToNum(tokens[1]),ToNum(tokens[2]),ToNum(tokens[3]),ToNum(tokens[4]));
     return is;
 }
 
-ostream& operator<<(ostream& os,const Datetime& dt) {
+std::ostream& operator<<(std::ostream& os,const Datetime& dt) {
     os << dt.minute << '/' << dt.hour << '/' << dt.day << '/' << dt.month << '/' << dt.year;
     return os;
 }
@@ -164,7 +162,7 @@ bool IsBetween(const Datetime& dt, const Datetime& start, const Datetime& end) {
     time_t timeEnd = std::mktime(&tmEnd);
     time_t timeCheck = std::mktime(&tmCheck);
 
-    if (timeEnd < timeStart) throw invalid_argument("End time must be greater than start time");
+    if (timeEnd < timeStart) throw std::invalid_argument("End time must be greater than start time");
 
     return timeCheck >= timeStart && timeCheck <= timeEnd;
 }

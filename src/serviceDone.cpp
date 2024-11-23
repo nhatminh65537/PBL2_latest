@@ -1,9 +1,7 @@
 #include "serviceDone.h"
 
-using namespace std;
-
-serviceDone::serviceDone(const string& ID, const string& customerID,const string& workerID,
-                         const string& serviceID,const string& feedback,const bool& isBooked){
+serviceDone::serviceDone(const std::string& ID, const std::string& customerID,const std::string& workerID,
+                         const std::string& serviceID,const std::string& feedback,const bool& isBooked){
     this->ID = ID;
     this->customerID = customerID;
     this->workerID = workerID;
@@ -16,31 +14,31 @@ serviceDone::~serviceDone(){
     //dtor
 }
 
-const string& serviceDone::GetCustomerID() const{
+const std::string& serviceDone::GetCustomerID() const{
     return this->customerID;
 }
-void serviceDone::SetCustomerID(const string& customerID){
+void serviceDone::SetCustomerID(const std::string& customerID){
     this->customerID = customerID;
 }
 
-const string& serviceDone::GetWorkerID() const{
+const std::string& serviceDone::GetWorkerID() const{
     return this->workerID;
 }
-void serviceDone::SetWorkerID(const string& workerID){
+void serviceDone::SetWorkerID(const std::string& workerID){
     this->workerID = workerID;
 }
-const string& serviceDone::GetServiceID() const{
+const std::string& serviceDone::GetServiceID() const{
     return this->serviceID;
 }
-void serviceDone::SetServiceID(const string& serviceID){
+void serviceDone::SetServiceID(const std::string& serviceID){
     this->serviceID = serviceID;
 }
 
-void serviceDone::SetFeedBack(const string& feedback){
+void serviceDone::SetFeedBack(const std::string& feedback){
     this->feedback = feedback;
 }
 
-const string& serviceDone::GetFeedBack() const{
+const std::string& serviceDone::GetFeedBack() const{
     return this->feedback;
 }
 
@@ -54,23 +52,23 @@ void serviceDone::SetBookStatus(const bool& status) {
 
 
 void serviceDone::Show() const {
-    cout << "ID: " << this->ID << '\n';
-    cout << "CustomerID: " << this->customerID << '\n';
-    cout << "WorkerID: " << this->workerID << '\n';
-    cout << "ServiceID: " << this->serviceID << '\n';
-    cout << "Feedback: " << this->feedback << '\n';
-    cout << "BookStatus: " << (this->bookStatus? "Yes" : "No") << '\n';
+    std::cout << "ID: " << this->ID << '\n';
+    std::cout << "CustomerID: " << this->customerID << '\n';
+    std::cout << "WorkerID: " << this->workerID << '\n';
+    std::cout << "ServiceID: " << this->serviceID << '\n';
+    std::cout << "Feedback: " << this->feedback << '\n';
+    std::cout << "BookStatus: " << (this->bookStatus? "Yes" : "No") << '\n';
 }
 
 
 // operator overloading
-ostream& operator<<(ostream& os, const serviceDone& obj){
+std::ostream& operator<<(std::ostream& os, const serviceDone& obj){
     os << obj.ID << " " << obj.customerID << " " << obj.workerID
         << " " << obj.serviceID << " \"" << obj.feedback
         << "\" " << obj.bookStatus;
     return os;
 }
-istream& operator>>(istream& is,serviceDone& obj){
+std::istream& operator>>(std::istream& is,serviceDone& obj){
     is >> obj.ID >> obj.customerID >> obj.workerID
         >> obj.serviceID;
     char quote;

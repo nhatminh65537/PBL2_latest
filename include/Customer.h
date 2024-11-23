@@ -5,28 +5,27 @@
 #include "Member.h"
 #include "Appointment.h"
 
-using namespace std;
 
 class Customer : public Member {
     public:
-        explicit Customer(const string& ID ="null",
-        const string& firstName="null",
-        const string& lastName="null",
+        explicit Customer(const std::string& ID ="null",
+        const std::string& firstName="null",
+        const std::string& lastName="null",
         const bool& gender=false,const int& age=0,
-        const string& phoneNumber="null",
-        const string& username="null",
-        const string& password="null");
+        const std::string& phoneNumber="null",
+        const std::string& username="null",
+        const std::string& password="null");
 
         ~Customer() override;
 
-        friend ostream& operator<<(ostream&, const Customer&);
-        friend istream& operator>>(istream&, Customer&);
+        friend std::ostream& operator<<(std::ostream&, const Customer&);
+        friend std::istream& operator>>(std::istream&, Customer&);
 
-        bool Login(const string &, const string &) const override;
+        bool Login(const std::string &, const std::string &) const override;
         bool Logout() const override;
 
-        void BookAppointment(const Datetime& date,const vector<Service>& serviceList) const;
-        void CancelAppointment(const string& appointmentID) const;
+        void BookAppointment(const Datetime& date,const std::vector<Service>& serviceList) const;
+        void CancelAppointment(const std::string& appointmentID) const;
         void ViewAppointment() const;
     private:
 };

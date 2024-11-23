@@ -1,8 +1,6 @@
 #include <ctime>
 #include <iostream>
 
-using namespace std;
-
 class Datetime {
 public:
     explicit Datetime(const int& = 1, const int& = 1, const int& = 1, const int& = 1, const int& = 1900);
@@ -27,8 +25,8 @@ public:
     Datetime operator+(const int& days) const;
     Datetime operator-(const int& days) const;
 
-    friend istream& operator>>(istream&, Datetime&);
-    friend ostream& operator<<(ostream&, const Datetime&);
+    friend std::istream& operator>>(std::istream&, Datetime&);
+    friend std::ostream& operator<<(std::ostream&, const Datetime&);
     friend bool IsSameDay(const Datetime&, const Datetime&);
     friend bool IsSameMonth(const Datetime&, const Datetime&);
     friend bool IsSameYear(const Datetime&, const Datetime&);

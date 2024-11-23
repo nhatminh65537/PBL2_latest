@@ -10,9 +10,9 @@
 
 Database<Customer>& dbCustomer = Database<Customer>::Connect(CUSTOMERS_FILE);
 
-Stylist::Stylist(const string &ID, const string &firstName, const string &lastName,
-    const bool &gender, const int &age, const string &phoneNumber, const string &username,
-    const string &password)
+Stylist::Stylist(const std::string &ID, const std::string &firstName, const std::string &lastName,
+    const bool &gender, const int &age, const std::string &phoneNumber, const std::string &username,
+    const std::string &password)
     : Member(ID,firstName,lastName,gender,age,phoneNumber,username,password) {
 }
 
@@ -21,7 +21,7 @@ Stylist::~Stylist() {
 }
 
 void Stylist::ViewScheduleByDay(const Datetime& dt) const {
-    cout << "Schedule on: " << dt.GetDay() << "/" << dt.GetMonth() << "/" << dt.GetYear() << '\n';
+    std::cout << "Schedule on: " << dt.GetDay() << "/" << dt.GetMonth() << "/" << dt.GetYear() << '\n';
     bool hasAppointments = false;
 
     for (const auto& appointment : schedule) {
@@ -33,12 +33,12 @@ void Stylist::ViewScheduleByDay(const Datetime& dt) const {
             if (!dbCustomer.IsExist("ID", appointment.GetCustomerID())) continue;
             hasAppointments = true;
             Customer customer = dbCustomer.Get(appointment.GetCustomerID());
-            cout << "Schedule with: " << customer.GetFullName() << " (" << customer.GetID() << ")\n";
-            cout << "Time: " << appointment.GetStartTime().GetHour() << ":" << appointment.GetStartTime().GetMinute() << "\n";
+            std::cout << "Schedule with: " << customer.GetFullName() << " (" << customer.GetID() << ")\n";
+            std::cout << "Time: " << appointment.GetStartTime().GetHour() << ":" << appointment.GetStartTime().GetMinute() << "\n";
         }
     }
     if(!hasAppointments) {
-        cout << "No Appointment!\n";
+        std::cout << "No Appointment!\n";
     }
 }
 
@@ -48,7 +48,7 @@ void Stylist::ViewSchedule() const {
 
 
 
-bool Stylist::Login(const string& username,const string& password) const {
+bool Stylist::Login(const std::string& username,const std::string& password) const {
     Database<Stylist>& db = Database<Stylist>::Connect(STYLISTS_FILE);
     if (db.IsExist("username",username)&&db.IsExist("password",password)) {
         return true;
@@ -60,17 +60,17 @@ bool Stylist::Logout() const {
     return true;
 }
 
-ostream& operator<<(ostream& os,const Stylist& obj) {
+std::ostream& operator<<(std::ostream& os,const Stylist& obj) {
     os << obj.ID << ' ' << Replace(obj.firstName,' ','-')  << ' ' << Replace(obj.lastName,' ','-') << ' '
         << obj.username << ' ' << obj.gender << ' '
         << obj.age << ' ' << obj.phoneNumber;
     return os;
 }
 
-istream& operator>>(istream& is,Stylist& obj) {
+std::istream& operator>>(std::istream& is,Stylist& obj) {
     is >> obj.ID >> obj.firstName >> obj.lastName >> obj.username >> obj.gender >> obj.age >> obj.phoneNumber;
     Database<Appointment>& db = Database<Appointment>::Connect(APPOINTMENTS_FILE);
-    vector<Appointment> vt = db.Query("stylistID",obj.GetID()).GetResults();
+    std::vector<Appointment> vt = db.Query("stylistID",obj.GetID()).GetResults();
     for (const Appointment& apt : vt) {
         obj.schedule.push_back(apt);
     }
