@@ -24,6 +24,7 @@ class Database
         void Insert(const T& Object);
         void Delete(const string& ID);
         void Show();
+    
         [[nodiscard]] int Count() const;
         [[nodiscard]] bool IsExist(const string& attr,const string& val) const;
         [[nodiscard]] bool IsEmpty() const;

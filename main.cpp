@@ -17,22 +17,23 @@ void test() {
     // for (const serviceDone &v : dt) v.Show();
     //
     // cout << "==========================\n";
-    // Database<Stylist>& db = Database<Stylist>::Connect(STYLISTS_FILE);
-    // Stylist a = db.Get("123");
-    // a.ViewScheduleByDay();
+    Database<Stylist>& db = Database<Stylist>::Connect(STYLISTS_FILE);
+    Stylist a = db.Get("123");
+    a.ViewScheduleByDay();
     // cout << "==========================\n";
     // Database<Appointment>& hehe = Database<Appointment>::Connect(APPOINTMENTS_FILE);
+    // //hehe.Insert();
     // hehe.Show();
 
-    Datetime a = Datetime::Now();
-    a.NextDay();
-    Datetime b = Datetime::Now();
-    b.PrevDay();
-    Datetime c = Datetime::Now();
-    //b.NextDay();
-    //c.PrevDay();
-    cout << a << '\n' << b << '\n' << c << '\n';
-    cout << IsBetween(a,c,b);
+    // Datetime a = Datetime::Now();
+    // a.NextDay();
+    // Datetime b = Datetime::Now();
+    // b.PrevDay();
+    // Datetime c = Datetime::Now();
+    // //b.NextDay();
+    // //c.PrevDay();
+    // cout << a << '\n' << b << '\n' << c << '\n';
+    // cout << IsBetween(a,c,b);
 }
 
 
