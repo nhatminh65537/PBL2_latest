@@ -7,9 +7,8 @@
 
 void test() {
     serviceDone a;
-    Database<serviceDone>& dbServiceDone = Database<serviceDone>::Connect(SERVICE_DONE_FILE);
-    dbServiceDone.Insert(a);
-    dbServiceDone.Show();
+    std::cout << a << '\n';
+    a.Show();
     //dbServiceDone.Query("rating","0").Show();
     //std::vector<serviceDone> vt = dbServiceDone.Query("rating","hehe").GetResults();
     // for (const serviceDone &v : vt) v.Show();
@@ -41,6 +40,7 @@ void test() {
     // //c.PrevDay();
     // std::cout << a << '\n' << b << '\n' << c << '\n';
     // std::cout << IsBetween(a,b,c);
+
 }
 
 

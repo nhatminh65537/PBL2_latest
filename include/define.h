@@ -24,13 +24,21 @@ enum Service{
     GoiDau
 };
 
+enum Filter {
+    None,
+    CaseSensitive
+};
+
 std::string ServiceToString(const int&);
 Service StringToService(const std::string&);
 
 std::vector<std::string> Split(const std::string&,const char& );
 std::string Replace(const std::string&,const char&,const char&);
 int ToNum(const std::string&);
-
+char ToLower(const char&);
+char ToUpper(const char&);
+std::string ToLower(std::string);
+std::string ToUpper(std::string);
 bool IsDigit(const char& x);
 bool IsNumber(const std::string&);
 bool IsBetween(const int&, const int&, const int&);

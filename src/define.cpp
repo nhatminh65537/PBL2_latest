@@ -85,3 +85,39 @@ bool IsNumber(const std::string& s) {
     return true;
 }
 
+char ToLower(const char& ch) {
+    if (IsBetween(ch, 'A', 'Z')) return ch - 'A' + 'a';
+    return ch;
+}
+char ToUpper(const char& ch) {
+    if (IsBetween(ch, 'a', 'z')) return ch - 'a' + 'A';
+    return ch;
+}
+std::string ToLower(std::string s) {
+    for (char& x : s) x = ToLower(x);
+    return s;
+}
+std::string ToUpper(std::string s) {
+    for (char& x : s) x = ToUpper(x);
+    return s;
+}
+bool Match(std::string parentStr,std::string str,Filter f) { // Check if str exists in parentStr
+    if(f != Filter::CaseSensitive) {
+        parentStr = ToLower(parentStr);
+        str = ToLower(str);
+    }
+    //DucLong
+    //Long
+    for (int i=0;i <= parentStr.size() - str.size();i++) {
+        bool ok = true;
+        for (int j=0;j <= str.size();j++) {
+            if (parentStr[i+j] != str[j]) {
+                ok = false;
+                break;
+            }
+        }
+        if (ok) return true;
+    }
+    return false;
+}
+
