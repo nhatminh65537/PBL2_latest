@@ -8,8 +8,8 @@ serviceDone::serviceDone(const string& ID, const string& customerID,const string
     this->customerID = customerID;
     this->workerID = workerID;
     this->serviceID = serviceID;
-    this->feedback = '"'+ feedback + '"'; // Thêm cặp dấu " để đúng với format của feedback. "content"
-    this->isBooked = isBooked;
+    this->feedback = feedback; // Thêm cặp dấu " để đúng với format của feedback. "content"
+    this->bookStatus = isBooked;
 }
 
 serviceDone::~serviceDone(){
@@ -40,18 +40,34 @@ void serviceDone::SetFeedBack(const string& feedback){
     this->feedback = feedback;
 }
 
-void serviceDone::Show() const {
-}
-
 const string& serviceDone::GetFeedBack() const{
     return this->feedback;
 }
 
+const bool& serviceDone::GetBookStatus() const {
+    return this->bookStatus;
+}
+
+void serviceDone::SetBookStatus(const bool& status) {
+    this->bookStatus = status;
+}
+
+
+void serviceDone::Show() const {
+    cout << "ID: " << this->ID << '\n';
+    cout << "CustomerID: " << this->customerID << '\n';
+    cout << "WorkerID: " << this->workerID << '\n';
+    cout << "ServiceID: " << this->serviceID << '\n';
+    cout << "Feedback: " << this->feedback << '\n';
+    cout << "BookStatus: " << (this->bookStatus? "Yes" : "No") << '\n';
+}
+
+
 // operator overloading
 ostream& operator<<(ostream& os, const serviceDone& obj){
     os << obj.ID << " " << obj.customerID << " " << obj.workerID
-        << " " << obj.serviceID << " " << obj.feedback
-        << " " << obj.isBooked;
+        << " " << obj.serviceID << " \"" << obj.feedback
+        << "\" " << obj.bookStatus;
     return os;
 }
 istream& operator>>(istream& is,serviceDone& obj){
@@ -60,14 +76,12 @@ istream& operator>>(istream& is,serviceDone& obj){
     char quote;
     is>>quote;
     getline(is,obj.feedback,'"');
-    obj.feedback = "\"" + obj.feedback + "\"";
-    is >> obj.isBooked;
+    obj.feedback =  obj.feedback;
+    is >> obj.bookStatus;
     return is;
 }
 
 bool operator<(const serviceDone& a,const serviceDone& b){
-    string s = a.ID;
-    string r = b.ID;
-    if (s.size() == r.size())   return s<r;
-    return s.size()<r.size();
+    if (a.ID.size() == b.ID.size())   return a.ID<b.ID;
+    return a.ID.size()<b.ID.size();
 }

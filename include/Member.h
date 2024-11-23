@@ -1,14 +1,13 @@
 #ifndef MEMBER_H
 #define MEMBER_H
-#include <iostream>
 #include <string>
-#include "define.h"
+#include "Identifiable.h"
 
 using namespace std;
 
 class Member : public Identifiable {
     public:
-        explicit Member(const string& ID,
+        explicit Member(const string& ID="null",
             const string& firstName="null",
             const string& lastName="null",
             const bool& gender=false,const int& age=0,
@@ -34,7 +33,14 @@ class Member : public Identifiable {
         void SetUserName(const string& val);
         [[nodiscard]] string GetPassword() const;
         void SetPassword(const string& val);
+
+        [[nodiscard]] virtual bool Login(const string&,const string&) const = 0;
+        [[nodiscard]] virtual bool Logout() const = 0;
         void Show() const override;
+
+        friend ostream& operator<<(ostream& os, const Member& obj);
+        friend istream& operator>>(istream& is,Member& obj);
+
     protected:
         string firstName;
         string lastName;

@@ -1,20 +1,26 @@
 #include "Database.h"
-
-#include <Customer.h>
-
-#include "serviceDone.h"
-#include "Appointment.h"
 #include <iostream>
 #include <fstream>
+#include <utility>
+#include "serviceDone.h"
+#include "Customer.h"
+#include "Stylist.h"
 
 using namespace std;
 
 template class Database<serviceDone>;
 template class Database<Appointment>;
 template class Database<Customer>;
+template class Database<Stylist>;
 
 template<typename T>
-Database<T>::Database(const string& path) : path(path) {
+Database<T>& Database<T>::Connect(const string& path) {
+    static Database<T> database(path);
+    return database;
+}
+
+template<typename T>
+Database<T>::Database(const string&  path) : path(path) {
     loadData();
     initMap();
     initIndex();
@@ -100,9 +106,19 @@ void Database<T>::Delete(const string& id){
 }
 
 template<typename T>
-void Database<T>::Show() const {
+void Database<T>::Show() {
+
+    if (!this->resultList.empty()) {
+        if (this->resultList[0].GetID() != "null"){
+            for (const auto& it : this->resultList) {
+                it.Show();
+            }
+        }
+        this->resultList.clear();
+        return;
+    }
     for (const auto& it : this->_list){
-        cout << it.second << '\n';
+        it.second.Show();
     }
 }
 
@@ -128,8 +144,22 @@ int Database<T>::Count() const{
 }
 
 template<typename T>
-bool Database<T>::IsExist(const string &ID) const {
-    return this->_list.contains(ID);
+bool Database<T>::IsExist(const string& attr, const string &val) const {
+    if (!this->attributeMap.contains(attr)) { // class T does not have this attribute
+        cerr << "Attribute " << attr << " does not exist\n";
+        exit(1);
+    }
+    if (this->indexMapList.contains(attr)) { // If this attribute is indexed
+        return this->indexMapList.at(attr).contains(val); // There exists a value <val> of attribute <attr>
+    }
+    else {
+        for (const auto& [ID,obj] : this->_list) {
+            if(this->attributeMap.at(attr)(obj) == val) {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 template<typename T>
@@ -140,10 +170,59 @@ bool Database<T>::IsEmpty() const {
 template<typename T>
 T Database<T>::Get(const string &ID) const {
     if (!this->_list.contains(ID)) {
-        cerr << ID << " does not exists\n";
+        cerr << ID << " does not exist\n";
         exit(1);
     }
     return this->_list.at(ID);
+}
+
+template <typename T>
+Database<T>& Database<T>::Query(const string& attr,const string& val) {
+    if (!this->attributeMap.contains(attr)) { // class T does not have this attribute
+        cerr << "Attribute " << attr << " does not exist\n";
+        exit(1);
+    }
+
+    vector<T> res;
+    if (!this->resultList.empty()) {
+        for (const auto& obj : this->resultList) {
+            if (this->attributeMap.at(attr)(obj) == val) {
+                res.push_back(obj);
+            }
+        }
+    }
+
+    else {
+        if (this->indexMapList.contains(attr)) { // If this attribute is indexed
+            auto range = this->indexMapList[attr].equal_range(val);
+            for (auto it = range.first; it != range.second;++it) {
+                res.push_back(this->_list[it->second]);
+            }
+        }
+        else {
+            for (const auto& [ID,obj] : this->_list) {
+                if(this->attributeMap.at(attr)(obj) == val) {
+                    res.push_back(obj);
+                }
+            }
+        }
+    }
+    if (res.empty()) {
+        T obj;
+        res.push_back(obj);
+    }
+    this->resultList = move(res); // Hàm "move" là chuyển quyền sở hữu data từ res qua this->resultList  => Tăng hiệu suất
+    return *this;
+}
+
+template<typename T>
+vector<T> Database<T>::GetResults() {
+    vector<T> res = this->resultList;
+    if (res.empty()) {
+        for (const auto& [ID,obj] : this->_list) res.push_back(obj);
+    }
+    this->resultList.clear();
+    return res;
 }
 
 // Private method
@@ -151,11 +230,11 @@ T Database<T>::Get(const string &ID) const {
 template<typename T>
 void Database<T>::index(const string& attribute) {
     if (indexMapList.contains(attribute)) {
-        cerr << "Attribute " << attribute << " already exists\n";
+        cerr << "Attribute " << attribute << " was already indexed\n";
         return;
     }
     if (!attributeMap.contains(attribute)) {
-        cerr << "Attribute " << attribute << " does not exists\n";
+        cerr << "Attribute " << attribute << " does not exist\n";
         return;
     }
     multimap<string,string>indexMap;
@@ -199,15 +278,27 @@ void Database<serviceDone>::initIndex() {
 
 template<>
 void Database<Appointment>::initIndex() {
-
+    index("stylistID");
+    index("customerID");
 }
 
 template<>
 void Database<Customer>::initIndex() {
+    index("firstName");
+    index("lastName");
+}
+
+template<>
+void Database<Stylist>::initIndex() {
+    index("firstName");
+    index("lastName");
 }
 
 template<>
 void Database<serviceDone>::initMap(){
+    attributeMap["ID"] = [](const serviceDone& obj) -> string {
+        return obj.GetID();
+    };
     attributeMap["customerID"] = [](const serviceDone& obj) -> string {
         return obj.GetCustomerID();
     };
@@ -216,6 +307,12 @@ void Database<serviceDone>::initMap(){
     };
     attributeMap["serviceID"] = [](const serviceDone& obj) -> string {
         return obj.GetServiceID();
+    };
+    attributeMap["feedback"] = [](const serviceDone& obj) -> string {
+        return obj.GetFeedBack();
+    };
+    attributeMap["bookStatus"] = [](const serviceDone& obj) -> string {
+        return to_string(obj.GetBookStatus());
     };
     updateMap["customerID"] = [](serviceDone& obj, const string& newVal) {
         obj.SetCustomerID(newVal);
@@ -227,16 +324,83 @@ void Database<serviceDone>::initMap(){
         obj.SetServiceID(newVal);
     };
     updateMap["feedback"] = [](serviceDone& obj, const string& newVal) {
-        obj.SetFeedBack('"' + newVal + '"'); // Thêm 2 dấu " để đúng format của feedback.
+        obj.SetFeedBack(newVal);
+    };
+    updateMap["bookStatus"] = [](serviceDone& obj, const string& newVal) {
+        obj.SetBookStatus(static_cast<bool>(ToNum(newVal)));
     };
 }
 
 template<>
 void Database<Appointment>::initMap() {
-
+    attributeMap["ID"] = [](const Appointment& obj) -> string {
+        return obj.GetID();
+    };
+    attributeMap["stylistID"] = [](const Appointment& obj) -> string {
+        return obj.GetStylistID();
+    };
+    attributeMap["customerID"] = [](const Appointment& obj) -> string {
+        return obj.GetCustomerID();
+    };
+    updateMap["stylistID"] = [](Appointment& obj, const string& newVal) {
+        obj.SetStylistID(newVal);
+    };
+    updateMap["customerID"] = [](Appointment& obj, const string& newVal) {
+        obj.SetCustomerID(newVal);
+    };
+    updateMap["startTime"] = [](Appointment& obj, const string& newVal) {
+        vector<string> tokens = Split(newVal,'/'); // minmin/hourhour/dd/mm/yyyy
+        if (tokens.size()<5) throw runtime_error("Datetime error");
+        obj.SetStartTime(Datetime(ToNum(tokens[0]),ToNum(tokens[1]),ToNum(tokens[2]),ToNum(tokens[3]),ToNum(tokens[4])));
+    };
 }
 
 template<>
 void Database<Customer>::initMap() {
+    attributeMap["ID"] = [](const Customer& obj) -> string {
+        return obj.GetID();
+    };
+    attributeMap["firstName"] = [](const Customer& obj) -> string {
+        return obj.GetFirstName();
+    };
+    attributeMap["lastName"] = [](const Customer& obj) -> string {
+        return obj.GetLastName();
+    };
+    attributeMap["gender"] = [](const Customer& obj) -> string {
+        return (obj.GetGender() == 1 ? "Male" : "Female");
+    };
+    attributeMap["age"] = [](const Customer& obj) -> string {
+        return to_string(obj.GetAge());
+    };
+    attributeMap["username"] = [](const Customer& obj) -> string {
+        return obj.GetUserName();
+    };
+    attributeMap["password"] = [](const Customer& obj) -> string {
+        return "HASHED_PASSWORD_YOU_CANNOT_ACCESS";
+    };
+}
 
+template<>
+void Database<Stylist>::initMap() {
+    attributeMap["ID"] = [](const Stylist& obj) -> string {
+        return obj.GetID();
+    };
+    attributeMap["firstName"] = [](const Stylist& obj) -> string {
+        return obj.GetFirstName();
+    };
+    attributeMap["lastName"] = [](const Stylist& obj) -> string {
+        return obj.GetLastName();
+    };
+    attributeMap["gender"] = [](const Stylist& obj) -> string {
+        return (obj.GetGender() == 1 ? "Male" : "Female");
+    };
+    attributeMap["age"] = [](const Stylist& obj) -> string {
+        return to_string(obj.GetAge());
+    };
+    attributeMap["username"] = [](const Stylist& obj) -> string {
+        return obj.GetUserName();
+    };
+    attributeMap["password"] = [](const Stylist& obj) -> string {
+        return "HASHED_PASSWORD_YOU_CANNOT_ACCESS";
+    };
 }

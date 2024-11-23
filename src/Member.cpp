@@ -1,4 +1,8 @@
+#include <iostream>
 #include "Member.h"
+#include "define.h"
+
+using namespace std;
 
 Member::Member(const string& ID,const string &firstName, const string &lastName, const bool &gender, const int &age,
     const string &phoneNumber, const string &username, const string &password) {
@@ -12,9 +16,8 @@ Member::Member(const string& ID,const string &firstName, const string &lastName,
     this->password = password;
 }
 
-Member::~Member()
-{
-    //dtor
+Member::~Member(){
+
 }
 
 string Member::GetFirstName() const {
@@ -86,3 +89,16 @@ void Member::Show() const {
 string Member::GetFullName() const {
     return this->GetFirstName() + ' ' + this->GetLastName();
 }
+
+ostream& operator<<(ostream& os, const Member& obj) {
+    os << obj.ID << ' ' << Replace(obj.firstName,' ','-')  << ' ' << Replace(obj.lastName,' ','-') << ' '
+    << obj.username << ' ' << obj.gender << ' '
+    << obj.age << ' ' << obj.phoneNumber;
+    return os;
+}
+
+istream& operator>>(istream& is, Member& obj) {
+    is >> obj.ID >> obj.firstName >> obj.lastName >> obj.username >> obj.gender >> obj.age >> obj.phoneNumber;
+    return is;
+}
+

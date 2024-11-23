@@ -20,6 +20,8 @@ class serviceDone : public Identifiable
         void SetServiceID(const string&);
         [[nodiscard]] const string& GetFeedBack() const;
         void SetFeedBack(const string&);
+        [[nodiscard]] const bool& GetBookStatus() const;
+        void SetBookStatus(const bool&);
         void Show() const override;
         friend ostream& operator<<(ostream& os,const serviceDone& obj);
         friend istream& operator>>(istream& is,serviceDone& obj);
@@ -29,7 +31,7 @@ class serviceDone : public Identifiable
         string workerID;
         string serviceID;
         string feedback;
-        bool isBooked;
+        bool bookStatus;
         //Datetime time;
 };
 
