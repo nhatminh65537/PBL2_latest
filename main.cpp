@@ -1,8 +1,10 @@
 #include <iostream>
+
 #include "Database.h"
 #include "serviceDone.h"
 #include "Member.h"
 #include "Customer.h"
+
 #include "Stylist.h"
 using namespace std;
 
@@ -33,7 +35,6 @@ void test() {
     //c.PrevDay();
     cout << a << '\n' << b << '\n' << c << '\n';
     cout << IsBetween(a,c,b);
-}
 
 
 int main() {
