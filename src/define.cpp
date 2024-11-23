@@ -5,7 +5,7 @@
 #include "stdexcept"
 
 
-std::string ServiceToString(const Service& service) {
+std::string ServiceToString(const int& service) {
     switch (service) {
         case CatToc: return "Cat toc";
         case NhuomToc: return "Nhuom toc";

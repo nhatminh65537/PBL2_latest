@@ -3,23 +3,32 @@
 #include <string>
 #include <iostream>
 #include "Identifiable.h"
+#include "Datetime.h"
 
 class serviceDone : public Identifiable
 {
     public:
         serviceDone(const std::string& ID="null", const std::string& customerID="null",const std::string& workerID="null",
-                    const std::string& serviceID="null",const std::string& feedback="\"null\"",const bool& isBooked=false);
+                    const int& serviceID=0,const int& rating=0,const bool& bookStatus=false,const Datetime& dt=Datetime::Now());
         ~serviceDone() override;
-        [[nodiscard]] const std::string& GetCustomerID() const;
+        [[nodiscard]] const std::string GetCustomerID() const;
         void SetCustomerID(const std::string&);
-        [[nodiscard]] const std::string& GetWorkerID() const;
+
+        [[nodiscard]] const std::string GetWorkerID() const;
         void SetWorkerID(const std::string&);
-        [[nodiscard]] const std::string& GetServiceID() const;
-        void SetServiceID(const std::string&);
-        [[nodiscard]] const std::string& GetFeedBack() const;
-        void SetFeedBack(const std::string&);
-        [[nodiscard]] const bool& GetBookStatus() const;
+
+        [[nodiscard]] const int GetServiceID() const;
+        void SetServiceID(const int&);
+
+        [[nodiscard]] const int GetRating() const;
+        void SetRating(const int&);
+
+        [[nodiscard]] const bool GetBookStatus() const;
         void SetBookStatus(const bool&);
+
+        [[nodiscard]] const Datetime GetTime() const;
+        void SetTime(const Datetime&);
+    [[nodiscard]] const Datetime GetDatetime() const;
         void Show() const override;
         friend std::ostream& operator<<(std::ostream& os,const serviceDone& obj);
         friend std::istream& operator>>(std::istream& is,serviceDone& obj);
@@ -27,10 +36,10 @@ class serviceDone : public Identifiable
     private:
         std::string customerID;
         std::string workerID;
-        std::string serviceID;
-        std::string feedback;
+        int serviceID;
+        int rating;
         bool bookStatus;
-        //Datetime time;
+        Datetime time;
 };
 
 #endif // SERVICEDONE_H

@@ -304,10 +304,10 @@ void Database<serviceDone>::initMap(){
         return obj.GetWorkerID();
     };
     attributeMap["serviceID"] = [](const serviceDone& obj) -> std::string {
-        return obj.GetServiceID();
+        return std::to_string(obj.GetServiceID());
     };
-    attributeMap["feedback"] = [](const serviceDone& obj) -> std::string {
-        return obj.GetFeedBack();
+    attributeMap["rating"] = [](const serviceDone& obj) -> std::string {
+        return std::to_string(obj.GetRating());
     };
     attributeMap["bookStatus"] = [](const serviceDone& obj) -> std::string {
         return std::to_string(obj.GetBookStatus());
@@ -319,10 +319,10 @@ void Database<serviceDone>::initMap(){
         obj.SetWorkerID(newVal);
     };
     updateMap["serviceID"] = [](serviceDone& obj, const std::string& newVal) {
-        obj.SetServiceID(newVal);
+        obj.SetServiceID(ToNum(newVal));
     };
-    updateMap["feedback"] = [](serviceDone& obj, const std::string& newVal) {
-        obj.SetFeedBack(newVal);
+    updateMap["rating"] = [](serviceDone& obj, const std::string& newVal) {
+        obj.SetRating(ToNum(newVal));
     };
     updateMap["bookStatus"] = [](serviceDone& obj, const std::string& newVal) {
         obj.SetBookStatus(static_cast<bool>(ToNum(newVal)));

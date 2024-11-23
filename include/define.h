@@ -14,7 +14,7 @@ class Customer;
 class serviceDone;
 
 enum Service{
-    NullRole,
+    NullService,
     CatToc,
     NhuomToc,
     TayToc,
@@ -24,7 +24,7 @@ enum Service{
     GoiDau
 };
 
-std::string ServiceToString(const Service&);
+std::string ServiceToString(const int&);
 Service StringToService(const std::string&);
 
 std::vector<std::string> Split(const std::string&,const char& );

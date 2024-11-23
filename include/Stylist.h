@@ -1,6 +1,8 @@
 //
 // Created by LONG on 11/8/2024.
 //
+#ifndef Stylist_h
+#define Stylist_h
 #include <define.h>
 #include "Member.h"
 #include "Appointment.h"
@@ -29,3 +31,4 @@ public:
     private:
 
 };
+#endif

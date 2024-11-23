@@ -1,3 +1,6 @@
+#ifndef DATETIME_H
+#define DATETIME_H
+
 #include <ctime>
 #include <iostream>
 
@@ -37,3 +40,5 @@ private:
     int minute, hour, day, month, year;
     static tm ToTm(const Datetime& dt);
 };
+
+#endif // DATETIME_H
