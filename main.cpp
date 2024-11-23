@@ -1,8 +1,10 @@
 #include <iostream>
+
 #include "Database.h"
 #include "serviceDone.h"
 #include "Member.h"
 #include "Customer.h"
+
 #include "Stylist.h"
 using namespace std;
 
@@ -25,6 +27,7 @@ void test() {
     // //hehe.Insert();
     // hehe.Show();
 
+<<<<<<< HEAD
     // Datetime a = Datetime::Now();
     // a.NextDay();
     // Datetime b = Datetime::Now();
@@ -35,6 +38,17 @@ void test() {
     // cout << a << '\n' << b << '\n' << c << '\n';
     // cout << IsBetween(a,c,b);
 }
+=======
+    Datetime a = Datetime::Now();
+    a.NextDay();
+    Datetime b = Datetime::Now();
+    b.PrevDay();
+    Datetime c = Datetime::Now();
+    //b.NextDay();
+    //c.PrevDay();
+    cout << a << '\n' << b << '\n' << c << '\n';
+    cout << IsBetween(a,c,b);
+>>>>>>> e3a376d0ded253e472edccc15363f6cf28f01d47
 
 
 int main() {
