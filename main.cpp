@@ -40,7 +40,7 @@ void test() {
 
 #include "ui.h"
 
-std::function<void()> currentScreen = screenWelcome;
+std::function<void()> currentScreen = screenAdmin;
 void test() {
     while(currentScreen != nullptr) {
         currentScreen();

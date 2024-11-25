@@ -12,15 +12,22 @@
 
 using namespace ftxui;
 
+
 void screenAdmin()
 {
+    // function variables
+    std::string currentUserID = callGetCurrentUserID();
+    std::vector<std::string> services;
+    int serviceCount = callGetServiceList(services);
+    std::vector <std::string> listGenders = {"Male", "Female"};
+
     // test stuff
     std::string name = "John Doe";
     std::ofstream log;
     log.open("log.txt");
 
     // customer screen
-    auto screen = ScreenInteractive::FixedSize(120, 30);
+    auto screen = ScreenInteractive::FixedSize(SCREEN_WIDTH, SCREEN_HEIGHT);
     int exit = 0;
 
     #pragma region 
@@ -100,17 +107,18 @@ void screenAdmin()
     });
 
     // Appointment tab
-    #pragma region
+    #pragma region Appointment
 
-    std::vector<std::string> listAppointmentHistory;
-    int countAppointmentHistory = 0;
+    std::vector<std::string> listAppointmentID;
+    int countAppointment = 0;
+
     // Filter
     int filterDay;
     int filterMonth;
     int filterYear;
     int filterHour;
     int filterMinute;
-    std::array<bool, SERVICES_COUNT> chosenFilterServices;
+    bool *filterServices = new bool[serviceCount];
     int status;
     std::string customerID;
     std::vector<std::string> filterDays = {"--", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31"};
@@ -119,15 +127,8 @@ void screenAdmin()
     std::vector<std::string> filterHours = {"--", "00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23"};
     std::vector<std::string> filterMinutes = {"--", "00", "15", "30", "45"};
     std::vector<std::string> filterStatus = {"All", "Done", "Pending", "Cancel"};
-    std::vector<std::string> listServices = {
-        "Cat toc",
-        "Nhuom toc",
-        "Tay toc",
-        "Uon toc",
-        "Phuc hoi toc",
-        "Tao kieu",
-        "Goi dau"
-    };
+    
+
     auto resetFilter = [&] {
         filterDay = 0;
         filterMonth = 0;
@@ -136,7 +137,7 @@ void screenAdmin()
         filterMinute = 0;
         status = 0;
         customerID = "";
-        std::fill(chosenFilterServices.begin(), chosenFilterServices.end(), true);
+        std::fill(filterServices, filterServices + serviceCount, true);
     };
 
     resetFilter();
@@ -214,8 +215,8 @@ void screenAdmin()
     int selectedFilterService = 0;
     Component containerFilterServices = Container::Vertical({}, &selectedFilterService);
     for (int i = 0; i < SERVICES_COUNT; ++i) {
-        chosenFilterServices[i] = true;
-        containerFilterServices->Add(Checkbox(listServices[i], &chosenFilterServices[i]) | size(WIDTH, EQUAL, 20));
+        filterServices[i] = true;
+        containerFilterServices->Add(Checkbox(services[i], &filterServices[i]) | size(WIDTH, EQUAL, 20));
     }
 
     Component radioboxStatus = Radiobox(filterStatus, &status);
@@ -232,7 +233,7 @@ void screenAdmin()
         return element;
     };
     Component buttonFilter = Button("Filter", [&] {
-        listAppointmentHistory = callGetApointmentHistoryList(filterDay, filterMonth, filterYear, filterHour, filterMinute, chosenFilterServices, status, customerID, countAppointmentHistory);        
+        listAppointmentID = callGetApointmentIDList(filterDay, filterMonth, filterYear, filterHour, filterMinute, filterServices, status, customerID, countAppointment);        
     }, buttonOptionAll);
     Component buttonResetFilter = Button("Reset", [&] {
         resetFilter();
@@ -301,31 +302,42 @@ void screenAdmin()
     std::string detailAppointmentDate;
     std::string detailAppointmentTime;
     std::vector<std::string> detailAppointmentServices;
-    std::vector<std::string> detailAppointmentStylists;
+    std::string detailAppointmentStylist;
     std::string detailAppointmentRequirement;
     int tabDetail = 0;
 
-    listAppointmentHistory = callGetApointmentHistoryList(filterDay, filterMonth, filterYear, filterHour, filterMinute, chosenFilterServices, status, customerID, countAppointmentHistory);
+    auto setDetailAppointment = [&] (std::string id) {
+        detailAppointmentCustomerName = callGetAppointmentCustomerNameByID(id) + " (ID: " + callGetAppointmentCustomerIDByID(id) + ")";
+        detailAppointmentStatus = callGetAppointmentStatusByID(id);
+        detailAppointmentDate = callGetAppointmentDateByID(id);
+        detailAppointmentTime = callGetAppointmentTimeByID(id);
+        detailAppointmentServices = callGetAppointmentServicesByID(id);
+        detailAppointmentStylist = callGetAppointmentStylistByID(id) + " (ID: " + callGetAppointmentStylistIDByID(id) + ")";
+        detailAppointmentRequirement = callGetAppointmentRequirementByID(id);
+    };
+
+    listAppointmentID = callGetApointmentIDList(filterDay, filterMonth, filterYear, filterHour, filterMinute, filterServices, status, customerID, countAppointment);
 
     Component containerAppointmentHistoryList = Container::Vertical({});
-    for (int i = 0; i < listAppointmentHistory.size(); ++i) {
-        std::string sid = listAppointmentHistory[i].substr(0, listAppointmentHistory[i].find(" "));
-        Component c = Button("Detail", [&, sid] {
+    for (int i = 0; i < listAppointmentID.size(); ++i) {
+        std::string id = listAppointmentID[i];
+        Component c = Button("Detail", [&, id] {
             tabDetail = 1;
-            detailAppointmentID = sid;
-            callGetAppointmentDetailByID(detailAppointmentID, detailAppointmentCustomerName, detailAppointmentStatus, detailAppointmentDate, detailAppointmentTime, detailAppointmentServices, detailAppointmentStylists, detailAppointmentRequirement);
+            detailAppointmentID = id;
+            setDetailAppointment(detailAppointmentID);
         }, buttonOptionTab);
         
-        std::string s = listAppointmentHistory[i];
-        std::string id = s.substr(0, s.find(" "));
-        s = s.substr(s.find(" ") + 1);
-        std::string status = s.substr(0, s.find(" "));
-        s = s.substr(s.find(" ") + 1);
-        std::string date = s.substr(0, s.find(" "));
-        s = s.substr(s.find(" ") + 1);
-        std::string time = s.substr(0, s.find(" "));
-        s = s.substr(s.find(" ") + 1);
-        std::string services = s;
+        std::string status = callGetAppointmentStatusByID(id);
+        std::string date = callGetAppointmentDateByID(id);
+        std::string time = callGetAppointmentTimeByID(id);
+        std::vector<std::string> servicesList = callGetAppointmentServicesByID(id);
+        std::string services = "";
+        for (int j = 0; j < servicesList.size(); ++j) {
+            services += servicesList[j];
+            if (j < servicesList.size() - 1) {
+                services += ", ";
+            }
+        }
         containerAppointmentHistoryList->Add(Renderer(
             c, [&, c, id, status, date, time, services] {
             return hbox({
@@ -354,14 +366,14 @@ void screenAdmin()
             separator(),
             filler(),
             separator(),
-            text("Total: " + std::to_string(countAppointmentHistory)) | size(WIDTH, EQUAL, 20) | align_right,
+            text("Total: " + std::to_string(countAppointment)) | size(WIDTH, EQUAL, 20) | align_right,
         });
     });
 
     // Detail appointment
     Component buttonAppointmentDetailCancel = Button("Cancel", [&] {
         callCancelAppointment(detailAppointmentID);
-        callGetAppointmentDetailByID(detailAppointmentID, detailAppointmentCustomerName,detailAppointmentStatus, detailAppointmentDate, detailAppointmentTime, detailAppointmentServices, detailAppointmentStylists, detailAppointmentRequirement);
+        detailAppointmentStatus = callGetAppointmentStatusByID(detailAppointmentID);
     }, buttonOptionAll);
     Component buttonAppointmentDetailBack = Button("Back", [&] {
         tabDetail = 0;
@@ -373,8 +385,7 @@ void screenAdmin()
     }, &selectedButtonsAppointment) ,[&] {
         auto textService = [&](int i) {
             return hbox({
-                text(detailAppointmentServices[i]) | size(WIDTH, EQUAL, 20),
-                text(detailAppointmentStylists[i]) | size(WIDTH, EQUAL, 20),
+                text(detailAppointmentServices[i]) | size(WIDTH, EQUAL, 20)
             });
         };
         Elements textServiceList;
@@ -390,12 +401,11 @@ void screenAdmin()
             text("Customer name") | bold,
             text(detailAppointmentCustomerName),
             filler() | size(HEIGHT, EQUAL, 1),
-            hbox({
-                text("Services") | size(WIDTH, EQUAL, 20),
-                text("Stylist") | size(WIDTH, EQUAL, 20),
-            }) | bold,
+            text("Services") | size(WIDTH, EQUAL, 20) | bold,
             vbox(textServiceList),
             filler() | size(HEIGHT, EQUAL, 1),
+            text("Stylist") | bold,
+            text(detailAppointmentStylist) | size(WIDTH, EQUAL, 20),
             text("Date and time") | size(WIDTH, EQUAL, 40) | bold,
             text("Date: " + detailAppointmentDate) | size(WIDTH, EQUAL, 40),
             text("Time: " + detailAppointmentTime) | size(WIDTH, EQUAL, 40),
@@ -443,36 +453,241 @@ void screenAdmin()
 
     // Customer tab
     #pragma region Customer
-    Component tabCustomer = Renderer([&] {
-        return text("Customer") | center;
+
+    std::vector<std::string> customerIDList;
+    int countCustomer = 0;
+
+    // Customer filter
+    std::string customerFilterName;
+    std::string customerFilterAge;
+    bool customerFilterGender[2] = {true, true}; // 0: Male, 1: Female
+
+    auto resetCustomerFilter = [&] {
+        customerFilterName = "";
+        customerFilterAge = "";
+        customerFilterGender[0] = true;
+        customerFilterGender[1] = true;
+    };
+    resetCustomerFilter();
+
+    Component checkboxCustomerGenderMale = Checkbox("Male", &customerFilterGender[0]);
+    Component checkboxCustomerGenderFemale = Checkbox("Female", &customerFilterGender[1]);
+    Component containerCustomerGender = Container::Vertical({
+        checkboxCustomerGenderMale,
+        checkboxCustomerGenderFemale,
+    });
+
+    InputOption inputOptionCustomerAll = InputOption::Default();
+    inputOptionCustomerAll.multiline = false;
+    Component inputCustomerAge = Input(&customerFilterAge, "Age", inputOptionCustomerAll);
+    Component inputCustomerName = Input(&customerFilterName, "Name", inputOptionCustomerAll);
+
+    Component buttonCustomerFilter = Button("Filter", [&] {
+        customerIDList = callGetCustomerIDList(customerFilterGender, customerFilterName, customerFilterAge, countCustomer);
+    }, buttonOptionAll);
+    Component buttonCustomerResetFilter = Button("Reset", [&] {
+        resetCustomerFilter();
+    }, buttonOptionAll);
+
+    int childCustomerFilter = 0;
+    Component containerCustomerFilter = Container::Vertical({
+        containerCustomerGender,
+        inputCustomerAge,
+        inputCustomerName,
+        Container::Horizontal({
+            buttonCustomerFilter,
+            buttonCustomerResetFilter,
+        }),
+    }, &childCustomerFilter);
+
+    containerCustomerFilter |= CatchEvent([&] (Event event) {
+        bool check = (event == Event::Tab) && (childCustomerFilter < 3); // 4 is the number of small component in containerCustomerFilter
+        if (check) {
+            childCustomerFilter++;
+        }
+        return check;
+    });
+    containerCustomerFilter |= CatchEvent([&] (Event event) {
+        bool check = (event == Event::TabReverse) && (childCustomerFilter > 0);
+        if (check) {
+            childCustomerFilter--;
+        }
+        return check;
+    });
+
+    Component rendererCustomerFilter = Renderer(containerCustomerFilter, [&] {
+        return vbox({
+            text("Filter") | center,
+            separator(),
+            text("Gender"),
+            containerCustomerGender->Render(),
+            hbox({
+                text("Age : "),
+                inputCustomerAge->Render(),
+            }),
+            hbox({
+                text("Name: "),
+                inputCustomerName->Render(),
+            }),
+            filler(),
+            hbox({
+                buttonCustomerFilter->Render() | size(WIDTH, EQUAL, 10),
+                buttonCustomerResetFilter->Render() | size(WIDTH, EQUAL, 10),
+            }) | hcenter 
+        }) | size(WIDTH, EQUAL, 20);
+    });
+
+    // Customer list
+    int detailTabCustomer = 0;
+    std::string detailCustomerID;
+    std::string detailCustomerName;
+    std::string detailCustomerGender;
+    std::string detailCustomerAge;
+    std::string detailCustomerPhonenumber;
+
+    customerIDList = callGetCustomerIDList(customerFilterGender, customerFilterName, customerFilterAge, countCustomer);
+
+    auto setDetailCustomer = [&] (std::string id) {
+        detailCustomerName = callGetMemberNameByID(id);
+        detailCustomerGender = callGetMemberGenderByID(id);
+        detailCustomerAge = callGetMemberAgeByID(id);
+        detailCustomerPhonenumber = callGetMemberPhoneByID(id);
+    };
+
+    Component containerCustomerList = Container::Vertical({});
+    for (int i = 0; i < customerIDList.size(); ++i) {
+        std::string cid = customerIDList[i];
+        Component c = Button("Detail", [&, cid] {
+            detailCustomerID = cid;
+            setDetailCustomer(detailCustomerID);
+            detailTabCustomer = 1;
+        }, buttonOptionTab);
+        
+        std::string id = customerIDList[i];
+        std::string name = callGetMemberNameByID(id);
+        std::string gender = callGetMemberGenderByID(id);
+        std::string age = callGetMemberAgeByID(id);
+        std::string phonenumber = callGetMemberPhoneByID(id);
+        containerCustomerList->Add(Renderer(
+            c, [&, c, id, name, gender, age, phonenumber] {
+            return hbox({
+                text(id) | size(WIDTH, EQUAL, 7),
+                text(name) | size(WIDTH, EQUAL, 25),
+                text(gender) | size(WIDTH, EQUAL, 8),
+                text(age) | size(WIDTH, EQUAL, 5),
+                text(phonenumber) | size(WIDTH, EQUAL, 12),
+                separator(),
+                c->Render() | center | size(WIDTH, EQUAL, 8),
+            });
+        }));
+    }
+
+    Component rendererCustomerList = Renderer(
+        Container::Vertical({
+            containerCustomerList,
+        }), [&] {
+        return vbox({
+            hbox({
+                text("ID") | size(WIDTH, EQUAL, 7),
+                text("Name") | size(WIDTH, EQUAL, 25),
+                text("Gender") | size(WIDTH, EQUAL, 8),
+                text("Age") | size(WIDTH, EQUAL, 5),
+                text("Phonenumber") | size(WIDTH, EQUAL, 12),
+            }) | bold,
+            separator(),
+            containerCustomerList->Render() | vscroll_indicator | frame,
+            separator(),
+            filler(),
+            separator(),
+            hbox({
+                text("Total: " + std::to_string(countCustomer)), 
+                filler(),
+            }) | align_right,
+        });
+    });
+
+
+    // Customer detail
+
+    Component buttonCustomerDetailBack = Button("Back", [&] {
+        detailTabCustomer = 0;
+    }, buttonOptionAll);
+
+    Component rendererCustomerDetail = Renderer(Container::Vertical({
+        buttonCustomerDetailBack,
+    }), [&] {
+        return vbox({
+            text("Customer Detail") | center,
+            separator(),
+            text("ID") | bold,
+            text("  " + detailCustomerID),
+            text("Name") | bold,
+            text("  " + detailCustomerName),
+            text("Gender") | bold,
+            text("  " + detailCustomerGender),
+            text("Age") | bold,
+            text("  " + detailCustomerAge),
+            text("Phonenumber") | bold,
+            text("  " + detailCustomerPhonenumber),
+            text("Username") | bold,
+            text("  " + callGetMemberUsernameByID(detailCustomerID)), // This style must be concerned
+            separator(),
+            buttonCustomerDetailBack->Render() | center,
+        }) | borderRounded | size(WIDTH, EQUAL, 40);
+    });
+
+    Component containerTabCustomer = Renderer(Container::Tab({
+        rendererCustomerList,
+        rendererCustomerDetail,
+    }, &detailTabCustomer), [&] {
+        auto document = rendererCustomerList->Render();
+        if (detailTabCustomer == 1) {
+            document = dbox({
+                rendererCustomerList->Render(),
+                rendererCustomerDetail->Render() | clear_under | center,
+            });
+        }
+        return document;
+    });
+
+    Component tabCustomer = Renderer(
+        Container::Horizontal({
+            rendererCustomerFilter,
+            containerTabCustomer,
+        }), [&] {
+        return hbox({
+            rendererCustomerFilter->Render(),
+            separator(),
+            containerTabCustomer->Render(),
+        });
     });
     #pragma endregion
 
     // Stylist tab
     #pragma region Stylist
 
-    std::vector<std::string> stylistList;
-    int countStylistList = 0;
+    std::vector<std::string> stylistIDList;
+    int countStylist = 0;
+    
     // Stylist filter
-    std::array<bool, SERVICES_COUNT> stylistFilterServices;
-    int stylistFilterGender = 0; // 0: Male, 1: Female
+    bool stylistFilterGender[2] = {true, true}; // 0: Male, 1: Female
     std::string stylistFilterName;
     std::string stylistFilterAge;
-    std::vector<std::string> listGenders = {"Male", "Female"};
 
     auto resetStylistFilter = [&] {
-        std::fill(stylistFilterServices.begin(), stylistFilterServices.end(), true);
-        stylistFilterGender = 0;
+        stylistFilterGender[0] = true;
+        stylistFilterGender[1] = true;
         stylistFilterName = "";
         stylistFilterAge = "";
     };
     resetStylistFilter();
 
-    Component containerStylistFilterServices = Container::Vertical({});
-    for (int i = 0; i < SERVICES_COUNT; ++i) {
-        containerStylistFilterServices->Add(Checkbox(listServices[i], &stylistFilterServices[i]) | size(WIDTH, EQUAL, 20));
-    }
-    Component radioboxStylistGender = Radiobox(listGenders, &stylistFilterGender);
+    Component checkboxStylistGenderMale = Checkbox("Male", &stylistFilterGender[0]);
+    Component checkboxStylistGenderFeMale = Checkbox("Female", &stylistFilterGender[1]);
+    Component containerStylistGender = Container::Vertical({
+        checkboxStylistGenderMale,
+        checkboxStylistGenderFeMale,
+    });
     
     InputOption inputOptionStylistAll = InputOption::Default();
     inputOptionStylistAll.multiline = false;
@@ -480,7 +695,7 @@ void screenAdmin()
     Component inputStylistName = Input(&stylistFilterName, "Name", inputOptionStylistAll);
 
     Component buttonStylistFilter = Button("Filter", [&] {
-        stylistList = callGetStylistList(stylistFilterServices, stylistFilterGender, stylistFilterName, stylistFilterAge, countStylistList);
+        stylistIDList = callGetStylistIDList(stylistFilterGender, stylistFilterName, stylistFilterAge, countStylist);
     }, buttonOptionAll);
     Component buttonStylistResetFilter = Button("Reset", [&] {
         resetStylistFilter();
@@ -488,8 +703,7 @@ void screenAdmin()
     
     int childStylistFilter = 0;
     Component containerStylistFilter = Container::Vertical({
-        containerStylistFilterServices,
-        radioboxStylistGender,
+        containerStylistGender,
         inputStylistAge,
         inputStylistName,
         Container::Horizontal({
@@ -499,7 +713,7 @@ void screenAdmin()
     }, &childStylistFilter);
 
     containerStylistFilter |= CatchEvent([&] (Event event) {
-        bool check = (event == Event::Tab) && (childStylistFilter < 4); // 5 is the number of small component in containerStylistFilter
+        bool check = (event == Event::Tab) && (childStylistFilter < 3); // 4 is the number of small component in containerStylistFilter
         if (check) {
             childStylistFilter++;
         }
@@ -517,10 +731,8 @@ void screenAdmin()
         return vbox({
             text("Filter") | center,
             separator(),
-            text("Services"),
-            containerStylistFilterServices->Render(),
             text("Gender"),
-            radioboxStylistGender->Render(),
+            containerStylistGender->Render(),
             hbox({
                 text("Age : "),
                 inputStylistAge->Render(),
@@ -545,30 +757,32 @@ void screenAdmin()
     std::string detailStylistGender;
     std::string detailStylistAge;
     std::string detailStylistPhonenumber;
-    std::vector<std::string> detailStylistServices;
     std::string detailStylistUsername;
-    std::string detailStylistPassword;
     
-    stylistList = callGetStylistList(stylistFilterServices, stylistFilterGender, stylistFilterName, stylistFilterAge, countStylistList);
+    stylistIDList = callGetStylistIDList(stylistFilterGender, stylistFilterName, stylistFilterAge, countStylist);
+
+    auto setDetailStylist = [&] (std::string id) {
+        detailStylistName = callGetMemberNameByID(id);
+        detailStylistGender = callGetMemberGenderByID(id);
+        detailStylistAge = callGetMemberAgeByID(id);
+        detailStylistPhonenumber = callGetMemberPhoneByID(id);
+        detailStylistUsername = callGetMemberUsernameByID(id);
+    };
+
     Component containerStylistList = Container::Vertical({});
-    for (int i = 0; i < stylistList.size(); ++i) {
-        std::string sid = stylistList[i].substr(0, stylistList[i].find(","));
+    for (int i = 0; i < stylistIDList.size(); ++i) {
+        std::string sid = stylistIDList[i];
         Component c = Button("Detail", [&, sid] {
             selectedTabStylist = 1;
             detailStylistID = sid;
-            callGetStylistDetailByID(detailStylistID, detailStylistName, detailStylistGender, detailStylistAge, detailStylistPhonenumber, detailStylistServices, detailStylistUsername, detailStylistPassword);
+            setDetailStylist(detailStylistID);
         }, buttonOptionTab);
         
-        std::string s = stylistList[i];
-        std::string id = s.substr(0, s.find(","));
-        s = s.substr(s.find(",") + 1);
-        std::string name = s.substr(0, s.find(","));
-        s = s.substr(s.find(",") + 1);
-        std::string gender = s.substr(0, s.find(","));
-        s = s.substr(s.find(",") + 1);
-        std::string age = s.substr(0, s.find(","));
-        s = s.substr(s.find(",") + 1);
-        std::string phonenumber = s;
+        std::string id = stylistIDList[i];
+        std::string name = callGetMemberNameByID(id);
+        std::string gender = callGetMemberGenderByID(id);
+        std::string age = callGetMemberAgeByID(id);
+        std::string phonenumber = callGetMemberPhoneByID(id);
         containerStylistList->Add(Renderer(
             c, [&, c, id, name, gender, age, phonenumber] {
             return hbox({
@@ -614,7 +828,7 @@ void screenAdmin()
             filler(),
             separator(),
             hbox({
-                text("Total: " + std::to_string(countStylistList)), 
+                text("Total: " + std::to_string(countStylist)), 
                 filler(),
                 buttonAddStylist->Render() | size(WIDTH, EQUAL, 15),
             })
@@ -629,22 +843,15 @@ void screenAdmin()
     std::string stylistUpdatePhonenumber;
     std::string stylistUpdateUsername;
     std::string stylistUpdatePassword;
-    std::array<bool, SERVICES_COUNT> stylistUpdateServices;
 
     auto resetUpdateStylist = [&] {
-        breakName(detailStylistName, stylistUpdateFirstName, stylistUpdateLastName);
+        stylistUpdateFirstName = callGetMemberFirstNameByID(detailStylistID);
+        stylistUpdateLastName = callGetMemberLastNameByID(detailStylistID);
         stylistUpdateGender = detailStylistGender == "Male"? 0 : 1;
         stylistUpdateAge = detailStylistAge;
         stylistUpdatePhonenumber = detailStylistPhonenumber;
         stylistUpdateUsername = detailStylistUsername;
-        stylistUpdatePassword = detailStylistPassword;
-        for (int i = 0; i < SERVICES_COUNT; ++i) {
-            if (std::find(detailStylistServices.begin(), detailStylistServices.end(), listServices[i]) != detailStylistServices.end()) {
-                stylistUpdateServices[i] = true;
-            }
-            else
-                stylistUpdateServices[i] = false;
-        }
+        stylistUpdatePassword = "";
     };
 
     Component buttonStylistDetailBack = Button("Back", [&] {
@@ -656,7 +863,7 @@ void screenAdmin()
     }, buttonOptionAll);
     Component buttonStylistDetailDelete = Button("Delete", [&] {
         callDeleteStylist(detailStylistID);
-        stylistList = callGetStylistList(stylistFilterServices, stylistFilterGender, stylistFilterName, stylistFilterAge, countStylistList);
+        stylistIDList = callGetStylistIDList(stylistFilterGender, stylistFilterName, stylistFilterAge, countStylist);
         selectedTabStylist = 0;
     }, buttonOptionAll);
 
@@ -666,15 +873,6 @@ void screenAdmin()
         buttonStylistDetailModify,
         buttonStylistDetailDelete,
     }, &selectedButtonsStylistDetail) ,[&] {
-        auto textService = [&](int i) {
-            return vbox({
-                text("    " + detailStylistServices[i]) | size(WIDTH, EQUAL, 20),
-            });
-        };
-        Elements textServiceList;
-        for (int i = 0; i < detailStylistServices.size(); ++i) {
-            textServiceList.push_back(textService(i));
-        }
         return vbox({
             text("Detail stylist") | center,
             separator(),
@@ -682,8 +880,6 @@ void screenAdmin()
             text("    " + detailStylistID),
             text("Name") | bold,
             text("    " + detailStylistName),
-            text("Services") | bold,
-            vbox(textServiceList),
             text("Gender") | bold,
             text("    " + detailStylistGender),
             text("Age") | bold,
@@ -692,8 +888,6 @@ void screenAdmin()
             text("    " + detailStylistPhonenumber),
             text("Username") | bold,
             text("    " + detailStylistUsername),
-            text("Password") | bold,
-            text("    " + detailStylistPassword),
             filler(),
             separator(),
             hbox({
@@ -715,11 +909,6 @@ void screenAdmin()
     Component inputUpdateStylistPhonenumber = Input(&stylistUpdatePhonenumber, "Phone Number", inputOptionStylistAll);
     Component inputUpdateStylistUsername = Input(&stylistUpdateUsername, "Username", inputOptionStylistAll);
     Component inputUpdateStylistPassword = Input(&stylistUpdatePassword, "Password", inputOptionStylistAll);
-    
-    Component containerUpdateStylistServices = Container::Vertical({});
-    for (int i = 0; i < SERVICES_COUNT; ++i) {
-        containerUpdateStylistServices->Add(Checkbox(listServices[i], &stylistUpdateServices[i]) | size(WIDTH, EQUAL, 20));
-    }
 
     int selectedButtonsUpdateStylist = 0;
     Component buttonUpdateStylistBack = Button("Back", [&] {
@@ -729,8 +918,8 @@ void screenAdmin()
         resetUpdateStylist();
     }, buttonOptionAll);
     Component buttonUpdateStylist = Button("Update", [&] {
-        callUpdateStylist(detailStylistID, stylistUpdateFirstName, stylistUpdateLastName, stylistUpdateGender, stylistUpdateAge, stylistUpdatePhonenumber, stylistUpdateUsername, stylistUpdatePassword, stylistUpdateServices);
-        callGetStylistDetailByID(detailStylistID, detailStylistName, detailStylistGender, detailStylistAge, detailStylistPhonenumber, detailStylistServices, detailStylistUsername, detailStylistPassword);
+        callUpdateStylist(detailStylistID, stylistUpdateFirstName, stylistUpdateLastName, stylistUpdateGender, stylistUpdateAge, stylistUpdatePhonenumber, stylistUpdateUsername, stylistUpdatePassword);
+        setDetailStylist(detailStylistID);
         selectedTabStylist = 1;
     }, buttonOptionAll);
     
@@ -738,7 +927,6 @@ void screenAdmin()
     Component containerUpdateStylist = Container::Vertical({
         inputUpdateStylistFirstName,
         inputUpdateStylistLastName,
-        containerUpdateStylistServices,
         radioboxUpdateStylistGender,
         inputUpdateStylistAge,
         inputUpdateStylistPhonenumber,
@@ -779,8 +967,6 @@ void screenAdmin()
                 text("Last Name: "),
                 inputUpdateStylistLastName->Render() | size(WIDTH, EQUAL, 20),
             }),
-            text("Services"),
-            containerUpdateStylistServices->Render(),
             text("Gender"),
             radioboxUpdateStylistGender->Render(),
             hbox({
@@ -818,7 +1004,6 @@ void screenAdmin()
     std::string stylistAddPhonenumber;
     std::string stylistAddUsername;
     std::string stylistAddPassword;
-    std::array<bool, SERVICES_COUNT> stylistAddServices;
 
     auto resetAddStylist = [&] {
         stylistAddFirstName = "";
@@ -828,7 +1013,6 @@ void screenAdmin()
         stylistAddPhonenumber = "";
         stylistAddUsername = "";
         stylistAddPassword = "";
-        std::fill(stylistAddServices.begin(), stylistAddServices.end(), false);
     };
     resetAddStylist();
 
@@ -840,11 +1024,6 @@ void screenAdmin()
     Component inputAddStylistUsername = Input(&stylistAddUsername, "Username", inputOptionStylistAll);
     Component inputAddStylistPassword = Input(&stylistAddPassword, "Password", inputOptionStylistAll);
 
-    Component containerAddStylistServices = Container::Vertical({});
-    for (int i = 0; i < SERVICES_COUNT; ++i) {
-        containerAddStylistServices->Add(Checkbox(listServices[i], &stylistAddServices[i]));
-    }
-
     Component buttonAddStylistBack = Button("Back", [&] {
         selectedTabStylist = 0;
     }, buttonOptionAll);
@@ -852,8 +1031,8 @@ void screenAdmin()
         resetAddStylist();
     }, buttonOptionAll);
     Component buttonAddStylistAdd = Button("Add", [&] {
-        callAddStylist(stylistAddFirstName, stylistAddLastName, stylistAddGender, stylistAddAge, stylistAddPhonenumber, stylistAddUsername, stylistAddPassword, stylistAddServices);
-        stylistList = callGetStylistList(stylistFilterServices, stylistFilterGender, stylistFilterName, stylistFilterAge, countStylistList);
+        callAddStylist(stylistAddFirstName, stylistAddLastName, stylistAddGender, stylistAddAge, stylistAddPhonenumber, stylistAddUsername, stylistAddPassword);
+        stylistIDList = callGetStylistIDList(stylistFilterGender, stylistFilterName, stylistFilterAge, countStylist);
         selectedTabStylist = 0;
     }, buttonOptionAll);
 
@@ -861,7 +1040,6 @@ void screenAdmin()
     Component containerAddStylist = Container::Vertical({
         inputAddStylistFirstName,
         inputAddStylistLastName,
-        containerAddStylistServices,
         radioboxAddStylistGender,
         inputAddStylistAge,
         inputAddStylistPhonenumber,
@@ -875,7 +1053,7 @@ void screenAdmin()
     }, &selectedAddStylist);
 
     containerAddStylist |= CatchEvent([&] (Event event) {
-        bool check = (event == Event::Tab) && (selectedAddStylist < 8); // 9 is the number of small component in containerAddStylist
+        bool check = (event == Event::Tab) && (selectedAddStylist < 7); // 8 is the number of small component in containerAddStylist
         if (check) {
             selectedAddStylist++;
         }
@@ -902,8 +1080,6 @@ void screenAdmin()
                 text("Last Name: "),
                 inputAddStylistLastName->Render(),
             }),
-            text("Services"),
-            containerAddStylistServices->Render(),
             text("Gender"),
             radioboxAddStylistGender->Render(),
             hbox({
@@ -975,10 +1151,281 @@ void screenAdmin()
     #pragma endregion
 
     // Profile tab
-    Component tabProfile = Renderer([&] {
-        return text("Profile") | center;
+    #pragma region Profile
+    std::string profileFirstname;
+    std::string profileLastname;
+    std::string profileUsername;
+    std::string profileOldPassword;
+    std::string profileNewPassword;
+    std::string profileConfirmpassword;
+    std::string profilePhonenumber;
+    std::string profileAge;
+    int profileGender = 0;
+
+    auto resetName = [&] {
+        callGetCurrentUserName(profileFirstname, profileLastname);
+    };
+    auto resetPassword = [&] {
+        profileOldPassword = "";
+        profileNewPassword = "";
+        profileConfirmpassword = "";
+    };
+    auto resetPersonInfo = [&] {
+        callGetCurrentUserPersonInfo(profilePhonenumber, profileAge, profileGender);
+    };
+    auto resetProfile = [&] {
+        resetName();
+        resetPassword();
+        resetPersonInfo();
+    };
+    profileUsername = callGetCurrentUserUsername();
+    resetProfile();
+
+    const int PROFILE_ALIGN_WIDTH = 50;
+
+    InputOption inputOptionProfile = InputOption::Default();
+    inputOptionProfile.placeholder = "";
+    inputOptionProfile.multiline = false;
+
+    Component inputFirstname = Input(&profileFirstname, "First Name", inputOptionProfile);
+    Component inputLastname = Input(&profileLastname, "Last Name", inputOptionProfile);
+
+    InputOption inputOptionPassword(inputOptionProfile);
+    inputOptionPassword.password = true;
+
+    Component inputOldpassword = Input(&profileOldPassword, "Old Password", inputOptionPassword);
+    Component inputNewpassword = Input(&profileNewPassword, "New Password", inputOptionPassword);
+    Component inputConfirmpassword = Input(&profileConfirmpassword, "Confirm Password", inputOptionPassword);
+
+    Component inputPhonenumber = Input(&profilePhonenumber, "Phone Number", inputOptionProfile);
+    Component inputAge = Input(&profileAge, "Age", inputOptionProfile);
+
+    ComponentDecorator eventNumberOnly = CatchEvent([&](Event event) {
+        return event.is_character() && !std::isdigit(event.character()[0]);
+    });
+    inputPhonenumber |= eventNumberOnly;
+    inputPhonenumber |=  CatchEvent([&](Event event) {
+        return event.is_character() && profilePhonenumber.size() >= 11;
+    });
+    inputAge |= eventNumberOnly;
+    inputAge |= CatchEvent([&](Event event) {
+        return event.is_character() && profileAge.size() >= 3;
+    });
+    ComponentDecorator eventAlphabetOnly = CatchEvent([&](Event event) {
+        return event.is_character() && 
+            !std::isalpha(event.character()[0]) && 
+            !std::isspace(event.character()[0]);
+    });
+    inputFirstname |= eventAlphabetOnly;
+    inputLastname  |= eventAlphabetOnly;
+
+    Component radioboxGender = Radiobox(&listGenders, &profileGender);
+
+    std::string errorUpdateProfileFirstnameEmpty = "";
+    std::string errorUpdateProfileLastnameEmpty  = "";
+    Component buttonNameUpdate = Button("Update", [&] {
+        errorUpdateProfileFirstnameEmpty = "";
+        errorUpdateProfileLastnameEmpty = "";
+        try {
+            callUpdateCurrentUserName(profileFirstname, profileLastname);
+        }
+        catch (int errorCode) {
+            switch (errorCode)
+            {
+                case ERROR_CODE::UPDATE_PROFILE_NAME_EMPTY:
+                    errorUpdateProfileFirstnameEmpty = "First name is empty";
+                    errorUpdateProfileLastnameEmpty = "Last name is empty";
+                    break;
+                case ERROR_CODE::UPDATE_PROFILE_FIRSTNAME_EMPTY:
+                    errorUpdateProfileFirstnameEmpty = "First name is empty";
+                    break;
+                case ERROR_CODE::UPDATE_PROFILE_LASTNAME_EMPTY:
+                    errorUpdateProfileLastnameEmpty = "Last name is empty";
+                    break;
+                default:
+                    break;
+            }
+        }
+    }, buttonOptionTab);
+    Component buttonNameReset = Button("Reset", [&] {
+        errorUpdateProfileFirstnameEmpty = "";
+        errorUpdateProfileLastnameEmpty = "";
+        resetName();
+    }, buttonOptionTab);
+
+    std::string errorUpdateProfilePassword = "";
+    Component buttonPasswordUpdate = Button("Update", [&] {
+        errorUpdateProfilePassword = "";
+        try {
+            callUpdateCurrentPassword(profileOldPassword, profileNewPassword, profileConfirmpassword);
+        }
+        catch (int errorCode) {
+            switch (errorCode)
+            {
+                case ERROR_CODE::UPDATE_PROFILE_INVALID_PASSWORD:
+                    errorUpdateProfilePassword = "Invalid old password";
+                    break;
+                case ERROR_CODE::UPDATE_PROFILE_PASSWORD_NOT_MATCH:
+                    errorUpdateProfilePassword = "Password not match";
+                    break;
+                default:
+                    break;
+            }
+        }
+    }, buttonOptionTab);
+    Component buttonPasswordReset = Button("Reset", [&] {
+        errorUpdateProfilePassword = "";
+        resetPassword();
+    }, buttonOptionTab);
+
+    std::string errorUpdateProfilePersoninfoEmpty = "";
+    Component buttonPersoninfoUpdate = Button("Update", [&] {
+        errorUpdateProfilePersoninfoEmpty = "";
+        try {
+            callUpdateCurrentPersonInfo(profilePhonenumber, profileAge, profileGender);
+        }
+        catch (int errorCode) {
+            switch (errorCode)
+            {
+                case ERROR_CODE::UPDATE_PROFILE_PERSONINFO_EMPTY:
+                    errorUpdateProfilePersoninfoEmpty = "Phone number or age is empty";
+                    break;
+                default:
+                    break;
+            }
+        }
+    }, buttonOptionTab);
+    
+    Component buttonPersoninfoReset = Button("Reset", [&] {
+        errorUpdateProfilePersoninfoEmpty = "";
+        resetPersonInfo();
+    }, buttonOptionTab);
+
+    Component containerButtonsName = Container::Horizontal({
+        buttonNameReset,
+        buttonNameUpdate,
     });
 
+    Component containerButtonsPassword = Container::Horizontal({
+        buttonPasswordReset,
+        buttonPasswordUpdate,
+    });
+
+    Component containerButtonsPersoninfo = Container::Horizontal({
+        buttonPersoninfoReset,
+        buttonPersoninfoUpdate,
+    });
+
+    radioboxGender |= CatchEvent([&] (Event event) {
+        bool check = event == Event::Tab;
+        if (check) {
+            buttonPersoninfoReset->TakeFocus();
+        }
+        return check;
+    });
+    radioboxGender |= CatchEvent([&] (Event event) {
+        bool check = event == Event::TabReverse;
+        if (check) {
+            inputAge->TakeFocus();
+        }
+        return check;
+    });
+    containerButtonsName |= CatchEvent([&] (Event event) {
+        bool check = event == Event::Tab;
+        if (check) {
+            inputOldpassword->TakeFocus();
+        }
+        return check;
+    });
+
+    containerButtonsPassword |= CatchEvent([&] (Event event) {
+        bool check = event == Event::Tab;
+        if (check) {
+            inputPhonenumber->TakeFocus();
+        }
+        return check;
+    });
+
+    auto textError = [&](std::string error) {
+        if (error.size() == 0) {
+            return text("") | size(HEIGHT, EQUAL, 0);
+        }
+        return paragraph(error) | align_right | color(Color::Red);
+    };
+    Component containerUpdateName = Renderer(Container::Vertical({
+        inputFirstname,
+        inputLastname,
+        containerButtonsName
+    }), [&] {
+
+        return vbox({
+            hbox({text("First Name      : "), inputFirstname->Render()}),
+            textError(errorUpdateProfileFirstnameEmpty),
+            hbox({text("Last Name       : "), inputLastname->Render()}),
+            textError(errorUpdateProfileLastnameEmpty),
+            separator(),
+            hbox({
+                buttonNameReset->Render() | size(WIDTH, EQUAL, 10),
+                buttonNameUpdate->Render() | size(WIDTH, EQUAL, 10),
+            }) | hcenter,
+        }) | borderRounded | size(WIDTH, EQUAL, PROFILE_ALIGN_WIDTH);
+    });
+
+    Component containerUpdatePassword = Renderer(Container::Vertical({
+        inputOldpassword,
+        inputNewpassword,
+        inputConfirmpassword,
+        containerButtonsPassword,
+    }), [&] {
+        return vbox({
+            hbox({text("Old Password    : "), inputOldpassword->Render()}),
+            hbox({text("New Password    : "), inputNewpassword->Render()}),
+            hbox({text("Confirm Password: "), inputConfirmpassword->Render()}),
+            textError(errorUpdateProfilePassword),
+            separator(),
+            hbox({
+                buttonPasswordReset->Render() | size(WIDTH, EQUAL, 10),
+                buttonPasswordUpdate->Render() | size(WIDTH, EQUAL, 10),
+            }) | hcenter,
+        }) | borderRounded | size(WIDTH, EQUAL, PROFILE_ALIGN_WIDTH);
+    });
+
+    Component containerUpdatePersoninfo = Renderer(Container::Vertical({
+        inputPhonenumber,
+        inputAge,
+        radioboxGender,
+        containerButtonsPersoninfo,
+    }), [&] {
+        return vbox({
+            hbox({text("Phone Number    : "), inputPhonenumber->Render()}),
+            hbox({text("Age             : "), inputAge->Render()}),
+            hbox({text("Gender          : "), radioboxGender->Render()}),
+            textError(errorUpdateProfilePersoninfoEmpty),
+            separator(),
+            hbox({
+                buttonPersoninfoReset->Render() | size(WIDTH, EQUAL, 10),
+                buttonPersoninfoUpdate->Render() | size(WIDTH, EQUAL, 10),
+            }) | hcenter,
+        }) | borderRounded | size(WIDTH, EQUAL, PROFILE_ALIGN_WIDTH);
+    });
+
+    Component tabProfile = Renderer(Container::Vertical({
+        containerUpdateName,
+        containerUpdatePassword,
+        containerUpdatePersoninfo,
+    }), [&] {
+        return vbox({
+            text("Username") | bold,
+            text(profileUsername),
+            text("Name") | bold,
+            containerUpdateName->Render(),
+            text("Password") | bold,
+            containerUpdatePassword->Render(),
+            text("Personal Information") | bold,
+            containerUpdatePersoninfo->Render(),
+        }) | size(WIDTH, EQUAL, PROFILE_ALIGN_WIDTH) | center;
+    });
+    #pragma endregion  
 
     Component containerTabs = Container::Tab({
         tabHome,
