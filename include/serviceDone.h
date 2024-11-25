@@ -3,34 +3,43 @@
 #include <string>
 #include <iostream>
 #include "Identifiable.h"
-
-using namespace std;
+#include "Datetime.h"
 
 class serviceDone : public Identifiable
 {
     public:
-        serviceDone(const string& ID="null", const string& customerID="null",const string& workerID="null",
-                    const string& serviceID="null",const string& feedback="\"null\"",const bool& isBooked=false);
+        serviceDone(const std::string& ID="null", const std::string& customerID="null",const std::string& workerID="null",
+                    const int& serviceID=0,const int& rating=0,const bool& bookStatus=false,const Datetime& dt=Datetime::Now());
         ~serviceDone() override;
-        [[nodiscard]] const string& GetCustomerID() const;
-        void SetCustomerID(const string&);
-        [[nodiscard]] const string& GetWorkerID() const;
-        void SetWorkerID(const string&);
-        [[nodiscard]] const string& GetServiceID() const;
-        void SetServiceID(const string&);
-        [[nodiscard]] const string& GetFeedBack() const;
-        void SetFeedBack(const string&);
+        [[nodiscard]] const std::string GetCustomerID() const;
+        void SetCustomerID(const std::string&);
+
+        [[nodiscard]] const std::string GetWorkerID() const;
+        void SetWorkerID(const std::string&);
+
+        [[nodiscard]] const int GetServiceID() const;
+        void SetServiceID(const int&);
+
+        [[nodiscard]] const int GetRating() const;
+        void SetRating(const int&);
+
+        [[nodiscard]] const bool GetBookStatus() const;
+        void SetBookStatus(const bool&);
+
+        [[nodiscard]] const Datetime GetTime() const;
+        void SetTime(const Datetime&);
+    [[nodiscard]] const Datetime GetDatetime() const;
         void Show() const override;
-        friend ostream& operator<<(ostream& os,const serviceDone& obj);
-        friend istream& operator>>(istream& is,serviceDone& obj);
+        friend std::ostream& operator<<(std::ostream& os,const serviceDone& obj);
+        friend std::istream& operator>>(std::istream& is,serviceDone& obj);
         friend bool operator<(const serviceDone& a,const serviceDone& b);
     private:
-        string customerID;
-        string workerID;
-        string serviceID;
-        string feedback;
-        bool isBooked;
-        //Datetime time;
+        std::string customerID;
+        std::string workerID;
+        int serviceID;
+        int rating;
+        bool bookStatus;
+        Datetime time;
 };
 
 #endif // SERVICEDONE_H

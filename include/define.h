@@ -5,25 +5,16 @@
 #ifndef DEFINE_H
 #define DEFINE_H
 
-#include "Database.h"
 #include <string>
 #include <vector>
 
-
-
-using namespace std;
-
-
-const string SERVICE_DONE_FILE = "../database/service-done.txt";
-const string APPOINTMENTS_FILE = "../database/appointments.txt";
-const string CUSTOMERS_FILE = "../database/customers.txt";
 
 class Appointment;
 class Customer;
 class serviceDone;
 
 enum Service{
-    NullRole,
+    NullService,
     CatToc,
     NhuomToc,
     TayToc,
@@ -33,21 +24,25 @@ enum Service{
     GoiDau
 };
 
-inline Database<serviceDone>dbServiceDone (SERVICE_DONE_FILE);
-inline Database<Appointment>dbAppointments (APPOINTMENTS_FILE);
-inline Database<Customer>dbCustomers (CUSTOMERS_FILE);
+enum Filter {
+    None,
+    CaseSensitive
+};
 
-string ServiceToString(const Service&);
-Service StringToService(const string&);
+std::string ServiceToString(const int&);
+Service StringToService(const std::string&);
 
-vector<string> Split(const string&,const char& );
-string Replace(const string&,const char&,const char&);
-int ToNum(const string&);
-
-bool isDigit(const char& x);
-bool isNumber(const string&);
-bool isBetween(const int&, const int&, const int&);
-bool isBetween(const char&, const char&, const char&);
+std::vector<std::string> Split(const std::string&,const char& );
+std::string Replace(const std::string&,const char&,const char&);
+int ToNum(const std::string&);
+char ToLower(const char&);
+char ToUpper(const char&);
+std::string ToLower(std::string);
+std::string ToUpper(std::string);
+bool IsDigit(const char& x);
+bool IsNumber(const std::string&);
+bool IsBetween(const int&, const int&, const int&);
+bool IsBetween(const char&, const char&, const char&);
 
 // Member *m;
 

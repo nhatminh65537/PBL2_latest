@@ -1,7 +1,9 @@
+#include <iostream>
 #include "Member.h"
+#include "define.h"
 
-Member::Member(const string& ID,const string &firstName, const string &lastName, const bool &gender, const int &age,
-    const string &phoneNumber, const string &username, const string &password) {
+Member::Member(const std::string& ID,const std::string &firstName, const std::string &lastName, const bool &gender, const int &age,
+    const std::string &phoneNumber, const std::string &username, const std::string &password) {
     this->ID = ID;
     this->firstName = firstName;
     this->lastName = lastName;
@@ -12,24 +14,23 @@ Member::Member(const string& ID,const string &firstName, const string &lastName,
     this->password = password;
 }
 
-Member::~Member()
-{
-    //dtor
+Member::~Member(){
+
 }
 
-string Member::GetFirstName() const {
+std::string Member::GetFirstName() const {
     return this->firstName;
 }
 
-void Member::SetFirstName(const string &val) {
+void Member::SetFirstName(const std::string &val) {
     this->firstName = val;
 }
 
-string Member::GetLastName() const {
+std::string Member::GetLastName() const {
     return this->lastName;
 }
 
-void Member::SetLastName(const string &val) {
+void Member::SetLastName(const std::string &val) {
     this->lastName = val;
 }
 
@@ -49,40 +50,53 @@ void Member::SetAge(const int &val) {
     this->age = val;
 }
 
-string Member::GetPhoneNumber() const {
+std::string Member::GetPhoneNumber() const {
     return this->phoneNumber;
 }
 
-void Member::SetPhoneNumber(const string &val) {
+void Member::SetPhoneNumber(const std::string &val) {
     this->phoneNumber = val;
 }
 
-string Member::GetUserName() const {
+std::string Member::GetUserName() const {
     return this->username;
 }
 
-void Member::SetUserName(const string &val) {
+void Member::SetUserName(const std::string &val) {
     this->username = val;
 }
 
-string Member::GetPassword() const {
+std::string Member::GetPassword() const {
     return this->password;
 }
 
-void Member::SetPassword(const string &val) {
+void Member::SetPassword(const std::string &val) {
     this->password = val;
 }
 
 void Member::Show() const {
-    cout << "ID: "  << this->ID << '\n';
-    cout << "Username: "  << this->username << '\n';
-    cout << "Full name: "  << this->GetFullName() << '\n';
-    cout << "Gender: "  << (this->gender==1 ? "Male" : "Female") << '\n';
-    cout << "Age: "  << this->age << '\n';
-    cout << "Phone: "  << this->phoneNumber << '\n';
+    std::cout << "ID: "  << this->ID << '\n';
+    std::cout << "Username: "  << this->username << '\n';
+    std::cout << "Full name: "  << this->GetFullName() << '\n';
+    std::cout << "Gender: "  << (this->gender==1 ? "Male" : "Female") << '\n';
+    std::cout << "Age: "  << this->age << '\n';
+    std::cout << "Phone: "  << this->phoneNumber << '\n';
 }
 
 
-string Member::GetFullName() const {
+std::string Member::GetFullName() const {
     return this->GetFirstName() + ' ' + this->GetLastName();
 }
+
+std::ostream& operator<<(std::ostream& os, const Member& obj) {
+    os << obj.ID << ' ' << Replace(obj.firstName,' ','-')  << ' ' << Replace(obj.lastName,' ','-') << ' '
+    << obj.username << ' ' << obj.gender << ' '
+    << obj.age << ' ' << obj.phoneNumber;
+    return os;
+}
+
+std::istream& operator>>(std::istream& is, Member& obj) {
+    is >> obj.ID >> obj.firstName >> obj.lastName >> obj.username >> obj.gender >> obj.age >> obj.phoneNumber;
+    return is;
+}
+

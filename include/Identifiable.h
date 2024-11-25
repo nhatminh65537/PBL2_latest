@@ -2,18 +2,17 @@
 #define IDENTIFIABLE_H
 #include <string>
 
-using namespace std;
 
 class Identifiable
 {
     public:
-        explicit Identifiable(const string& = "null");
+        explicit Identifiable(const std::string& = "null");
         virtual ~Identifiable();
-        [[nodiscard]]  const string& GetID() const;
-        void SetID (const string&) ;
+        [[nodiscard]]  const std::string& GetID() const;
+        void SetID (const std::string&) ;
         virtual void Show() const = 0;
     protected:
-        string ID;
+        std::string ID;
 };
 
 #endif // IDENTIFIABLE_H

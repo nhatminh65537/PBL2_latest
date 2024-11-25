@@ -5,7 +5,7 @@
 #include "stdexcept"
 
 
-string ServiceToString(const Service& service) {
+std::string ServiceToString(const int& service) {
     switch (service) {
         case CatToc: return "Cat toc";
         case NhuomToc: return "Nhuom toc";
@@ -18,7 +18,7 @@ string ServiceToString(const Service& service) {
     }
 }
 
-Service StringToService(const string& str) {
+Service StringToService(const std::string& str) {
     if (str == "CatToc") return CatToc;
     if (str == "NhuomToc") return NhuomToc;
     if (str == "TayToc") return TayToc;
@@ -29,9 +29,9 @@ Service StringToService(const string& str) {
     throw std::invalid_argument("Unknown service: " + str);
 }
 
-vector<string> Split(const string& s, const char& delim) {
-    vector<string> tokens;
-    string token;
+std::vector<std::string> Split(const std::string& s, const char& delim) {
+    std::vector<std::string> tokens;
+    std::string token;
     for (const char& x : s) {
         if (x == delim) {
             if (!token.empty()) {
@@ -46,8 +46,8 @@ vector<string> Split(const string& s, const char& delim) {
     return tokens;
 }
 
-string Replace(const string& s, const char& oldChar, const char& newChar) {
-    string result = s;
+std::string Replace(const std::string& s, const char& oldChar, const char& newChar) {
+    std::string result = s;
     for (char& x : result) {
         if (x == oldChar) {
             x = newChar;
@@ -56,8 +56,8 @@ string Replace(const string& s, const char& oldChar, const char& newChar) {
     return result;
 }
 
-int ToNum(const string& s) {
-    if (!isNumber(s)) return -1;
+int ToNum(const std::string& s) {
+    if (!IsNumber(s)) return -1;
     int ans=0;
     for (const char& x : s) {
         ans = ans * 10 + (x - '0');
@@ -66,22 +66,38 @@ int ToNum(const string& s) {
 }
 
 
-bool isBetween(const int& v, const int& L, const int& R) {
+bool IsBetween(const int& v, const int& L, const int& R) {
     return (v >= L && v <= R);
 }
 
-bool isBetween(const char& v, const char& L, const char& R) {
+bool IsBetween(const char& v, const char& L, const char& R) {
     return (v >= L && v <= R);
 }
 
-bool isDigit(const char &x) {
-    return isBetween(x,'0','9');
+bool IsDigit(const char &x) {
+    return IsBetween(x,'0','9');
 }
 
-bool isNumber(const string& s) {
+bool IsNumber(const std::string& s) {
     for (const char& x : s) {
-        if (!isBetween(x, '0', '9'))    return false;
+        if (!IsBetween(x, '0', '9'))    return false;
     }
     return true;
 }
 
+char ToLower(const char& ch) {
+    if (IsBetween(ch, 'A', 'Z')) return ch - 'A' + 'a';
+    return ch;
+}
+char ToUpper(const char& ch) {
+    if (IsBetween(ch, 'a', 'z')) return ch - 'a' + 'A';
+    return ch;
+}
+std::string ToLower(std::string s) {
+    for (char& x : s) x = ToLower(x);
+    return s;
+}
+std::string ToUpper(std::string s) {
+    for (char& x : s) x = ToUpper(x);
+    return s;
+}
