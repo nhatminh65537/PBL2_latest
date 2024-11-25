@@ -8,8 +8,6 @@
 #include "Database.h"
 #include "Member.h"
 
-Database<Customer>& dbCustomer = Database<Customer>::Connect(CUSTOMERS_FILE);
-
 Stylist::Stylist(const std::string &ID, const std::string &firstName, const std::string &lastName,
     const bool &gender, const int &age, const std::string &phoneNumber, const std::string &username,
     const std::string &password)

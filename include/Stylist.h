@@ -3,10 +3,9 @@
 //
 #ifndef Stylist_h
 #define Stylist_h
-#include <define.h>
 #include "Member.h"
 #include "Appointment.h"
-#include "define.h"
+
 
 class Stylist : public Member {
 public:
@@ -27,8 +26,8 @@ public:
     friend std::ostream& operator<<(std::ostream&,const Stylist&);
     friend std::istream& operator>>(std::istream&,Stylist&);
 
-    std::vector<Appointment> schedule;
-    private:
 
+    private:
+        std::vector<Appointment> schedule;
 };
 #endif

@@ -2,13 +2,14 @@
 
 #include "Database.h"
 #include "serviceDone.h"
+#include "Statistics.h"
 #include "Stylist.h"
 
 
 void test() {
-    serviceDone a;
-    std::cout << a << '\n';
-    a.Show();
+    // serviceDone a;
+    // std::cout << a << '\n';
+    // a.Show();
     //dbServiceDone.Query("rating","0").Show();
     //std::vector<serviceDone> vt = dbServiceDone.Query("rating","hehe").GetResults();
     // for (const serviceDone &v : vt) v.Show();
@@ -43,8 +44,13 @@ void test() {
 
 }
 
+// void testthongke() {
+//     dbServiceDone.Show();
+//     std::cout << Statistics::GetCustomerCount(Datetime::Now()) << '\n';
+// }
 
 int main() {
-    test();
+    //test();
+    //testthongke();
     return 0;
 }

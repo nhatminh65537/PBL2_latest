@@ -11,6 +11,11 @@ template class Database<Appointment>;
 template class Database<Customer>;
 template class Database<Stylist>;
 
+Database<Customer>& dbCustomer = Database<Customer>::Connect(CUSTOMERS_FILE);
+Database<serviceDone>& dbServiceDone = Database<serviceDone>::Connect(SERVICE_DONE_FILE);
+Database<Appointment>& dbAppointment = Database<Appointment>::Connect(APPOINTMENTS_FILE);
+Database<Stylist>& dbStylist = Database<Stylist>::Connect(STYLISTS_FILE);
+
 template<typename T>
 Database<T>& Database<T>::Connect(const std::string& path) {
     static Database<T> database(path);
@@ -271,7 +276,7 @@ void Database<T>::removeIndex(const std::string& id) {
 template<>
 void Database<serviceDone>::initIndex() {
     index("customerID");
-    index("workerID");
+    index("stylistID");
 }
 
 template<>
@@ -300,8 +305,8 @@ void Database<serviceDone>::initMap(){
     attributeMap["customerID"] = [](const serviceDone& obj) -> std::string {
         return obj.GetCustomerID();
     };
-    attributeMap["workerID"] = [](const serviceDone& obj) -> std::string {
-        return obj.GetWorkerID();
+    attributeMap["stylistID"] = [](const serviceDone& obj) -> std::string {
+        return obj.GetStylistID();
     };
     attributeMap["serviceID"] = [](const serviceDone& obj) -> std::string {
         return std::to_string(obj.GetServiceID());
@@ -315,8 +320,8 @@ void Database<serviceDone>::initMap(){
     updateMap["customerID"] = [](serviceDone& obj, const std::string& newVal) {
         obj.SetCustomerID(newVal);
     };
-    updateMap["workerID"] = [](serviceDone& obj, const std::string& newVal) {
-        obj.SetWorkerID(newVal);
+    updateMap["stylistID"] = [](serviceDone& obj, const std::string& newVal) {
+        obj.SetStylistID(newVal);
     };
     updateMap["serviceID"] = [](serviceDone& obj, const std::string& newVal) {
         obj.SetServiceID(ToNum(newVal));

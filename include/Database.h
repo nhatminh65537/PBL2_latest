@@ -3,6 +3,8 @@
 #include <string>
 #include <map>
 #include <functional>
+#include "Customer.h"
+#include "Stylist.h"
 
 const std::string SERVICE_DONE_FILE = "../database/service-done.txt";
 const std::string APPOINTMENTS_FILE = "../database/appointments.txt";
@@ -55,5 +57,10 @@ class Database
         std::unordered_map<std::string,std::multimap<std::string,std::string>>indexMapList;
 
 };
+
+extern Database<Customer>& dbCustomer;
+extern Database<serviceDone>& dbServiceDone;
+extern Database<Appointment>& dbAppointment;
+extern Database<Stylist>& dbStylist;
 
 #endif // DATABASE_H

@@ -1,7 +1,7 @@
 #include "Customer.h"
 #include "Database.h"
 
-Database<Appointment>& dbAppointments = Database<Appointment>::Connect(APPOINTMENTS_FILE);
+
 
 Customer::Customer(const std::string& ID, const std::string &firstName, const std::string &lastName, const bool &gender, const int &age,
     const std::string &phoneNumber, const std::string &username, const std::string &password)
@@ -15,15 +15,15 @@ Customer::~Customer()
 }
 
 void Customer::BookAppointment(const Datetime& date,const std::vector<Service>& serviceList) const {
-    std::string appointmentID = std::to_string(dbAppointments.Count()+1);
+    std::string appointmentID = std::to_string(dbAppointment.Count()+1);
     if (appointmentID.size() < 6)  appointmentID = std::string(6 - appointmentID.size(),'0') + appointmentID;
 
-    dbAppointments.Insert(Appointment(appointmentID,date,this->ID,"null",serviceList));
+    dbAppointment.Insert(Appointment(appointmentID,date,this->ID,"null",serviceList));
 }
 
 void Customer::CancelAppointment(const std::string &appointmentID) const {
-    if(dbAppointments.Get(appointmentID).GetCustomerID() == this->ID) {
-        dbAppointments.Delete(appointmentID);
+    if(dbAppointment.Get(appointmentID).GetCustomerID() == this->ID) {
+        dbAppointment.Delete(appointmentID);
     }
     else {
         std::cout << "You don't have any appointments with ID " << appointmentID << '\n';
@@ -31,7 +31,7 @@ void Customer::CancelAppointment(const std::string &appointmentID) const {
 }
 
 void Customer::ViewAppointment() const{
-    for (const auto& [key,object] : dbAppointments) {
+    for (const auto& [key,object] : dbAppointment) {
         if (this->GetID() == object.GetCustomerID()) {
             object.Show();
         }
