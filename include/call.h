@@ -33,40 +33,62 @@ namespace ERROR_CODE
 
     
 }
-
-std::string makeName(std::string firstname, std::string lastname, bool reverse = REVERSE_NAME);
-void breakName(std::string name, std::string& firstname, std::string& lastname, bool reverse = REVERSE_NAME);
-
+// Login and Register
 void callLogin(std::string username, std::string password, int role);
 void callRegister(std:: string firstname, std::string lastname, std::string username, std::string password, std::string confirmpassword, std::string phonenumber, std::string age, int gender, int role);
 
-void callCreateNewAppointment(std::array<bool, SERVICES_COUNT> states, std::array<int, SERVICES_COUNT> selectedStylist, int selectedDay, int selectedMonth, int selectedYear, int selectedHour, int selectedMinute, std::string requirement);
-std::string callGetNewAppointmentId();
-void callAddNewAppointment();
+// Auxiliary functions
+int callGetServiceList(std::vector<std::string>& services);  // return the number of services
+std::string makeName(std::string firstname, std::string lastname, bool reverse = REVERSE_NAME);
 
-std::vector<std::string> callGetStylist(int service);
-
+// Current user call (Customer)
+std::string callGetCurrentUserID();
 std::string callGetCurrentUserName();
+std::string callGetCurrentUserUsername();
 void callGetCurrentUserName(std::string& firstname, std::string& lastname);
 void callGetCurrentUserPersonInfo(std::string& phonenumber, std ::string& age, int& gender);
-std::string callGetCurrentUserUsername();
+std::vector<std::string> callGetCurrentUserAppointmentIDList(int day, int month, int year, bool services[], int status);
 void callUpdateCurrentUserName(std::string firstname, std::string lastname);
 void callUpdateCurrentPassword(std::string oldPassword, std::string newPassword, std::string confirmpassword);
 void callUpdateCurrentPersonInfo(std::string phonenumber, std::string age, int gender);
 
-std::vector<std::string> callGetCurrentUserHistoryList(int day, int month, int year, std::array<bool, SERVICES_COUNT> services, int status);
+// Appointment call and auxiliary
+void callCreateNewAppointment(bool services[], int selectedStylist, int selectedDay, int selectedMonth, int selectedYear, int selectedHour, int selectedMinute, std::string requirement);
+std::string callGetNewAppointmentId();
+void callAddNewAppointment();
 
-void callGetAppointmentDetailByID(std::string id, std::string& name, std::string& status, std::string& date, std::string& time, std::vector<std::string>& services, 
-std::vector<std::string>& ,std::string& requirement);
+std::string callGetAppointmentCustomerIDByID(std::string id);
+std::string callGetAppointmentCustomerNameByID(std::string id);
+std::string callGetAppointmentStatusByID(std::string id);
+std::string callGetAppointmentDateByID(std::string id);
+std::string callGetAppointmentTimeByID(std::string id);
+std::vector<std::string> callGetAppointmentServicesByID(std::string id);
+std::string callGetAppointmentStylistByID(std::string id);
+std::string callGetAppointmentStylistIDByID(std::string id);
+std::string callGetAppointmentRequirementByID(std::string id);
+
+std::vector<std::string> callGetApointmentIDList(int day, int month, int year, int hour, int minute, bool services[], int status, std::string customerID, int& count);
 void callCancelAppointment(std::string id);
 
-std::vector<std::string> callGetApointmentHistoryList(int day, int month, int year, int hour, int minute, std::array<bool, SERVICES_COUNT> services, int status, std::string customerID, int& containerAppointmentHistoryList);
+// Member call and auxiliary
+std::string callGetMemberNameByID(std::string id);
+std::string callGetMemberFirstNameByID(std::string id);
+std::string callGetMemberLastNameByID(std::string id);
+std::string callGetMemberPhoneByID(std::string id);
+std::string callGetMemberAgeByID(std::string id);
+std::string callGetMemberGenderByID(std::string id);
+std::string callGetMemberUsernameByID(std::string id);
 
-std::vector<std::string> callGetStylistList(std::array<bool, SERVICES_COUNT> services, int gender, std::string name, std::string age, int& count);
-void callGetStylistDetailByID(std::string id, std::string& name, std::string& gender, std::string& age, std::string& phone, std::vector<std::string>& service, std::string& username, std::string& password);
+// Stylist call and auxiliary
+std::vector<std::string> callGetStylistIDList(bool gender[2], std::string name, std::string age, int& count);
+std::vector<std::string> callGetStylistIDList();
 void callDeleteStylist(std::string id);
+void callUpdateStylist (std::string id, std::string firstname, std::string lastname, int gender, std::string age, std::string phonenumber, std::string username, std::string password);
+void callAddStylist(std::string firstname, std::string lastname, int gender, std::string age, std::string phonenumber, std::string username, std::string password);
 
-void callUpdateStylist (std::string id, std::string firstname, std::string lastname, int gender, std::string age, std::string phonenumber, std::string username, std::string password, std::array<bool, SERVICES_COUNT>);
+// Customer call and auxiliary
+std::vector<std::string> callGetCustomerIDList(bool gender[2], std::string name, std::string age, int& count);
+void callDeleteCustomer(std::string id);
 
-void callAddStylist(std::string firstname, std::string lastname, int gender, std::string age, std::string phonenumber, std::string username, std::string password, std::array<bool, SERVICES_COUNT> services);
+
 #endif // CALL_H
