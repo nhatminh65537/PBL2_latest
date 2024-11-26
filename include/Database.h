@@ -3,20 +3,22 @@
 #include <string>
 #include <map>
 #include <functional>
-#include "Customer.h"
-#include "Stylist.h"
+#include "serviceDone.h"
+#include "Appointment.h"
+#include "Member.h"
+
 
 const std::string SERVICE_DONE_FILE = "../database/service-done.txt";
 const std::string APPOINTMENTS_FILE = "../database/appointments.txt";
-const std::string CUSTOMERS_FILE = "../database/customers.txt";
-const std::string STYLISTS_FILE = "../database/stylists.txt";
+const std::string USERS_FILE = "../database/users.txt";
 
 
 template<typename T>
 class Database
 {
-
     public:
+        Database(const Database&) = delete; // Singleton design pattern
+        Database& operator=(const Database&) = delete; // Singleton design pattern
         static Database<T>& Connect(const std::string& path); // Singleton design pattern
         ~Database();
         void Update(const std::string& ID,const T& newContent);
@@ -37,9 +39,7 @@ class Database
         [[nodiscard]] Database<T>& Query(const std::string& attribute,const std::string& val);
         [[nodiscard]] std::vector<T> GetResults();
     private:
-        explicit Database(const std::string&  path); // Thêm keyword explicit để tránh implicit conversions (ép kiểu ngầm định)
-        Database(const Database&) = delete; // Singleton design pattern
-        Database& operator=(const Database&) = delete; // Singleton design pattern
+        explicit Database(const std::string& path); // Thêm keyword explicit để tránh implicit conversions (ép kiểu ngầm định)
 
         void loadData();
         void save();
@@ -48,7 +48,12 @@ class Database
         void initMap();
         void removeIndex(const std::string& ID);
         void addIndex(const std::string& ID);
+        void resetQuery();
+
         const std::string path;
+        bool isQuerying = false;
+
+        int count = 0;
 
         std::map<std::string,T>_list;
         std::vector<T>resultList; // temporary result list for Query method
@@ -58,9 +63,8 @@ class Database
 
 };
 
-extern Database<Customer>& dbCustomer;
 extern Database<serviceDone>& dbServiceDone;
 extern Database<Appointment>& dbAppointment;
-extern Database<Stylist>& dbStylist;
+extern Database<Member>& dbUser;
 
 #endif // DATABASE_H

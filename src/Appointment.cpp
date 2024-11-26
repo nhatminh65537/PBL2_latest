@@ -24,6 +24,8 @@ void Appointment::Show() const {
     std::cout << "Appointment_ID: " << this->ID << '\n';
     std::cout << "StylistID: " << this->stylistID << '\n';
     std::cout << "CustomerID: " << this->customerID << '\n';
+    Datetime dt = this->startTime;
+    std::cout << "Day: " << dt.GetDay() << "/" << dt.GetMonth() << "/" << dt.GetYear() << " Time: " << dt.GetHour() << ":" << dt.GetMinute() << '\n';
     std::cout << "ServiceList: ";
     for (size_t i = 0; i < this->serviceList.size(); i++) {
         std::cout << ServiceToString(this->serviceList[i]);

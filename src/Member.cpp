@@ -2,16 +2,16 @@
 #include "Member.h"
 #include "define.h"
 
-Member::Member(const std::string& ID,const std::string &firstName, const std::string &lastName, const bool &gender, const int &age,
-    const std::string &phoneNumber, const std::string &username, const std::string &password) {
+Member::Member(const std::string& ID,const std::string &firstName, const std::string &lastName, const std::string &username, const std::string &password, const bool &gender,
+    const std::string &phoneNumber,const int& role) {
     this->ID = ID;
     this->firstName = firstName;
     this->lastName = lastName;
     this->gender = gender;
-    this->age = age;
     this->phoneNumber = phoneNumber;
     this->username = username;
     this->password = password;
+    this->role = role;
 }
 
 Member::~Member(){
@@ -42,14 +42,6 @@ void Member::SetGender(const bool &val) {
     this->gender = val;
 }
 
-int Member::GetAge() const {
-    return this->age;
-}
-
-void Member::SetAge(const int &val) {
-    this->age = val;
-}
-
 std::string Member::GetPhoneNumber() const {
     return this->phoneNumber;
 }
@@ -74,13 +66,22 @@ void Member::SetPassword(const std::string &val) {
     this->password = val;
 }
 
+int Member::GetRole() const {
+    return this->role;
+}
+
+void Member::SetRole(const int &role) {
+    this->role = role;
+}
+
+
 void Member::Show() const {
     std::cout << "ID: "  << this->ID << '\n';
     std::cout << "Username: "  << this->username << '\n';
     std::cout << "Full name: "  << this->GetFullName() << '\n';
     std::cout << "Gender: "  << (this->gender==1 ? "Male" : "Female") << '\n';
-    std::cout << "Age: "  << this->age << '\n';
     std::cout << "Phone: "  << this->phoneNumber << '\n';
+    std::cout << "Role: "  << (this->role==1 ? "Customer" : this->role == 2 ? "Stylist" : "Admin") << '\n';
 }
 
 
@@ -90,13 +91,12 @@ std::string Member::GetFullName() const {
 
 std::ostream& operator<<(std::ostream& os, const Member& obj) {
     os << obj.ID << ' ' << Replace(obj.firstName,' ','-')  << ' ' << Replace(obj.lastName,' ','-') << ' '
-    << obj.username << ' ' << obj.gender << ' '
-    << obj.age << ' ' << obj.phoneNumber;
+    << obj.username << ' ' << obj.password << ' ' << obj.gender << ' ' << obj.phoneNumber << ' ' << obj.role;
     return os;
 }
 
 std::istream& operator>>(std::istream& is, Member& obj) {
-    is >> obj.ID >> obj.firstName >> obj.lastName >> obj.username >> obj.gender >> obj.age >> obj.phoneNumber;
+    is >> obj.ID >> obj.firstName >> obj.lastName >> obj.username >> obj.password >>  obj.gender >> obj.phoneNumber >> obj.role;
     return is;
 }
 

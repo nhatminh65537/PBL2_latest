@@ -12,6 +12,9 @@ void callLogin(std::string username, std::string password, int role)
         throw ERROR_CODE::LOGIN_PASSWORD_EMPTY;
 
     // example
+    switch (role) {
+
+    }
     if (username != "test" && password != "pass")
         throw ERROR_CODE::LOGIN_INCORRECT_INPUT;
 

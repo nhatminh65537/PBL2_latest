@@ -3,18 +3,15 @@
 #include <fstream>
 #include <utility>
 #include "serviceDone.h"
-#include "Customer.h"
-#include "Stylist.h"
 
 template class Database<serviceDone>;
 template class Database<Appointment>;
-template class Database<Customer>;
-template class Database<Stylist>;
+template class Database<Member>;
 
-Database<Customer>& dbCustomer = Database<Customer>::Connect(CUSTOMERS_FILE);
+
 Database<serviceDone>& dbServiceDone = Database<serviceDone>::Connect(SERVICE_DONE_FILE);
 Database<Appointment>& dbAppointment = Database<Appointment>::Connect(APPOINTMENTS_FILE);
-Database<Stylist>& dbStylist = Database<Stylist>::Connect(STYLISTS_FILE);
+Database<Member>& dbUser = Database<Member>::Connect(USERS_FILE);
 
 template<typename T>
 Database<T>& Database<T>::Connect(const std::string& path) {
@@ -93,8 +90,13 @@ void Database<T>::Insert(const T& obj) {
         std::cerr << "ID " << obj.GetID() << " already exists\n";
         exit(1);
     }
-    this->_list[obj.GetID()] = obj;
-    addIndex(obj.GetID());
+    time_t now = time(nullptr);
+    std::string ID = obj.GetID();
+    if (ID == "null") ID = std::to_string(now);
+    T tmpObj = obj;
+    tmpObj.SetID(ID);
+    this->_list[ID] = tmpObj;
+    addIndex(ID);
 }
 
 template<typename T>
@@ -110,14 +112,11 @@ void Database<T>::Delete(const std::string& id){
 
 template<typename T>
 void Database<T>::Show() {
-
-    if (!this->resultList.empty()) {
-        if (this->resultList[0].GetID() != "null"){
-            for (const auto& it : this->resultList) {
-                it.Show();
-            }
+    if (this->isQuerying==true) {
+        for (const auto& it : this->resultList) {
+            it.Show();
         }
-        this->resultList.clear();
+        resetQuery();
         return;
     }
     for (const auto& it : this->_list){
@@ -186,10 +185,21 @@ Database<T>& Database<T>::Query(const std::string& attr,const std::string& val) 
         exit(1);
     }
 
+    auto equal = [&](std::string val1,std::string val2) -> bool {
+        if (attr == "startTime") { // If checking for startTime, we just have to check if they are on the same day.
+            std::vector<std::string> vt1 = Split(val1,'/');
+            std::vector<std::string> vt2 = Split(val2,'/');
+            if (vt1.size() != vt2.size() || vt1.size() < 5) return false;
+            val1 = vt1[2] + "/" + vt1[3] + "/" + vt1[4];
+            val2 = vt2[2] + "/" + vt2[3] + "/" + vt2[4];
+        }
+        return val1 == val2;
+    };
+
     std::vector<T> res;
-    if (!this->resultList.empty()) {
+    if (this->isQuerying==true) {
         for (const auto& obj : this->resultList) {
-            if (this->attributeMap.at(attr)(obj) == val) {
+            if (equal(this->attributeMap.at(attr)(obj),val)) {
                 res.push_back(obj);
             }
         }
@@ -204,16 +214,17 @@ Database<T>& Database<T>::Query(const std::string& attr,const std::string& val) 
         }
         else {
             for (const auto& [ID,obj] : this->_list) {
-                if(this->attributeMap.at(attr)(obj) == val) {
+                if(equal(this->attributeMap.at(attr)(obj),val)) {
                     res.push_back(obj);
                 }
             }
         }
+        this->isQuerying=true;
     }
-    if (res.empty()) {
-        T obj;
-        res.push_back(obj);
-    }
+    // if (res.empty()) {
+    //     T obj;
+    //     res.push_back(obj);
+    // }
     this->resultList = move(res); // Hàm "move" là chuyển quyền sở hữu data từ res qua this->resultList  => Tăng hiệu suất
     return *this;
 }
@@ -221,14 +232,23 @@ Database<T>& Database<T>::Query(const std::string& attr,const std::string& val) 
 template<typename T>
 std::vector<T> Database<T>::GetResults() {
     std::vector<T> res = this->resultList;
-    if (res.empty()) {
+    if (this->isQuerying==true) {
+        resetQuery();
+    }
+    else {
         for (const auto& [ID,obj] : this->_list) res.push_back(obj);
     }
-    this->resultList.clear();
     return res;
 }
 
 // Private method
+
+template<typename T>
+void Database<T>::resetQuery() {
+    this->resultList.clear();
+    this->isQuerying=false;
+}
+
 
 template<typename T>
 void Database<T>::index(const std::string& attribute) {
@@ -286,16 +306,10 @@ void Database<Appointment>::initIndex() {
 }
 
 template<>
-void Database<Customer>::initIndex() {
+void Database<Member>::initIndex() {
     index("firstName");
-    index("lastName");
 }
 
-template<>
-void Database<Stylist>::initIndex() {
-    index("firstName");
-    index("lastName");
-}
 
 template<>
 void Database<serviceDone>::initMap(){
@@ -345,6 +359,10 @@ void Database<Appointment>::initMap() {
     attributeMap["customerID"] = [](const Appointment& obj) -> std::string {
         return obj.GetCustomerID();
     };
+    attributeMap["startTime"] = [](const Appointment& obj) -> std::string {
+        const Datetime dt = obj.GetStartTime();
+        return Datetime::TimeToString(dt);
+    };
     updateMap["stylistID"] = [](Appointment& obj, const std::string& newVal) {
         obj.SetStylistID(newVal);
     };
@@ -359,51 +377,26 @@ void Database<Appointment>::initMap() {
 }
 
 template<>
-void Database<Customer>::initMap() {
-    attributeMap["ID"] = [](const Customer& obj) -> std::string {
+void Database<Member>::initMap() {
+    attributeMap["ID"] = [](const Member& obj) -> std::string {
         return obj.GetID();
     };
-    attributeMap["firstName"] = [](const Customer& obj) -> std::string {
+    attributeMap["firstName"] = [](const Member& obj) -> std::string {
         return obj.GetFirstName();
     };
-    attributeMap["lastName"] = [](const Customer& obj) -> std::string {
+    attributeMap["lastName"] = [](const Member& obj) -> std::string {
         return obj.GetLastName();
     };
-    attributeMap["gender"] = [](const Customer& obj) -> std::string {
+    attributeMap["gender"] = [](const Member& obj) -> std::string {
         return (obj.GetGender() == 1 ? "Male" : "Female");
     };
-    attributeMap["age"] = [](const Customer& obj) -> std::string {
-        return std::to_string(obj.GetAge());
-    };
-    attributeMap["username"] = [](const Customer& obj) -> std::string {
+    attributeMap["username"] = [](const Member& obj) -> std::string {
         return obj.GetUserName();
     };
-    attributeMap["password"] = [](const Customer& obj) -> std::string {
-        return "HASHED_PASSWORD_YOU_CANNOT_ACCESS";
+    attributeMap["password"] = [](const Member& obj) -> std::string {
+        return obj.GetPassword();
     };
-}
-
-template<>
-void Database<Stylist>::initMap() {
-    attributeMap["ID"] = [](const Stylist& obj) -> std::string {
-        return obj.GetID();
-    };
-    attributeMap["firstName"] = [](const Stylist& obj) -> std::string {
-        return obj.GetFirstName();
-    };
-    attributeMap["lastName"] = [](const Stylist& obj) -> std::string {
-        return obj.GetLastName();
-    };
-    attributeMap["gender"] = [](const Stylist& obj) -> std::string {
-        return (obj.GetGender() == 1 ? "Male" : "Female");
-    };
-    attributeMap["age"] = [](const Stylist& obj) -> std::string {
-        return std::to_string(obj.GetAge());
-    };
-    attributeMap["username"] = [](const Stylist& obj) -> std::string {
-        return obj.GetUserName();
-    };
-    attributeMap["password"] = [](const Stylist& obj) -> std::string {
-        return "HASHED_PASSWORD_YOU_CANNOT_ACCESS";
+    attributeMap["role"] = [](const Member& obj) -> std::string {
+        return std::to_string(obj.GetRole());
     };
 }

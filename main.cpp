@@ -3,7 +3,8 @@
 #include "Database.h"
 #include "serviceDone.h"
 #include "Statistics.h"
-#include "Stylist.h"
+#include "Member.h"
+#include "Salon.h"
 
 
 void test() {
@@ -50,7 +51,11 @@ void test() {
 // }
 
 int main() {
-    //test();
-    //testthongke();
+    //dbAppointment.Query("startTime","30/4/27/11/2024").Show();
+    Salon& salon = Salon::StartUp();
+    if (salon.Login("longqt321","123456")) {
+        std::cout << salon.GetUserID() << ' ' << salon.GetUserRole() << '\n';
+        salon.ShowAllAppointment(Datetime::StringToTime("30/4/27/11/2024"));
+    }
     return 0;
 }

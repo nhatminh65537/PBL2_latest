@@ -8,6 +8,9 @@
 #include <string>
 #include <vector>
 #include <array>
+#include "Member.h"
+
+extern Member* user;
 
 namespace ERROR_CODE
 {

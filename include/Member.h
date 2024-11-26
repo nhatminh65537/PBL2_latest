@@ -9,10 +9,11 @@ class Member : public Identifiable {
         explicit Member(const std::string& ID="null",
             const std::string& firstName="null",
             const std::string& lastName="null",
-            const bool& gender=false,const int& age=0,
-            const std::string& phoneNumber="null",
             const std::string& username="null",
-            const std::string& password="null");
+            const std::string& password="null",
+            const bool& gender=false,
+            const std::string& phoneNumber="null",
+            const int& role = 0);
 
         ~Member() override;
 
@@ -24,17 +25,14 @@ class Member : public Identifiable {
         [[nodiscard]] std::string GetFullName() const;
         [[nodiscard]] bool GetGender() const;
         void SetGender(const bool& val);
-        [[nodiscard]] int GetAge() const;
-        void SetAge(const int& val);
         [[nodiscard]] std::string GetPhoneNumber() const;
         void SetPhoneNumber(const std::string& val);
         [[nodiscard]] std::string GetUserName() const;
         void SetUserName(const std::string& val);
         [[nodiscard]] std::string GetPassword() const;
         void SetPassword(const std::string& val);
-
-        [[nodiscard]] virtual bool Login(const std::string&,const std::string&) const = 0;
-        [[nodiscard]] virtual bool Logout() const = 0;
+        [[nodiscard]] int GetRole() const;
+        void SetRole(const int&);
         void Show() const override;
 
         friend std::ostream& operator<<(std::ostream& os, const Member& obj);
@@ -46,9 +44,8 @@ class Member : public Identifiable {
         std::string username;
         std::string password;
         bool gender;
-        int age;
         std::string phoneNumber;
-
+        int role; // 1 -> customer. 2 -> stylist. 3 -> admin. Other -> unknown
 };
 
 #endif // MEMBER_H

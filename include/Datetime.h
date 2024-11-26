@@ -35,6 +35,8 @@ public:
     friend bool IsSameYear(const Datetime&, const Datetime&);
     friend bool IsBetween(const Datetime&,const Datetime&,const Datetime&);
 
+    static std::string TimeToString(const Datetime&);
+    static Datetime StringToTime(const std::string&); // Convert string with format minute/hour/dd/mm/yyyy to Datetime
     static Datetime Now();
 private:
     int minute, hour, day, month, year;

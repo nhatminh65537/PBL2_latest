@@ -110,6 +110,31 @@ Datetime Datetime::operator-(const int& days) const {
     return res;
 }
 
+std::string Datetime::TimeToString(const Datetime &dt) {
+    std::string min = std::to_string(dt.GetMinute());
+    std::string hour = std::to_string(dt.GetHour());
+    std::string day = std::to_string(dt.GetDay());
+    std::string month = std::to_string(dt.GetMonth());
+    std::string year = std::to_string(dt.GetYear());
+
+    return min + '/' + hour + '/' + day + '/' + month + '/' + year;
+}
+
+Datetime Datetime::StringToTime(const std::string& time) {
+    std::vector<std::string> dt = Split(time,'/');
+    if (dt.size()<5)
+        throw std::invalid_argument("Invalid time format");
+
+    int min = ToNum(dt[0]);
+    int hour = ToNum(dt[1]);
+    int day = ToNum(dt[2]);
+    int month = ToNum(dt[3]);
+    int year = ToNum(dt[4]);
+
+    return Datetime(min,hour,day,month,year);
+}
+
+
 Datetime Datetime::Now() {
     const time_t now = time(nullptr);
     const tm* t = localtime(&now);
