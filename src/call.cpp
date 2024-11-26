@@ -72,6 +72,17 @@ std::string makeName(std::string firstname, std::string lastname, bool reverse)
     return firstname + " " + lastname;
 }
 
+std::string callCheckStylistBusy(std::string stylistID, int day, int month, int year, int hour, int minute)
+{
+    // check if stylist is busy at the time
+    // example
+    // std::string stylistID = ""; => stylist is not selected
+    // (if stylist is not selected) count all appointment at this time compare to the number of stylist
+    return "All stylist is busy at this time";
+    // return "This stylist is busy at this time";
+    // return "Salon is closed at this time";
+    // return "";
+}
 
 // Current user call (Customer)
 
@@ -160,11 +171,11 @@ void callUpdateCurrentPersonInfo(std::string phonenumber, std::string age, int g
 
 // Appointment call and auxiliary
 
-void callCreateNewAppointment(bool services[], int selectedStylist, int selectedDay, int selectedMonth, int selectedYear, int selectedHour, int selectedMinute, std::string requirement)
+void callCreateNewAppointment(bool services[], std::string selectedStylistID, int selectedDay, int selectedMonth, int selectedYear, int selectedHour, int selectedMinute, std::string requirement)
 {
     /*
     states[0] = true => Service 0 (in enum) is selected
-    selectedStylist[0] = 1 => Service 0 is assigned to Stylist 1 (in return of callGetStylist)
+    selectedStylistID = "" => No stylist selected
     selectedDay = x => Day x + 1 in month
     selectedMonth = 0 => January
     selectedYear = x => 2021 + x
@@ -242,6 +253,11 @@ std::vector<std::string> callGetAppointmentServicesByID(std::string id)
 std::string callGetAppointmentStylistByID(std::string id)
 {
     // get appointment stylist by id
+    // if not found, return "None"
+
+    // example
+    if (id == "001")
+        return "None";
     return "Stylist 1";
 }
 
@@ -259,7 +275,7 @@ std::string callGetAppointmentRequirementByID(std::string id)
     return "This is requirement";
 }
 
-std::vector<std::string> callGetApointmentIDList(int day, int month, int year, int hour, int minute, bool services[], int status, std::string customerID, int& count)
+std::vector<std::string> callGetApointmentIDList(int day, int month, int year, int hour, int minute, bool services[], int status, std::string customerID, std::string stylistID, int& count)
 {
     count = 3;
     return {"001", "002", "003"};
@@ -270,6 +286,17 @@ void callCancelAppointment(std::string id)
     // Huy lich co id
     // example
     
+}
+
+void callDoneAppointment(std::string id)
+{
+    // Hoan thanh lich co id
+    // example
+}
+
+void callAssignStylistToAppointment(std::string appointmentID, std::string stylistID)
+{
+
 }
 
 
@@ -377,5 +404,77 @@ std::vector<std::string> callGetCustomerIDList(bool gender[2], std::string name,
 void callDeleteCustomer(std::string id)
 {
     // delete customer by id
+    // example
+}
+
+
+// Service Done call and auxiliary
+std::vector<std::string> callGetServiceDoneIDList(int day, int month, int year, std::string customerID, std::string stylistID, bool rating[], bool status[], bool services[], int& count)
+{
+    /*
+    day = 0 => all day
+    month = 0 => all month
+    year = 0 => all year
+    day = x (not 0) => Day x in month
+    month = x (not 0) => month x
+    year = x (not 0) => 2020 + x
+    rating[0] = true => Rating 0 (in enum) is selected
+    status[0] = true => Status 0 (in enum) is selected
+    count = number of service done records
+    */
+    std::vector<std::string> serviceDoneList;
+    // example
+    serviceDoneList.push_back("001");
+    serviceDoneList.push_back("002");
+    serviceDoneList.push_back("003");
+    count = 3;
+    return serviceDoneList;
+}
+
+std::string callGetServiceDoneCustomerIDByID(std::string id)
+{
+    // get service done customer id by id
+    // example
+    return "001";
+}
+
+std::string callGetServiceDoneStylistIDByID(std::string id)
+{
+    // get service done stylist id by id
+    // example
+    return "002";
+}
+
+std::string callGetServiceDoneRatingByID(std::string id)
+{
+    // get service done rating by id
+    // example
+    return "5";
+}
+
+std::string callGetServiceDoneDateByID(std::string id)
+{
+    // get service done date by id
+    // example
+    return "01/01/2021";
+}
+
+std::string callGetServiceDoneStatusByID(std::string id)
+{
+    // get service done status by id
+    // example
+    return "Completed";
+}
+
+std::string callGetServiceDoneServiceByID(std::string id)
+{
+    // get service done services by id
+    // example
+    return "Cat toc";
+}
+
+void callRateServiceDone(std::string id, int rating)
+{
+    // rate service done by id
     // example
 }
