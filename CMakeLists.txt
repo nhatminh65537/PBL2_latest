@@ -33,7 +33,7 @@ add_executable(PBL2_Clion
         src/call.cpp #2 dòng này đang bị lỗi  undefined reference to `currentScreen'
         src/ui.cpp
         src/Salon.cpp
-        #ui_demo.cpp
+        ui_demo.cpp
 )
 
 # Dùng các thành phần trong thư viện FTXUI

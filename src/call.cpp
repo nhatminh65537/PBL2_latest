@@ -1,9 +1,17 @@
 #include "call.h"
 #include "Salon.h"
+#include "Database.h"
+#include "test.h"
+#include "Appointment.h"
+#include "Datetime.h"
+#include "algorithm"
+
+// variables
+
+Appointment tempAppointment;
+
 
 // Login and Register
-
-
 
 int callLogin(std::string username, std::string password)
 {
@@ -13,18 +21,11 @@ int callLogin(std::string username, std::string password)
     return salon.GetUserRole();
 }
 
-void callRegister(std:: string firstname, std::string lastname, std::string username, std::string password, std::string confirmpassword, std::string phonenumber, std::string age, int gender, int role)
+void callRegister(std:: string firstname, std::string lastname, std::string username, std::string password, std::string confirmpassword, std::string phonenumber, int gender, int role)
 {
-    if (firstname.empty() || lastname.empty() || username.empty() || password.empty() || confirmpassword.empty() || phonenumber.empty() || age.empty())
-        throw ERROR_CODE::REGISTER_SOME_FIELD_EMPTY;
-    if (password != confirmpassword)
-        throw ERROR_CODE::REGISTER_PASSWORD_NOT_MATCH;
-    
-    // check if username already exist
-    // example
-    if (username == "test")
-        throw ERROR_CODE::REGISTER_USERNAME_EXIST;
-    // and update database
+    Salon& salon = Salon::StartUp();
+    bool isMale = (gender == 0);
+    salon.Register(firstname, lastname, username, password, confirmpassword, isMale, phonenumber, 1);
 }
 
 
@@ -35,17 +36,9 @@ int callGetServiceList(std::vector<std::string>& services)
     /*
     services = {"Service 0", "Service 1", "Service 2", "Service 3", "Service 4", "Service 5", "Service 6", "Service 7"};
     */
-    services = {
-        "Service 0",
-        "Service 1",
-        "Service 2",
-        "Service 3",
-        "Service 4",
-        "Service 5",
-        "Service 6",
-        "Service 7",
-    };
-    return 8;
+    for (int i = 1; i < SERVICES_COUNT; i++)
+        services.push_back(ServiceToString(i));
+    return SERVICES_COUNT - 1;
 }  // return the number of services
 
 std::string makeName(std::string firstname, std::string lastname, bool reverse)
@@ -66,6 +59,7 @@ std::string callCheckStylistBusy(std::string stylistID, int day, int month, int 
     // return "Salon is closed at this time";
     // return "";
 }
+
 
 // Current user call (Customer)
 
@@ -99,29 +93,25 @@ std::string callGetCurrentUserUsername()
 
 std::string callGetCurrentUserName()
 {
-    // m->
-    // return current user name
-    // example
-    return "John Doe";
+    return callGetMemberNameByID(callGetCurrentUserID());
 }
 
-std::string callGetCurrentUserID(){return "001";}
+std::string callGetCurrentUserID()
+{
+    Salon& salon = Salon::StartUp();
+    return salon.GetUserID();
+}
 
 void callGetCurrentUserName(std::string& firstname, std::string& lastname)
 {
-    // return current user name
-    // example
-    firstname = "John";
-    lastname = "Doe";
+    firstname = callGetMemberFirstNameByID(callGetCurrentUserID());
+    lastname = callGetMemberLastNameByID(callGetCurrentUserID());
 }
 
-void callGetCurrentUserPersonInfo(std::string& phonenumber, std ::string& age, int& gender)
+void callGetCurrentUserPersonInfo(std::string& phonenumber, int& gender)
 {
-    // return current user person info
-    // example
-    phonenumber = "0123456789";
-    age = "20";
-    gender = 0; // 0 = male, 1 = female
+    phonenumber = callGetMemberPhoneByID(callGetCurrentUserID());
+    gender = (callGetMemberGenderByID(callGetCurrentUserID()) == "Male"? 0 : 1);
 }
 
 void callUpdateCurrentUserName(std::string firstname, std::string lastname)
@@ -132,23 +122,26 @@ void callUpdateCurrentUserName(std::string firstname, std::string lastname)
         throw ERROR_CODE::UPDATE_PROFILE_FIRSTNAME_EMPTY;
     if (lastname.empty())
         throw ERROR_CODE::UPDATE_PROFILE_LASTNAME_EMPTY;
-    // update database
+    dbUser.Update(callGetCurrentUserID(), "firstName", firstname);
+    dbUser.Update(callGetCurrentUserID(), "lastName", lastname);
 }
 
 void callUpdateCurrentPassword(std::string oldPassword, std::string newPassword, std::string confirmpassword)
 {
-    if (oldPassword != "pass") // example
+    
+    if (oldPassword != dbUser.Get(callGetCurrentUserID()).GetPassword()) 
         throw ERROR_CODE::UPDATE_PROFILE_INVALID_PASSWORD;
     if (newPassword != confirmpassword)
         throw ERROR_CODE::UPDATE_PROFILE_PASSWORD_NOT_MATCH;
-    // update database
+    dbUser.Update(callGetCurrentUserID(), "password", newPassword);
 }
 
-void callUpdateCurrentPersonInfo(std::string phonenumber, std::string age, int gender)
+void callUpdateCurrentPersonInfo(std::string phonenumber, int gender)
 {
-    if (phonenumber.empty() || age.empty())
+    if (phonenumber.empty())
         throw ERROR_CODE::UPDATE_PROFILE_PERSONINFO_EMPTY;
-    // update database
+    dbUser.Update(callGetCurrentUserID(), "phoneNumber", phonenumber);
+    dbUser.Update(callGetCurrentUserID(), "gender", gender == 0? "1": "0");
 }
 
 
@@ -177,78 +170,79 @@ void callCreateNewAppointment(bool services[], std::string selectedStylistID, in
     */
     // test exception
     // throw ERROR_CODE::CREATE_APPOINTMENT_CLOSED_TIME;
+
+    Salon& salon = Salon::StartUp();
+    std::vector<Service> serviceList;
+    for (int i = 0; i < SERVICES_COUNT - 1; i++)
+        if (services[i])
+            serviceList.push_back(static_cast<Service> (i + 1));
+    salon.CreateAppointment(callGetCurrentUserID(), selectedStylistID, Datetime(selectedMinute, selectedHour, selectedDay, selectedMonth, selectedYear), serviceList);
 }
 
 std::string callGetNewAppointmentId()
 {
-    // return the temp global variable (make when call callCreateNewAppointment)
-    // example
-    return "001256";
+    Salon& salon = Salon::StartUp();;
+    return salon.GetTempAppointmentID();
 }
 
 void callAddNewAppointment()
 {
-    // add the temp global variable (make when call callCreateNewAppointment) to the database
+    Salon& salon = Salon::StartUp();
+    salon.AddAppointment();
 }
 
 std::string callGetAppointmentCustomerIDByID(std::string id)
 {
-    // get appointment customer id by id
-    // example
-    return "001";
+    return dbAppointment.Get(id).GetCustomerID();
 }
 
 std::string callGetAppointmentCustomerNameByID(std::string id)
 {
-    // get appointment customer name by id
-    // example
-    return "John Doe";
+    return dbUser.Get(dbAppointment.Get(id).GetCustomerID()).GetFullName();
 }
 
 std::string callGetAppointmentStatusByID(std::string id)
 {
-    // get appointment status by id
-    // example
     return "Done";
 }
 
 std::string callGetAppointmentDateByID(std::string id)
 {
-    // get appointment date by id
-    // example
-    return "01/01/2021";
+    Datetime dt = dbAppointment.Get(id).GetStartTime();
+    std::string day = std::to_string(dt.GetDay());
+    if (day.length() == 1) day = "0" + day;
+    std::string month = std::to_string(dt.GetMonth());
+    if (month.length() == 1) month = "0" + month;
+    std::string year = std::to_string(dt.GetYear());
+    return day + "/" + month + "/" + year;
 }
 
 std::string callGetAppointmentTimeByID(std::string id)
 {
-    // get appointment time by id
-    // example
-    return "08:00";
+    Datetime dt = dbAppointment.Get(id).GetStartTime();
+    std::string hour = std::to_string(dt.GetHour());
+    if (hour.length() == 1) hour = "0" + hour;
+    std::string minute = std::to_string(dt.GetMinute());
+    if (minute.length() == 1) minute = "0" + minute;
+    return hour + ":" + minute;
 }
 
 std::vector<std::string> callGetAppointmentServicesByID(std::string id)
 {
-    // get appointment services by id
-    // example
-    return {"Cat toc", "Goi dau"};
+    std::vector<std::string> services;
+    for (auto service : dbAppointment.Get(id).GetServices())
+        services.push_back(ServiceToString(service));
+    return services;
 }
 
 std::string callGetAppointmentStylistByID(std::string id)
 {
-    // get appointment stylist by id
-    // if not found, return "None"
-
-    // example
-    if (id == "001")
-        return "None";
-    return "Stylist 1";
+    return dbUser.Get(dbAppointment.Get(id).GetStylistID()).GetFullName();
 }
 
 std::string callGetAppointmentStylistIDByID(std::string id)
 {
-    // get appointment stylist id by id
-    // example
-    return "001";
+    return dbUser.Get(dbAppointment.Get(id).GetStylistID()).GetID();
 }
 
 std::string callGetAppointmentRequirementByID(std::string id)
@@ -258,20 +252,46 @@ std::string callGetAppointmentRequirementByID(std::string id)
     return "This is requirement";
 }
 
+// Don't know implement yet
 std::vector<std::string> callGetApointmentIDList(int day, int month, int year, int hour, int minute, bool services[], int status, std::string customerID, std::string stylistID, int& count)
 {
     // if day, month, year, hour, minute = 0 => all
     // if day, month, year, hour, minute = -1 => Now
     // if day, month, year = -1, hour, minute = 0 => Today
-    count = 3;
-    return {"001", "002", "003"};
+    std::vector<std::string> appointmentIDList;
+    if (day > 0 && month > 0 && year > 0)
+    {
+        dbAppointment
+            .Query("startTime", std::to_string(minute) + "/" + std::to_string(hour) + "/" + std::to_string(day) + "/" + std::to_string(month) + "/" + std::to_string(year))
+            .Query("customerID", customerID)
+            .Query("stylistID", stylistID);
+    } else if (day == 0 && month == 0 && year == 0)
+    {
+        dbAppointment
+            .Query("customerID", customerID)
+            .Query("stylistID", stylistID);
+    }
+    std::vector<Appointment> appointmentList = dbAppointment.GetResults();
+    std::vector<Service> serviceList;
+    for (int i = 0; i < SERVICES_COUNT - 1; i++)
+        if (services[i])
+            serviceList.push_back(static_cast<Service> (i + 1));
+    for (auto appoint : appointmentList)
+    {
+        std::vector<Service> temp;
+        appoint.GetServices();
+        std::set_difference(serviceList.begin(), serviceList.end(), appoint.GetServices().begin(), appoint.GetServices().end(), back_inserter(temp));
+        if (temp.size() > 0)
+            appointmentIDList.push_back(appoint.GetID());
+    }
+    count = appointmentIDList.size();
+    return appointmentIDList;
 }
 
 void callCancelAppointment(std::string id)
 {
     // Huy lich co id
     // example
-    
 }
 
 void callDoneAppointment(std::string id)
@@ -282,7 +302,7 @@ void callDoneAppointment(std::string id)
 
 void callAssignStylistToAppointment(std::string appointmentID, std::string stylistID)
 {
-
+    dbAppointment.Update(appointmentID, "stylistID", stylistID);
 }
 
 
@@ -290,63 +310,56 @@ void callAssignStylistToAppointment(std::string appointmentID, std::string styli
 
 std::string callGetMemberNameByID(std::string id)
 {
-    // get member name by id
-    // example
-    return "John Doe";
+    return dbUser.Get(id).GetFullName();
 }
 
 std::string callGetMemberFirstNameByID(std::string id)
 {
-    // get member first name by id
-    // example
-    return "John";
+    return  dbUser.Get(id).GetFirstName();
 }
 
 std::string callGetMemberLastNameByID(std::string id)
 {
-    // get member last name by id
-    // example
-    return "Doe";
+    return dbUser.Get(id).GetLastName();
 }
 
 std::string callGetMemberPhoneByID(std::string id)
 {
-    // get member phone by id
-    // example
-    return "0123456789";
+    return dbUser.Get(id).GetPhoneNumber();
 }
 
 std::string callGetMemberAgeByID(std::string id)
 {
-    // get member age by id
-    // example
-    return "20";
+    return "Trash";
 }
 
 std::string callGetMemberGenderByID(std::string id)
 {
-    return "Male";
+    return (dbUser.Get(id).GetGender() == 1 ? "Male" : "Female");
 }
 
 std::string callGetMemberUsernameByID(std::string id)
 {
-    // get member username by id
-    // example
-    return "johndoe";
+    return dbUser.Get(id).GetUserName();
 }
 
 
 // Stylist call and auxiliary
-
+// need more
 std::vector<std::string> callGetStylistIDList(bool gender[2], std::string name, std::string age, int& count)
 {
-    std::vector<std::string> stylistList;
-    // example
-    stylistList.push_back("123");
-    stylistList.push_back("234");
-    stylistList.push_back("345");
-    count = 3;
-    return stylistList;
+    // logf << "Start callGetStylistIDList\n";
+    std::vector<std::string> stylistListID;
+    std::vector<Member> stylistList = dbUser.Query("role", "2").GetResults();
+    // logf << "  Print stylist list\n";
+    for (auto stylist : stylistList) {
+        stylistListID.push_back(stylist.GetID());
+        // logf << "  " << dbUser.Get(stylist.GetID()).GetRole() << '\n';
+    }
+    count = stylistListID.size();
+    // logf << "  count = " << count << '\n';
+    // logf << "End callGetStylistIDList\n";
+    return stylistListID;
 }
 
 std::vector<std::string> callGetStylistIDList()
@@ -375,16 +388,11 @@ void callAddStylist(std::string firstname, std::string lastname, int gender, std
 
 
 // Customer call and auxiliary
-
+//need more
 std::vector<std::string> callGetCustomerIDList(bool gender[2], std::string name, std::string age, int& count)
 {
-    std::vector<std::string> customerList;
-    // example
-    customerList.push_back("001");
-    customerList.push_back("002");
-    customerList.push_back("003");
-    count = 3;
-    return customerList;
+    std::vector<std::string> customerListID;
+    return customerListID;
 }
 
 void callDeleteCustomer(std::string id)

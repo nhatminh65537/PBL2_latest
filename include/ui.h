@@ -3,6 +3,7 @@
 
 #include <functional>
 #include "call.h"
+#include "test.h"
 #define HIDE_CURSOR (std::cout << "\033[?25l")
 #define SHOW_CURSOR (std::cout << "\033[?25h")
 #define SCREEN_WIDTH 120

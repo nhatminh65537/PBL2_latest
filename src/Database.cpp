@@ -3,6 +3,7 @@
 #include <fstream>
 #include <utility>
 #include "serviceDone.h"
+#include "test.h"
 
 template class Database<serviceDone>;
 template class Database<Appointment>;
@@ -171,6 +172,7 @@ bool Database<T>::IsEmpty() const {
 
 template<typename T>
 T Database<T>::Get(const std::string &ID) const {
+    // logf << "Get\n\t" << ID << '\n';
     if (!this->_list.contains(ID)) {
         std::cerr << ID << " does not exist\n";
         exit(1);

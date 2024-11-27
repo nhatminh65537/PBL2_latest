@@ -1,3 +1,4 @@
 modulo time choose
 
 bỏ trường age
+bỏ trường requirement

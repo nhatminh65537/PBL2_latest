@@ -1291,7 +1291,7 @@ void screenAdmin()
         profileConfirmpassword = "";
     };
     auto resetPersonInfo = [&] {
-        callGetCurrentUserPersonInfo(profilePhonenumber, profileAge, profileGender);
+        callGetCurrentUserPersonInfo(profilePhonenumber, profileGender);
     };
     auto resetProfile = [&] {
         resetName();
@@ -1402,7 +1402,7 @@ void screenAdmin()
     Component buttonPersoninfoUpdate = Button("Update", [&] {
         errorUpdateProfilePersoninfoEmpty = "";
         try {
-            callUpdateCurrentPersonInfo(profilePhonenumber, profileAge, profileGender);
+            callUpdateCurrentPersonInfo(profilePhonenumber, profileGender);
         }
         catch (int errorCode) {
             switch (errorCode)

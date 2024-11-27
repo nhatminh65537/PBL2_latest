@@ -7,6 +7,7 @@
 #include <Appointment.h>
 #include <Database.h>
 
+#include <fstream>
 
 Salon& Salon::StartUp() {
     static Salon salon;
@@ -32,6 +33,7 @@ void Salon::ensurePermission(const std::string& requiredRole) {
         if (requiredRole == "customer") return 1;
         if (requiredRole == "stylist") return 2;
         if (requiredRole == "admin") return 3;
+        return 0;
     };
     int role = convertRoleToInt(requiredRole);
     if (userRole != role && userRole != 3)
@@ -39,6 +41,10 @@ void Salon::ensurePermission(const std::string& requiredRole) {
 }
 
 bool Salon::Login(const std::string& username, const std::string& password) {
+    // std::ofstream log;
+    // log.open("log.txt", std::ios::app);
+    // log << "Salon::Login Test\n";
+
     if (username.empty() && password.empty())
         throw ERROR_CODE::LOGIN_USER_AND_PASS_EMPTY;
     if (username.empty())
@@ -50,9 +56,14 @@ bool Salon::Login(const std::string& username, const std::string& password) {
                                         Query("password",password).
                                         GetResults();
 
+
+    // log << "Hello" << members.size() << '\n';
     if (members.size()==1) {
         userID = members[0].GetID();
         userRole = dbUser.Get(userID).GetRole();
+        // userRole = 1;
+        // log << "User " << username << " logged in\n";
+        // log << "Role: " << userRole << "\n";
         return true;
     }
     return false;
@@ -82,8 +93,19 @@ void Salon::CreateAppointment(const std::string& customerID,const std::string& s
 
     ensurePermission("customer");
 
-    Appointment instance("null",dt,customerID,stylistID,serviceList);
-    dbAppointment.Insert(instance);
+    // by Minh
+    tempAppointment = Appointment("null",dt,customerID,stylistID,serviceList);
+}
+
+// added by Minh
+void Salon::AddAppointment() {
+    dbAppointment.Insert(tempAppointment);
+    tempAppointment = Appointment();
+}
+
+// added by Minh
+std::string Salon::GetTempAppointmentID() {
+    return tempAppointment.GetID();
 }
 
 void Salon::DeleteAppointment(const std::string& appointmentID) {

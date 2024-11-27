@@ -104,24 +104,28 @@ void screenLogin()
         errorUsername  = "";
         errorPassword  = "";
         errorIncorrect = "";
+        logf << "Login\n";
         try {
-            ;
-            switch (callLogin(username, password))
+            int res = callLogin(username, password);
+            logf << "Login role result: " << res;
+            switch (res)
             {
-                case 0:
-                    currentScreen = screenStylist;
-                    break;
                 case 1:
                     currentScreen = screenCustomer;
                     break;
                 case 2:
+                    currentScreen = screenStylist;
+                    break;
+                case 3:
                     currentScreen = screenAdmin;
                     break;
             };
             screen.Exit();
+            logf << " Success\n";
         }
         catch (int errorCode) {
             errorHandle(errorCode);
+            logf << " Error\n";
         }
     }, buttonOptionAll) | size(WIDTH, EQUAL, 15);
     Component buttonBack  = Button("Back" , [&] {
@@ -295,7 +299,7 @@ void screenRegister()
         errorUsernameExist = "";
         massageSuccess = "";
         try {
-            callRegister(firstname, lastname, username, password, confirmpassword, phonenum, age, gender, role);
+            callRegister(firstname, lastname, username, password, confirmpassword, phonenum, gender, role);
             massageSuccess = "Register success";
         }
         catch (int errorCode) {
@@ -363,12 +367,11 @@ void screenCustomer()
         return element;
     };
 
+    
     // Begin
     #pragma region
     
     // test stuff
-    std::ofstream log;
-    log.open("log.txt");
 
     // customer screen
     auto screen = ScreenInteractive::FixedSize(SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -1538,7 +1541,7 @@ void screenCustomer()
         confirmpassword = "";
     };
     auto resetPersonInfo = [&] {
-        callGetCurrentUserPersonInfo(phonenumber, age, gender);
+        callGetCurrentUserPersonInfo(phonenumber, gender);
     };
     auto resetProfile = [&] {
         resetName();
@@ -1650,7 +1653,7 @@ void screenCustomer()
     Component buttonPersoninfoUpdate = Button("Update", [&] {
         errorUpdateProfilePersoninfoEmpty = "";
         try {
-            callUpdateCurrentPersonInfo(phonenumber, age, gender);
+            callUpdateCurrentPersonInfo(phonenumber, gender);
         }
         catch (int errorCode) {
             switch (errorCode)
@@ -2570,7 +2573,7 @@ void screenStylist()
         confirmpassword = "";
     };
     auto resetPersonInfo = [&] {
-        callGetCurrentUserPersonInfo(phonenumber, age, gender);
+        callGetCurrentUserPersonInfo(phonenumber, gender);
     };
     auto resetProfile = [&] {
         resetName();
@@ -2632,7 +2635,7 @@ void screenStylist()
     Component buttonPersoninfoUpdate = Button("Update", [&] {
         errorUpdateProfilePersoninfoEmpty = "";
         try {
-            callUpdateCurrentPersonInfo(phonenumber, age, gender);
+            callUpdateCurrentPersonInfo(phonenumber, gender);
         }
         catch (int errorCode) {
             switch (errorCode)
