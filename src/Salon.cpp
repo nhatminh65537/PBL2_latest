@@ -27,19 +27,13 @@ int Salon::GetUserRole() {
 
 
 void Salon::ensurePermission(const std::string& requiredRole) {
-    if (userRole == 0) throw ERROR_CODE::SALON_SOME_FIELD_EMPTY;
-    int role=0;
-    switch(requiredRole) {
-        case "customer":
-            role = 1;
-            break;
-        case "stylist":
-            role = 2;
-            break;
-        case "admin":
-            role = 3;
-            break;
-    }
+    if (requiredRole.empty()) throw ERROR_CODE::SALON_SOME_FIELD_EMPTY;
+    auto convertRoleToInt = [](const std::string requiredRole) -> int {
+        if (requiredRole == "customer") return 1;
+        if (requiredRole == "stylist") return 2;
+        if (requiredRole == "admin") return 3;
+    };
+    int role = convertRoleToInt(requiredRole);
     if (userRole != role && userRole != 3)
         throw ERROR_CODE::SALON_ACCESS_DENIED;
 }
@@ -55,7 +49,6 @@ bool Salon::Login(const std::string& username, const std::string& password) {
     std::vector<Member> members = dbUser.Query("username",username).
                                         Query("password",password).
                                         GetResults();
-    //for (auto x : members) x.Show();
 
     if (members.size()==1) {
         userID = members[0].GetID();
