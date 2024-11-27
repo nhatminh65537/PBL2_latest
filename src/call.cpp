@@ -315,28 +315,51 @@ std::vector<std::string> callGetApointmentIDList(int day, int month, int year, i
     // if day, month, year, hour, minute = 0 => all
     // if day, month, year, hour, minute = -1 => Now
     // if day, month, year = -1, hour, minute = 0 => Today
-    std::vector<std::string> appointmentIDList;
-    if (day > 0 && month > 0 && year > 0)
-    {
-        dbAppointment
-            .Query("startTime", std::to_string(minute) + "/" + std::to_string(hour) + "/" + std::to_string(day) + "/" + std::to_string(month) + "/" + std::to_string(year))
-            .Query("customerID", customerID)
-            .Query("stylistID", stylistID);
-    } 
-    // dbAppointment.Query("customerID", "1732689034");
-    std::vector<Appointment> appointmentList = dbAppointment.GetResults();
     std::vector<Service> serviceList;
     for (int i = 0; i < SERVICES_COUNT - 1; i++)
         if (services[i])
             serviceList.push_back(static_cast<Service> (i + 1));
+    std::string dataYear = std::to_string(year + 2020);
+    std::string dataMonth = std::to_string(month);
+    std::string dataDay = std::to_string(day);
+    std::string dataHour = std::to_string(hour);
+    std::string dataMinute = std::to_string(minute);
+    
+    flog << "callGetApointmentIDList\n";
+    // filter by day, month, year, hour, minute
+    if (day > 0 && month > 0 && year > 0)
+    {
+        flog << "  Filter by day, month, year\n";
+        dbAppointment.Query("startTime", "0/0/" + dataDay + "/" + dataMonth + "/" + dataYear);
+    } 
+    // filter by customerID
+    if (!customerID.empty())
+    {
+        flog << "  Filter by customerID\n";
+        dbAppointment.Query("customerID", customerID);
+    }
+    // filter by stylistID
+    if (!stylistID.empty())
+    {
+        flog << "  Filter by stylistID\n";
+        dbAppointment.Query("stylistID", stylistID);
+    }
+    // filter by status
+
+    // filter by services
+    std::vector<std::string> appointmentIDList;
+    std::vector<Appointment> appointmentList = dbAppointment.GetResults();
+    flog << "  " << "Appointment list size: " << appointmentList.size() << '\n';
     for (auto appoint : appointmentList)
     {
         std::vector<Service> temp;
-        std::set_difference(serviceList.begin(), serviceList.end(), appoint.GetServices().begin(), appoint.GetServices().end(), back_inserter(temp));
+        std::set_intersection(serviceList.begin(), serviceList.end(), appoint.GetServices().begin(), appoint.GetServices().end(), back_inserter(temp));
         if (temp.size() > 0)
             appointmentIDList.push_back(appoint.GetID());
+        flog << "    " << "Intersection size:" << temp.size() << '\n';
     }
     count = appointmentIDList.size();
+    flog << "End callGetApointmentIDList\n";
     return appointmentIDList;
 }
 
@@ -362,7 +385,6 @@ void callAssignStylistToAppointment(std::string appointmentID, std::string styli
 
 std::string callGetMemberNameByID(std::string id)
 {
-    return "Null";
     return dbUser.Get(id).GetFullName();
 }
 

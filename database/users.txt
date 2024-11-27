@@ -8,4 +8,4 @@
 6 null null null null 0 null 0
 7 tran-duc long longqt321 123456 1 09999999 3
 8 tran-dd long longqt456 123456 1 09999999 2
-9 admin admin admin pass 1 099999999 3
+9 admin admin admin pass 0 091909199 3

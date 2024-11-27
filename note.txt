@@ -1,4 +1,6 @@
 modulo time choose
 
+thay the trong bang 'null'
+
 bỏ trường age
 bỏ trường requirement

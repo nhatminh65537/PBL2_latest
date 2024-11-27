@@ -1,0 +1,2 @@
+appointment.txt
+    appointmentID m/h/d/m/y stylistID customerID service1 [service2 ...]
