@@ -1,26 +1,28 @@
 // #include <iostream>
 
-// #include "Database.h"
-// #include "serviceDone.h"
-// #include "Stylist.h"
+#include "Database.h"
+#include "serviceDone.h"
+#include "Statistics.h"
+#include "Member.h"
+#include "Salon.h"
 
 
-// void test() {
-//     serviceDone a;
-//     std::cout << a << '\n';
-//     a.Show();
-//     //dbServiceDone.Query("rating","0").Show();
-//     //std::vector<serviceDone> vt = dbServiceDone.Query("rating","hehe").GetResults();
-//     // for (const serviceDone &v : vt) v.Show();
-//     // std::cout << "==========================\n";
-//     // std::vector<serviceDone> dt = dbServiceDone.GetResults();
-//     // for (const serviceDone &v : dt) v.Show();
-//     //
-//     // cout << "==========================\n";
-//     // cout << "==========================\n";
-//     // Database<Appointment>& hehe = Database<Appointment>::Connect(APPOINTMENTS_FILE);
-//     // //hehe.Insert();
-//     // hehe.Show();
+void test() {
+    // serviceDone a;
+    // std::cout << a << '\n';
+    // a.Show();
+    //dbServiceDone.Query("rating","0").Show();
+    //std::vector<serviceDone> vt = dbServiceDone.Query("rating","hehe").GetResults();
+    // for (const serviceDone &v : vt) v.Show();
+    // std::cout << "==========================\n";
+    // std::vector<serviceDone> dt = dbServiceDone.GetResults();
+    // for (const serviceDone &v : dt) v.Show();
+    //
+    // cout << "==========================\n";
+    // cout << "==========================\n";
+    // Database<Appointment>& hehe = Database<Appointment>::Connect(APPOINTMENTS_FILE);
+    // //hehe.Insert();
+    // hehe.Show();
 
 //     // Datetime a = Datetime::Now();
 //     // a.NextDay();
@@ -41,7 +43,7 @@
 //     // std::cout << a << '\n' << b << '\n' << c << '\n';
 //     // std::cout << IsBetween(a,b,c);
 
-// }
+}
 
 
 #include "ui.h"
@@ -49,14 +51,28 @@
 
 std::function<void()> currentScreen = screenWelcome;
 
-int test_ui() {
+int test_ui() 
+{
     while (currentScreen) {
         currentScreen();
     }
     return 0;
 }
 
+// int main() {
+//     test_ui();
+//     void testthongke() {
+//     dbServiceDone.Show();
+//     std::cout << Statistics::GetCustomerCount(Datetime::Now()) << '\n';
+// }
+
 int main() {
+    //dbAppointment.Query("startTime","30/4/27/11/2024").Show();
+    // Salon& salon = Salon::StartUp();
+    // if (salon.Login("longqt321","123456")) {
+    //     std::cout << salon.GetUserID() << ' ' << salon.GetUserRole() << '\n';
+    //     salon.ShowAllAppointment(Datetime::StringToTime("30/4/27/11/2024"));
+    // }
     test_ui();
     return 0;
 }

@@ -24,10 +24,10 @@ void serviceDone::SetCustomerID(const std::string& customerID){
     this->customerID = customerID;
 }
 
-const std::string serviceDone::GetWorkerID() const{
+const std::string serviceDone::GetStylistID() const{
     return this->workerID;
 }
-void serviceDone::SetWorkerID(const std::string& workerID){
+void serviceDone::SetStylistID(const std::string& workerID){
     this->workerID = workerID;
 }
 const int serviceDone::GetServiceID() const{
@@ -53,7 +53,7 @@ void serviceDone::SetBookStatus(const bool& status) {
     this->bookStatus = status;
 }
 
-const Datetime serviceDone::GetTime() const {
+Datetime serviceDone::GetTime() const {
     return this->time;
 }
 

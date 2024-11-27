@@ -14,8 +14,8 @@ class serviceDone : public Identifiable
         [[nodiscard]] const std::string GetCustomerID() const;
         void SetCustomerID(const std::string&);
 
-        [[nodiscard]] const std::string GetWorkerID() const;
-        void SetWorkerID(const std::string&);
+        [[nodiscard]] const std::string GetStylistID() const;
+        void SetStylistID(const std::string&);
 
         [[nodiscard]] const int GetServiceID() const;
         void SetServiceID(const int&);
@@ -26,9 +26,9 @@ class serviceDone : public Identifiable
         [[nodiscard]] const bool GetBookStatus() const;
         void SetBookStatus(const bool&);
 
-        [[nodiscard]] const Datetime GetTime() const;
+        [[nodiscard]] Datetime GetTime() const;
         void SetTime(const Datetime&);
-    [[nodiscard]] const Datetime GetDatetime() const;
+        [[nodiscard]] const Datetime GetDatetime() const;
         void Show() const override;
         friend std::ostream& operator<<(std::ostream& os,const serviceDone& obj);
         friend std::istream& operator>>(std::istream& is,serviceDone& obj);
