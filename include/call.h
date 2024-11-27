@@ -82,4 +82,6 @@ std::string callGetServiceDoneServiceByID(std::string id);
 
 void callRateServiceDone(std::string id, int rating);
 
+// Statistics call and auxiliary
+
 #endif // CALL_H

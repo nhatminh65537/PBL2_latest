@@ -277,6 +277,9 @@ std::string callGetAppointmentRequirementByID(std::string id)
 
 std::vector<std::string> callGetApointmentIDList(int day, int month, int year, int hour, int minute, bool services[], int status, std::string customerID, std::string stylistID, int& count)
 {
+    // if day, month, year, hour, minute = 0 => all
+    // if day, month, year, hour, minute = -1 => Now
+    // if day, month, year = -1, hour, minute = 0 => Today
     count = 3;
     return {"001", "002", "003"};
 }
@@ -478,3 +481,6 @@ void callRateServiceDone(std::string id, int rating)
     // rate service done by id
     // example
 }
+
+// Statistics call and auxiliary
+
