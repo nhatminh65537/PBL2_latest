@@ -1,4 +1,4 @@
-#include <iostream>
+// #include <iostream>
 
 #include "Database.h"
 #include "serviceDone.h"
@@ -24,38 +24,55 @@ void test() {
     // //hehe.Insert();
     // hehe.Show();
 
-    // Datetime a = Datetime::Now();
-    // a.NextDay();
-    // Datetime b = Datetime::Now();
-    // b.PrevDay();
-    // Datetime c = Datetime::Now();
-    // //b.NextDay();
-    // //c.PrevDay();
-    // cout << a << '\n' << b << '\n' << c << '\n';
-    // cout << IsBetween(a,c,b);
-    // Datetime a = Datetime::Now();
-    // a.NextDay();
-    // Datetime b = Datetime::Now();
-    // b.PrevDay();
-    // Datetime c = Datetime::Now();
-    // //b.NextDay();
-    // //c.PrevDay();
-    // std::cout << a << '\n' << b << '\n' << c << '\n';
-    // std::cout << IsBetween(a,b,c);
+//     // Datetime a = Datetime::Now();
+//     // a.NextDay();
+//     // Datetime b = Datetime::Now();
+//     // b.PrevDay();
+//     // Datetime c = Datetime::Now();
+//     // //b.NextDay();
+//     // //c.PrevDay();
+//     // cout << a << '\n' << b << '\n' << c << '\n';
+//     // cout << IsBetween(a,c,b);
+//     // Datetime a = Datetime::Now();
+//     // a.NextDay();
+//     // Datetime b = Datetime::Now();
+//     // b.PrevDay();
+//     // Datetime c = Datetime::Now();
+//     // //b.NextDay();
+//     // //c.PrevDay();
+//     // std::cout << a << '\n' << b << '\n' << c << '\n';
+//     // std::cout << IsBetween(a,b,c);
 
 }
 
-// void testthongke() {
+
+#include "ui.h"
+#include <functional>
+
+std::function<void()> currentScreen = screenWelcome;
+
+int test_ui() 
+{
+    while (currentScreen) {
+        currentScreen();
+    }
+    return 0;
+}
+
+// int main() {
+//     test_ui();
+//     void testthongke() {
 //     dbServiceDone.Show();
 //     std::cout << Statistics::GetCustomerCount(Datetime::Now()) << '\n';
 // }
 
 int main() {
     //dbAppointment.Query("startTime","30/4/27/11/2024").Show();
-    Salon& salon = Salon::StartUp();
-    if (salon.Login("longqt321","123456")) {
-        std::cout << salon.GetUserID() << ' ' << salon.GetUserRole() << '\n';
-        salon.ShowAllAppointment(Datetime::StringToTime("30/4/27/11/2024"));
-    }
+    // Salon& salon = Salon::StartUp();
+    // if (salon.Login("longqt321","123456")) {
+    //     std::cout << salon.GetUserID() << ' ' << salon.GetUserRole() << '\n';
+    //     salon.ShowAllAppointment(Datetime::StringToTime("30/4/27/11/2024"));
+    // }
+    test_ui();
     return 0;
 }
