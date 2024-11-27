@@ -1,2 +1,3 @@
 modulo time choose
 
+bỏ trường age

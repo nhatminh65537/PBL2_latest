@@ -21,14 +21,26 @@ std::string Salon::GetUserID() {
     return this->userID;
 }
 
-std::string Salon::GetUserRole() {
+int Salon::GetUserRole() {
     return this->userRole;
 }
 
 
 void Salon::ensurePermission(const std::string& requiredRole) {
-    if (userRole.empty()) throw ERROR_CODE::SALON_SOME_FIELD_EMPTY;
-    if (userRole != requiredRole && userRole != "admin")
+    if (userRole == 0) throw ERROR_CODE::SALON_SOME_FIELD_EMPTY;
+    int role=0;
+    switch(requiredRole) {
+        case "customer":
+            role = 1;
+            break;
+        case "stylist":
+            role = 2;
+            break;
+        case "admin":
+            role = 3;
+            break;
+    }
+    if (userRole != role && userRole != 3)
         throw ERROR_CODE::SALON_ACCESS_DENIED;
 }
 
@@ -44,21 +56,10 @@ bool Salon::Login(const std::string& username, const std::string& password) {
                                         Query("password",password).
                                         GetResults();
     //for (auto x : members) x.Show();
-    auto convertRoleToString = [](const int& x)-> std::string {
-        switch (x) {
-            case 1:
-                return "customer";
-            case 2:
-                return "stylist";
-            case 3:
-                return "admin";
-            default:
-                return "unknown";
-        }
-    };
+
     if (members.size()==1) {
         userID = members[0].GetID();
-        userRole = convertRoleToString(dbUser.Get(userID).GetRole());
+        userRole = dbUser.Get(userID).GetRole();
         return true;
     }
     return false;
@@ -66,7 +67,7 @@ bool Salon::Login(const std::string& username, const std::string& password) {
 
 void Salon::Logout() {
     userID.clear();
-    userRole.clear();
+    userRole=0;
 }
 
 void Salon::Register(const std::string& firstName,const std::string& lastName,const std::string& username,const std::string& password,const std::string& confirmPassword,
