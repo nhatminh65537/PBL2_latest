@@ -1,33 +1,16 @@
 #include "call.h"
+#include "Salon.h"
 
 // Login and Register
 
-void callLogin(std::string username, std::string password, int role)
+
+
+int callLogin(std::string username, std::string password)
 {
-    if (username.empty() && password.empty()) 
-        throw ERROR_CODE::LOGIN_USER_AND_PASS_EMPTY;
-    if (username.empty()) 
-        throw ERROR_CODE::LOGIN_USERNAME_EMPTY;
-    if (password.empty()) 
-        throw ERROR_CODE::LOGIN_PASSWORD_EMPTY;
-
-    // example
-    if (username != "test" && password != "pass")
+    Salon& salon = Salon::StartUp();
+    if (!salon.Login(username, password))
         throw ERROR_CODE::LOGIN_INCORRECT_INPUT;
-    
-        // if (role == 0) // customer
-        //     m = new Customer(username);
-        
-
-        // if (!m.login())
-        // {
-        //     // throw ERROR_CODE::LOGIN_INCORRECT_INPUT;
-        // }
-        // // set current user
-
-
-
-    // set current user
+    return salon.GetUserRole();
 }
 
 void callRegister(std:: string firstname, std::string lastname, std::string username, std::string password, std::string confirmpassword, std::string phonenumber, std::string age, int gender, int role)

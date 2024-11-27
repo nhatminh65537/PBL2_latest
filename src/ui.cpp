@@ -69,7 +69,7 @@ void screenLogin()
                 errorPassword = "Password is empty";
                 break;
             case ERROR_CODE::LOGIN_INCORRECT_INPUT:
-                errorIncorrect = "Incorrect user, pass of role";
+                errorIncorrect = "Incorrect user and pass";
                 break;
             default:
                 break;
@@ -81,7 +81,6 @@ void screenLogin()
 
     std::string username;
     std::string password;
-    int role = 0;
 
     // Input
     Component inputUsername = Input(&username, "username");
@@ -91,14 +90,6 @@ void screenLogin()
     InputOption inputOptionPassword;
     inputOptionPassword.password = true;
     Component inputPassword = Input(&password, "password", inputOptionPassword);
-
-    // Radiobox
-    std::vector<std::string> roles = {
-        "Stylist",
-        "Customer",
-        "Admin"
-    };
-    Component radioboxRole = Radiobox(&roles, &role);
 
     // Button
     ButtonOption buttonOptionAll;
@@ -114,8 +105,8 @@ void screenLogin()
         errorPassword  = "";
         errorIncorrect = "";
         try {
-            callLogin(username, password, role);
-            switch (role)
+            ;
+            switch (callLogin(username, password))
             {
                 case 0:
                     currentScreen = screenStylist;
@@ -151,26 +142,11 @@ void screenLogin()
         }
         return check;
     });
-    inputPassword |= CatchEvent([&] (Event event) {
-    bool check = event == Event::Return;
-    if (check) {
-        radioboxRole->TakeFocus();
-    }
-    return check;
-    });
-    radioboxRole |= CatchEvent([&] (Event event) {
-        bool check = event == Event::Tab;
-        if (check) {
-            containerButtons->TakeFocus();
-        }
-        return check;
-    });
 
     // All
     Component containerAll = Container::Vertical({
         inputUsername,
         inputPassword,
-        radioboxRole,
         containerButtons,
     });
 
@@ -189,8 +165,6 @@ void screenLogin()
             text("Enter password") | hcenter,
             inputPassword->Render() | borderRounded | size(WIDTH, EQUAL, 30),
             textError(errorPassword ),
-            text("Select role") | hcenter,
-            radioboxRole->Render(),
             textError(errorIncorrect),
             containerButtons->Render(),
         }) | center;

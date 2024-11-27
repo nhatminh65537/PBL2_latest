@@ -21,7 +21,7 @@ FetchContent_MakeAvailable(ftxui)
 add_executable(PBL2_Clion 
         main.cpp
         # Không debug được nếu thêm các file này vào -_-
-        # src/Database.cpp
+        src/Database.cpp
         # src/Stylist.cpp
         # src/Customer.cpp
         src/serviceDone.cpp
@@ -32,7 +32,7 @@ add_executable(PBL2_Clion
         src/define.cpp
         #src/Stylist.cpp
         src/Datetime.cpp
-        # src/Salon.cpp
+        src/Salon.cpp
         # src/Statistics.cpp
         src/call.cpp #2 dòng này đang bị lỗi  undefined reference to `currentScreen'
         src/ui.cpp

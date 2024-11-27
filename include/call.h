@@ -11,7 +11,7 @@
 #include "define.h"
 
 // Login and Register
-void callLogin(std::string username, std::string password, int role);
+int callLogin(std::string username, std::string password);
 void callRegister(std:: string firstname, std::string lastname, std::string username, std::string password, std::string confirmpassword, std::string phonenumber, std::string age, int gender, int role);
 
 // Auxiliary functions
