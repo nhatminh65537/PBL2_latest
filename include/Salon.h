@@ -26,11 +26,11 @@ class Salon {
         void ShowAllSchedule(const std::string&);
 
         [[nodiscard]] std::string GetUserID();
-        [[nodiscard]] std::string GetUserRole();
+        [[nodiscard]] int GetUserRole();
     private:
         Salon() = default;
         std::string userID;
-        std::string userRole;
+        int userRole;
 
         void ensurePermission(const std::string&);
 };
