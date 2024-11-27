@@ -67,7 +67,7 @@ int test_ui()
 //     dbServiceDone.Show();
 //     std::cout << Statistics::GetCustomerCount(Datetime::Now()) << '\n';
 // }
-std::ofstream logf("log.txt");
+std::ofstream flog("log.txt");
 
 int main() {
     //dbAppointment.Query("startTime","30/4/27/11/2024").Show();
@@ -77,6 +77,15 @@ int main() {
     //     salon.ShowAllAppointment(Datetime::StringToTime("30/4/27/11/2024"));
     // }
     
-    test_ui();
+    try{
+        test_ui();  
+    } catch (std::exception e) {
+        flog << e.what() << '\n';
+    } catch (int code) {
+        flog << "Error code: " << code << '\n';
+    } catch (...) {
+        flog << "Unknown error\n";
+    }
+    flog.close();
     return 0;
 }

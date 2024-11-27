@@ -4,6 +4,6 @@
 #include <iostream>
 #include <fstream>
 
-extern std::ofstream logf;
+extern std::ofstream flog;
 
 #endif //TEST_H

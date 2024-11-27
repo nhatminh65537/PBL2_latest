@@ -7,8 +7,6 @@
 #include <Appointment.h>
 #include <Database.h>
 
-#include <fstream>
-
 Salon& Salon::StartUp() {
     static Salon salon;
     return salon;

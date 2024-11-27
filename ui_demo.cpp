@@ -9,6 +9,7 @@
 #include <functional>
 #include <array>
 #include "ui.h"
+#include "test.h"
 
 using namespace ftxui;
 
@@ -20,11 +21,7 @@ void screenAdmin()
     std::vector<std::string> services;
     int serviceCount = callGetServiceList(services);
     std::vector <std::string> listGenders = {"Male", "Female"};
-
-    // test stuff
-    std::string name = "John Doe";
-    std::ofstream log;
-    log.open("log.txt");
+    std::string name = callGetCurrentUserName();
 
     // customer screen
     auto screen = ScreenInteractive::FixedSize(SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -104,16 +101,19 @@ void screenAdmin()
     #pragma endregion
 
     // Home tab
+    flog << "Screen Admin: Home Tab\n";
     Component tabHome = Renderer([&] {
         return text("Home") | center ;
     });
 
     // Statistics tab
+    flog << "Screen Admin: Statistics Tab\n";
     Component tabStatistics = Renderer([&] {
         return text("Statistics") | center;
     });
 
     // Appointment tab
+    flog << "Screen Admin: Appointment Tab\n";
     #pragma region Appointment
 
     std::vector<std::string> listAppointmentID;
@@ -223,7 +223,7 @@ void screenAdmin()
 
     int selectedAppointmentFilterService = 0;
     Component containerFilterServices = Container::Vertical({}, &selectedAppointmentFilterService);
-    for (int i = 0; i < SERVICES_COUNT; ++i) {
+    for (int i = 0; i < serviceCount; ++i) {
         filterAppointmentServices[i] = true;
         containerFilterServices->Add(Checkbox(services[i], &filterAppointmentServices[i]) | size(WIDTH, EQUAL, 20));
     }
@@ -562,6 +562,7 @@ void screenAdmin()
     #pragma endregion
 
     // Customer tab
+    flog << "Screen Admin: Customer Tab\n";
     #pragma region Customer
 
     std::vector<std::string> customerIDList;
@@ -774,6 +775,7 @@ void screenAdmin()
     #pragma endregion
 
     // Stylist tab
+    flog << "Screen Admin: Stylist Tab\n";
     #pragma region Stylist
 
     std::vector<std::string> stylistIDList;
@@ -1271,6 +1273,7 @@ void screenAdmin()
     #pragma endregion
 
     // Profile tab
+    flog << "Screen Admin: Profile Tab\n";
     #pragma region Profile
     std::string profileFirstname;
     std::string profileLastname;
@@ -1549,6 +1552,7 @@ void screenAdmin()
 
 
     // ServiceDone tab
+    flog << "Screen Admin: ServiceDone Tab\n";
     #pragma region ServiceDone
 
     std::vector<std::string> serviceDoneIDList;
