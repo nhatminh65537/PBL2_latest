@@ -1,7 +1,6 @@
 #ifndef CALL_H
 #define CALL_H
 
-#define SERVICES_COUNT 7
 #define STYLISTS_COUNT 5
 #define REVERSE_NAME true
 
@@ -11,8 +10,8 @@
 #include "define.h"
 
 // Login and Register
-void callLogin(std::string username, std::string password, int role);
-void callRegister(std:: string firstname, std::string lastname, std::string username, std::string password, std::string confirmpassword, std::string phonenumber, std::string age, int gender, int role);
+int callLogin(std::string username, std::string password);
+void callRegister(std:: string firstname, std::string lastname, std::string username, std::string password, std::string confirmpassword, std::string phonenumber, int gender, int role);
 
 // Auxiliary functions
 int callGetServiceList(std::vector<std::string>& services);  // return the number of services
@@ -25,11 +24,11 @@ std::string callGetCurrentUserID();
 std::string callGetCurrentUserName();
 std::string callGetCurrentUserUsername();
 void callGetCurrentUserName(std::string& firstname, std::string& lastname);
-void callGetCurrentUserPersonInfo(std::string& phonenumber, std ::string& age, int& gender);
+void callGetCurrentUserPersonInfo(std::string& phonenumber, int& gender);
 std::vector<std::string> callGetCurrentUserAppointmentIDList(int day, int month, int year, bool services[], int status);
 void callUpdateCurrentUserName(std::string firstname, std::string lastname);
 void callUpdateCurrentPassword(std::string oldPassword, std::string newPassword, std::string confirmpassword);
-void callUpdateCurrentPersonInfo(std::string phonenumber, std::string age, int gender);
+void callUpdateCurrentPersonInfo(std::string phonenumber, int gender);
 
 // Appointment call and auxiliary
 void callCreateNewAppointment(bool services[], std::string selectedStylistID, int selectedDay, int selectedMonth, int selectedYear, int selectedHour, int selectedMinute, std::string requirement);
