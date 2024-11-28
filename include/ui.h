@@ -17,4 +17,7 @@ void screenCustomer();
 void screenStylist();
 void screenAdmin();
 
+inline const std::string blackStar = " ☆ ";
+inline const std::string whiteStar = " ★ ";
+
 #endif // UI_H

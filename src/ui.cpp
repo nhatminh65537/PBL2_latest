@@ -820,9 +820,6 @@ void screenCustomer()
     #pragma region ServiceDone
     // flog << "Screen Customer: service Done Tab\n";
 
-    const std::string blackStar = " ☆ ";
-    const std::string whiteStar = " ★ ";
-
     std::vector<std::string> serviceDoneIDList;
     int countServiceDone = 0;
 

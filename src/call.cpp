@@ -383,14 +383,49 @@ std::vector<std::string> callGetApointmentIDList(int day, int month, int year, i
 
 void callCancelAppointment(std::string id)
 {
-    // Huy lich co id
-    // example
+    // check service is done
+    // if (dbAppointment.Get(id).GetStatus() == 1)
+    //     throw ERROR_CODE::CANCEL_APPOINTMENT_DONE;
 }
 
 void callDoneAppointment(std::string id)
-{
-    // Hoan thanh lich co id
-    // example
+{   
+    // check service is canceled
+    // if (dbAppointment.Get(id).GetStatus() == 3)
+    //     throw ERROR_CODE::DONE_APPOINTMENT_CANCELED;
+
+    // set appointment status to done
+
+    // generate service done
+    flog << "callDoneAppointment\n";
+    std::vector<Service> serviceList = dbAppointment.Get(id).GetServices();
+    for (int i = 0; i < serviceList.size(); i++)
+    {
+        flog << "  " << ServiceToString(serviceList[i]) << '\n';
+        std::string sid = std::to_string(dbServiceDone.Count());
+        sid = std::string(10 - sid.length(), '0') + sid;
+        flog << "  " << sid << '\n';
+        Datetime now = Datetime::Now();
+        serviceDone newServiceDone(
+            sid, 
+            dbAppointment.Get(id).GetCustomerID(),
+            dbAppointment.Get(id).GetStylistID(),
+            serviceList[i],
+            0,
+            true,
+            now
+        );
+        // output parameter
+        flog << "  " << dbAppointment.Get(id).GetCustomerID() << '\n';
+        flog << "  " << dbAppointment.Get(id).GetStylistID() << '\n';
+        flog << "  " << serviceList[i] << '\n';
+        flog << "  0\n";
+        flog << "  true\n";
+        flog << "  " << now.GetDay() << '/' << now.GetMonth() << '/' << now.GetYear() << '\n';
+        flog << "  Insert service done\n";
+        dbServiceDone.Insert(newServiceDone);
+    }
+    flog << "End callDoneAppointment\n";
 }
 
 void callAssignStylistToAppointment(std::string appointmentID, std::string stylistID) // Done
@@ -552,62 +587,106 @@ std::vector<std::string> callGetServiceDoneIDList(int day, int month, int year, 
     rating[0] = true => Rating 0 (in enum) is selected
     status[0] = true => Status 0 (in enum) is selected
     count = number of service done records
-    */
-    std::vector<std::string> serviceDoneList;
-    // example
-    serviceDoneList.push_back("001");
-    serviceDoneList.push_back("002");
-    serviceDoneList.push_back("003");
-    count = 3;
-    return serviceDoneList;
+    */ 
+
+    flog << "callGetServiceDoneIDList\n";
+    // flog all arguments
+    flog << "  " << day << " " << month << " " << year << '\n';
+    flog << "  " << customerID << '\n';
+    flog << "  " << stylistID << '\n';
+    flog << "  " << rating[0] << " " << rating[1] << " " << rating[2] << '\n';
+    flog << "  " << status[0] << " " << status[1] << '\n';
+    flog << "  " << services[0] << " " << services[1] << " " << services[2] << " " << services[3] << " " << services[4] << " " << services[5] << " " << services[6] << " " << services[7] << '\n';
+    flog << "End callGetServiceDoneIDList\n";
+    // change to database data
+    std::string dataYear = std::to_string(year + 2020);
+    std::string dataMonth = std::to_string(month);
+    std::string dataDay = std::to_string(day);
+
+    // filter by day, month, year
+    if (day > 0) {
+        flog << "  Filter by day\n";
+        dbServiceDone.Query("day", dataDay);
+    }
+    if (month > 0) {
+        flog << "  Filter by month\n";
+        dbServiceDone.Query("month", dataMonth);
+    }
+    if (year > 0) {
+        flog << "  Filter by year\n";
+        dbServiceDone.Query("year", dataYear);
+    }
+    
+    // filter by customerID
+    if (!customerID.empty())
+    {
+        flog << "  Filter by customerID\n";
+        dbServiceDone.Query("customerID", customerID);
+    }
+
+    // filter by stylistID
+    if (!stylistID.empty())
+    {
+        flog << "  Filter by stylistID\n";
+        dbServiceDone.Query("stylistID", stylistID);
+    }
+
+    std::vector<serviceDone> serviceDoneList = dbServiceDone.GetResults();
+    // filter by rating, status, services
+    std::vector<std::string> serviceDoneIDList;
+    for (auto sDone : serviceDoneList)
+    {
+        flog << "  Filter by rating, status, services\n";
+        flog << "  " << sDone.GetID() << '\n'; 
+        if (rating[sDone.GetRating()] 
+            && status[sDone.GetBookStatus()? 1: 0] 
+            && services[sDone.GetServiceID() - 1])
+            serviceDoneIDList.push_back(sDone.GetID());
+    }
+
+    count = serviceDoneIDList.size();
+    return serviceDoneIDList;
 }
 
 std::string callGetServiceDoneCustomerIDByID(std::string id)
 {
-    // get service done customer id by id
-    // example
-    return "001";
+    return dbServiceDone.Get(id).GetCustomerID();
 }
 
 std::string callGetServiceDoneStylistIDByID(std::string id)
 {
-    // get service done stylist id by id
-    // example
-    return "002";
+    return dbServiceDone.Get(id).GetStylistID();
 }
 
 std::string callGetServiceDoneRatingByID(std::string id)
 {
-    // get service done rating by id
-    // example
-    return "5";
+    return std::to_string(dbServiceDone.Get(id).GetRating());
 }
 
 std::string callGetServiceDoneDateByID(std::string id)
 {
-    // get service done date by id
-    // example
-    return "01/01/2021";
+    Datetime dt = dbServiceDone.Get(id).GetTime();
+    std::string day = std::to_string(dt.GetDay());
+    if (day.length() == 1) day = "0" + day;
+    std::string month = std::to_string(dt.GetMonth());
+    if (month.length() == 1) month = "0" + month;
+    std::string year = std::to_string(dt.GetYear());
+    return day + "/" + month + "/" + year;
 }
 
 std::string callGetServiceDoneStatusByID(std::string id)
 {
-    // get service done status by id
-    // example
-    return "Completed";
+    return dbServiceDone.Get(id).GetBookStatus()? "True": "False";
 }
 
 std::string callGetServiceDoneServiceByID(std::string id)
 {
-    // get service done services by id
-    // example
-    return "Cat toc";
+    return ServiceToString(dbServiceDone.Get(id).GetServiceID());
 }
 
 void callRateServiceDone(std::string id, int rating)
 {
-    // rate service done by id
-    // example
+    dbServiceDone.Update(id, "rating", std::to_string(rating));
 }
 
 // Statistics call and auxiliary

@@ -87,6 +87,7 @@ void Database<T>::Update(const std::string& ID,const std::string& attributeName,
 template<typename T>
 void Database<T>::Insert(const T& obj) {
     // If object is already in map
+    flog << "  Database::Insert\n";
     if (this->_list.contains(obj.GetID())){
         std::cerr << "ID " << obj.GetID() << " already exists\n";
         exit(1);
@@ -94,10 +95,12 @@ void Database<T>::Insert(const T& obj) {
     time_t now = time(nullptr);
     std::string ID = obj.GetID();
     if (ID == "null") ID = std::to_string(now);
+    flog << "    ID: " << ID << '\n';
     T tmpObj = obj;
     tmpObj.SetID(ID);
     this->_list[ID] = tmpObj;
     addIndex(ID);
+    flog << "  End Database::Insert\n";
 }
 
 template<typename T>
@@ -332,6 +335,15 @@ void Database<serviceDone>::initMap(){
     };
     attributeMap["bookStatus"] = [](const serviceDone& obj) -> std::string {
         return std::to_string(obj.GetBookStatus());
+    };
+    attributeMap["day"] = [](const serviceDone& obj) -> std::string {
+        return std::to_string(obj.GetTime().GetDay());
+    };
+    attributeMap["month"] = [](const serviceDone& obj) -> std::string {
+        return std::to_string(obj.GetTime().GetMonth());
+    };
+    attributeMap["year"] = [](const serviceDone& obj) -> std::string {
+        return std::to_string(obj.GetTime().GetYear());
     };
     updateMap["customerID"] = [](serviceDone& obj, const std::string& newVal) {
         obj.SetCustomerID(newVal);
