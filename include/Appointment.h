@@ -18,14 +18,16 @@ class Appointment : public Identifiable
             const std::vector<Service>& serviceList = {});
         ~Appointment() override;
         void Show() const override;
-        [[nodiscard]] const std::string& GetCustomerID() const;
-        void SetCustomerID(const std::string& );
-        [[nodiscard]] const std::string& GetStylistID() const;
-        void SetStylistID(const std::string&);
-        [[nodiscard]] const Datetime& GetStartTime() const;
-        void SetStartTime(const Datetime&);
-        [[nodiscard]] const std::vector<Service>& GetServices() const;
-        void SetServices(const std::vector<Service>&);
+        [[nodiscard]] std::string GetCustomerID() const;
+        void SetCustomerID(const std::string& customerID);
+        [[nodiscard]] std::string GetStylistID() const;
+        void SetStylistID(const std::string& stylistID);
+        [[nodiscard]] Datetime GetStartTime() const;
+        void SetStartTime(const Datetime& dt);
+        [[nodiscard]] std::vector<Service> GetServices() const;
+        void SetServices(const std::vector<Service>& serviceList);
+        [[nodiscard]] std::string GetStatus() const;
+        void SetStatus(const std::string& status);
         friend std::ostream& operator<<(std::ostream& os, const Appointment& appointment);
         friend std::istream& operator>>(std::istream& is, Appointment& appointment);
     private:
@@ -33,5 +35,6 @@ class Appointment : public Identifiable
         std::string stylistID;
         std::string customerID;
         std::vector<Service> serviceList;
+        std::string status;
 };
 #endif // APPOINTMENT_H

@@ -45,21 +45,14 @@ void test() {
 
 }
 
-// int main() {
-//     test_ui();
-//     void testthongke() {
-//     dbServiceDone.Show();
-//     std::cout << Statistics::GetCustomerCount(Datetime::Now()) << '\n';
-// }
-
 int main() {
     //dbAppointment.Query("startTime","30/4/27/11/2024").Show();
-    freopen("log.txt","w",stdout);
+    //freopen("log.txt","w",stdout);
     Salon& salon = Salon::StartUp();
     //salon.Register("Tran","Long","test","pass","pass",true,"09999999",3);
-    if (salon.Login("test","pass")) {
+    if (salon.Login("longqt321","123456")) {
         std::cout << salon.GetUserID() << ' ' << salon.GetUserRole() << '\n';
-        salon.ShowAllAppointment(Datetime::StringToTime("30/4/27/11/2024"));
+        dbAppointment.Show();
     }
     //test_ui();
     return 0;

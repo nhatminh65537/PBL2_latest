@@ -72,11 +72,11 @@ void Database<T>::Update(const std::string& ID,const T& newObj){
 template<typename T>
 void Database<T>::Update(const std::string& ID,const std::string& attributeName, const std::string& newVal){
     if (!this->_list.contains(ID)){
-        flog << ID << " does not exists in database\n";
+        std::cerr << ID << " does not exists in database\n";
         exit(1);
     }
     if (!updateMap.contains(attributeName)) {
-        flog << attributeName << " does not exists in updateMap\n";
+        std::cerr << attributeName << " does not exists in updateMap\n";
         exit(1);
     }
     removeIndex(ID);
@@ -223,10 +223,6 @@ Database<T>& Database<T>::Query(const std::string& attr,const std::string& val) 
         }
         this->isQuerying=true;
     }
-    // if (res.empty()) {
-    //     T obj;
-    //     res.push_back(obj);
-    // }
     this->resultList = move(res); // Hàm "move" là chuyển quyền sở hữu data từ res qua this->resultList  => Tăng hiệu suất
     return *this;
 }
@@ -365,6 +361,13 @@ void Database<Appointment>::initMap() {
         const Datetime dt = obj.GetStartTime();
         return Datetime::TimeToString(dt);
     };
+    attributeMap["time"] = [](const Appointment& obj) -> std::string {
+        const Datetime dt = obj.GetStartTime();
+        return Datetime::TimeToString(dt);
+    };
+    attributeMap["status"] = [](const Appointment& obj) -> std::string {
+        return obj.GetStatus();
+    };
     updateMap["stylistID"] = [](Appointment& obj, const std::string& newVal) {
         obj.SetStylistID(newVal);
     };
@@ -375,6 +378,9 @@ void Database<Appointment>::initMap() {
         std::vector<std::string> tokens = Split(newVal,'/'); // minmin/hourhour/dd/mm/yyyy
         if (tokens.size()<5) throw std::runtime_error("Datetime error");
         obj.SetStartTime(Datetime(ToNum(tokens[0]),ToNum(tokens[1]),ToNum(tokens[2]),ToNum(tokens[3]),ToNum(tokens[4])));
+    };
+    updateMap["status"] = [](Appointment& obj,const std::string& newVal) {
+        obj.SetStatus(newVal);
     };
 }
 
@@ -411,7 +417,7 @@ void Database<Member>::initMap() {
         obj.SetLastName(newVal);
     };
     updateMap["gender"] = [](Member& obj, const std::string& newVal) {
-        obj.SetGender(newVal == "Male" ? 1 : 0);
+        obj.SetGender(newVal == "Male" ? true : false);
     };
     updateMap["username"] = [](Member& obj, const std::string& newVal) {
         obj.SetUserName(newVal);
