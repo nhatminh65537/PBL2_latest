@@ -32,6 +32,7 @@ void Salon::ensurePermission(const std::string& requiredRole) {
         if (requiredRole == "customer") return 1;
         if (requiredRole == "stylist") return 2;
         if (requiredRole == "admin") return 3;
+        return 0;
     };
     int role = convertRoleToInt(requiredRole);
     if (userRole != role && userRole != 3)

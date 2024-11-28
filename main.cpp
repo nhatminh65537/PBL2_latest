@@ -45,20 +45,6 @@ void test() {
 
 }
 
-
-#include "ui.h"
-#include <functional>
-
-std::function<void()> currentScreen = screenWelcome;
-
-int test_ui() 
-{
-    while (currentScreen) {
-        currentScreen();
-    }
-    return 0;
-}
-
 // int main() {
 //     test_ui();
 //     void testthongke() {
@@ -68,11 +54,13 @@ int test_ui()
 
 int main() {
     //dbAppointment.Query("startTime","30/4/27/11/2024").Show();
-    // Salon& salon = Salon::StartUp();
-    // if (salon.Login("longqt321","123456")) {
-    //     std::cout << salon.GetUserID() << ' ' << salon.GetUserRole() << '\n';
-    //     salon.ShowAllAppointment(Datetime::StringToTime("30/4/27/11/2024"));
-    // }
-    test_ui();
+    freopen("log.txt","w",stdout);
+    Salon& salon = Salon::StartUp();
+    //salon.Register("Tran","Long","test","pass","pass",true,"09999999",3);
+    if (salon.Login("test","pass")) {
+        std::cout << salon.GetUserID() << ' ' << salon.GetUserRole() << '\n';
+        salon.ShowAllAppointment(Datetime::StringToTime("30/4/27/11/2024"));
+    }
+    //test_ui();
     return 0;
 }

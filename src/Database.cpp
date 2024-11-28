@@ -399,4 +399,19 @@ void Database<Member>::initMap() {
     attributeMap["role"] = [](const Member& obj) -> std::string {
         return std::to_string(obj.GetRole());
     };
+    updateMap["firstName"] = [](Member& obj, const std::string& newVal) {
+        obj.SetFirstName(newVal);
+    };
+    updateMap["lastName"] = [](Member& obj, const std::string& newVal) {
+        obj.SetLastName(newVal);
+    };
+    updateMap["gender"] = [](Member& obj, const std::string& newVal) {
+        obj.SetGender(ToNum(newVal));
+    };
+    updateMap["username"] = [](Member& obj, const std::string& newVal) {
+        obj.SetUserName(newVal);
+    };
+    updateMap["password"] = [](Member& obj, const std::string& newVal) {
+        obj.SetPassword(newVal);
+    };
 }
