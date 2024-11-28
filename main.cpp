@@ -5,6 +5,8 @@
 #include "Statistics.h"
 #include "Member.h"
 #include "Salon.h"
+#include "test.h"
+
 
 
 void test() {
@@ -65,6 +67,7 @@ int test_ui()
 //     dbServiceDone.Show();
 //     std::cout << Statistics::GetCustomerCount(Datetime::Now()) << '\n';
 // }
+std::ofstream flog("log.txt");
 
 int main() {
     //dbAppointment.Query("startTime","30/4/27/11/2024").Show();
@@ -73,6 +76,16 @@ int main() {
     //     std::cout << salon.GetUserID() << ' ' << salon.GetUserRole() << '\n';
     //     salon.ShowAllAppointment(Datetime::StringToTime("30/4/27/11/2024"));
     // }
-    test_ui();
+    
+    try{
+        test_ui();  
+    } catch (std::exception e) {
+        flog << e.what() << '\n';
+    } catch (int code) {
+        flog << "Error code: " << code << '\n';
+    } catch (...) {
+        flog << "Unknown error\n";
+    }
+    flog.close();
     return 0;
 }

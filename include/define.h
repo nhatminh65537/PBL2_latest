@@ -9,6 +9,7 @@
 #include <vector>
 #include "Datetime.h"
 
+#define SERVICES_COUNT 8
 
 class Appointment;
 class Customer;
@@ -74,6 +75,5 @@ bool IsNumber(const std::string&);
 bool IsBetween(const int&, const int&, const int&);
 bool IsBetween(const char&, const char&, const char&);
 
-// Member *m;
 
 #endif //DEFINE_H

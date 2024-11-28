@@ -3,6 +3,7 @@
 #include <fstream>
 #include <utility>
 #include "serviceDone.h"
+#include "test.h"
 
 template class Database<serviceDone>;
 template class Database<Appointment>;
@@ -71,11 +72,11 @@ void Database<T>::Update(const std::string& ID,const T& newObj){
 template<typename T>
 void Database<T>::Update(const std::string& ID,const std::string& attributeName, const std::string& newVal){
     if (!this->_list.contains(ID)){
-        std::cerr << ID << " does not exists in database\n";
+        flog << ID << " does not exists in database\n";
         exit(1);
     }
     if (!updateMap.contains(attributeName)) {
-        std::cerr << attributeName << " does not exists in updateMap\n";
+        flog << attributeName << " does not exists in updateMap\n";
         exit(1);
     }
     removeIndex(ID);
@@ -171,6 +172,7 @@ bool Database<T>::IsEmpty() const {
 
 template<typename T>
 T Database<T>::Get(const std::string &ID) const {
+    // logf << "Get\n\t" << ID << '\n';
     if (!this->_list.contains(ID)) {
         std::cerr << ID << " does not exist\n";
         exit(1);
@@ -398,5 +400,29 @@ void Database<Member>::initMap() {
     };
     attributeMap["role"] = [](const Member& obj) -> std::string {
         return std::to_string(obj.GetRole());
+    };
+    attributeMap["phoneNumber"] = [](const Member& obj) -> std::string {
+        return obj.GetPhoneNumber();
+    };
+    updateMap["firstName"] = [](Member& obj, const std::string& newVal) {
+        obj.SetFirstName(newVal);
+    };
+    updateMap["lastName"] = [](Member& obj, const std::string& newVal) {
+        obj.SetLastName(newVal);
+    };
+    updateMap["gender"] = [](Member& obj, const std::string& newVal) {
+        obj.SetGender(newVal == "Male" ? 1 : 0);
+    };
+    updateMap["username"] = [](Member& obj, const std::string& newVal) {
+        obj.SetUserName(newVal);
+    };
+    updateMap["password"] = [](Member& obj, const std::string& newVal) {
+        obj.SetPassword(newVal);
+    };
+    updateMap["role"] = [](Member& obj, const std::string& newVal) {
+        obj.SetRole(ToNum(newVal));
+    };
+    updateMap["phoneNumber"] = [](Member& obj, const std::string& newVal) {
+        obj.SetPhoneNumber(newVal);
     };
 }
