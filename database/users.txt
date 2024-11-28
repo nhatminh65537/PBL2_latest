@@ -1,11 +1,8 @@
 1 null null longtran 123456 0 null 1
 1732689034 Minh Thai-Anh minhqn pas 0 0187800908 1
 1732691466 Nhat-Minh Thai minhst pass 1 09999999999 2
-2 null null null null 0 null 0
-3 null null null null 0 null 0
-4 null null null null 0 null 0
-5 null null null null 0 null 0
-6 null null null null 0 null 0
+1732772078 Nhung Hong nhungkaw 123456 0 09114432656 2
+1732778744 Thanh Nguyen thanhily pass123 1 0962666983 2
+1732778793 Huu Thanh thanhthanh pass012 0 0988989872 2
 7 tran-duc long longqt321 123456 1 09999999 3
-8 tran-dd long longqt456 123456 1 09999999 2
 9 admin admin admin pass 0 091909199 3

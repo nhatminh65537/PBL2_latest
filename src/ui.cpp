@@ -454,13 +454,13 @@ void screenCustomer()
 
     // stylist 
     std::vector<std::string> appointmentStylists;
-    appointmentStylists.push_back("None");
+    appointmentStylists.push_back("null");
     for (int i = 0; i < appointmentStylistIDs.size(); ++i) {
         appointmentStylists.push_back(callGetMemberNameByID(appointmentStylistIDs[i]) + " (" + appointmentStylistIDs[i] + ")");
     }
 
     Component dropdownStylists = Dropdown({
-        .checkbox = checkboxOptionAll,
+        // .checkbox = checkboxOptionAll,
         .radiobox = {
             .entries = &appointmentStylists, 
             .selected = &selectedStylist,
@@ -2004,7 +2004,6 @@ void screenStylist()
     });
 
     // Schedule tab
-    // Schedule tab
     #pragma region Schedule
 
     std::vector<std::string> listScheduleID;
@@ -2196,7 +2195,7 @@ void screenStylist()
         detailScheduleTime = callGetAppointmentTimeByID(id);
         detailScheduleServices = callGetAppointmentServicesByID(id);
         detailScheduleStylist = callGetAppointmentStylistByID(id);
-        if (detailScheduleStylist != "None") {
+        if (detailScheduleStylist != "null") {
             detailScheduleStylist += " (ID: " + callGetAppointmentStylistIDByID(id) + ")";
         }
         detailScheduleRequirement = callGetAppointmentRequirementByID(id);
