@@ -31,10 +31,10 @@ void Appointment::Show() const {
         std::cout << ServiceToString(this->serviceList[i]);
         if (i < this->serviceList.size() - 1)   std::cout << ", ";
     }
-    std::cout << '\n';
+    std::cout << "\nStatus: " << this->status << '\n';
 }
 
-const std::string& Appointment::GetCustomerID() const {
+std::string Appointment::GetCustomerID() const {
     return this->customerID;
 }
 
@@ -42,7 +42,7 @@ void Appointment::SetCustomerID(const std::string& customerID) {
     this->customerID = customerID;
 }
 
-const std::string& Appointment::GetStylistID() const {
+std::string Appointment::GetStylistID() const {
     return this->stylistID;
 }
 
@@ -50,7 +50,7 @@ void Appointment::SetStylistID(const std::string& stylistID) {
     this->stylistID = stylistID;
 }
 
-const Datetime& Appointment::GetStartTime() const {
+Datetime Appointment::GetStartTime() const {
     return this->startTime;
 }
 
@@ -58,7 +58,7 @@ void Appointment::SetStartTime(const Datetime& date) {
     this->startTime = date;
 }
 
-const std::vector<Service>& Appointment::GetServices() const {
+std::vector<Service> Appointment::GetServices() const {
     return this->serviceList;
 }
 
@@ -66,11 +66,19 @@ void Appointment::SetServices(const std::vector<Service>& serviceList) {
     this->serviceList = serviceList;
 }
 
+std::string Appointment::GetStatus() const {
+    return this->status;
+}
+void Appointment::SetStatus(const std::string& status) {
+    this->status = status;
+}
+
 std::ostream& operator<<(std::ostream& os, const Appointment& obj) {
     os << obj.ID << ' ' << obj.startTime << ' ' << obj.stylistID << ' ' << obj.customerID;
     for (const Service& service : obj.serviceList) {
         os << ' ' << service;
     }
+    os << ' ' << obj.status;
     return os;
 }
 
@@ -82,9 +90,10 @@ std::istream& operator>>(std::istream& is, Appointment& appointment) {
     getline(is, serviceStr);
     std::vector<std::string> serviceList = Split(serviceStr,' ');
 
-    for (const std::string& service : serviceList) {
-        appointment.serviceList.push_back(static_cast<Service>(stoi(service)));
+    for (int i=0;i<(int)serviceList.size()-1;i++) {
+        appointment.serviceList.push_back(static_cast<Service>(ToNum(serviceList[i])));
     }
     std::ranges::sort(appointment.serviceList);
+    if (!serviceList.empty()) appointment.status = serviceList[serviceList.size()-1];
     return is;
 }

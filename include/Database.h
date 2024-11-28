@@ -21,8 +21,8 @@ class Database
         Database& operator=(const Database&) = delete; // Singleton design pattern
         static Database<T>& Connect(const std::string& path); // Singleton design pattern
         ~Database();
-        void Update(const std::string& ID,const T& newContent);
-        void Update(const std::string& ID,const std::string& oldContent,const std::string& newContent);
+        void Update(const std::string& ID,const T& newObject);
+        void Update(const std::string& ID,const std::string& attributeName,const std::string& newValue);
         void Insert(const T& Object);
         void Delete(const std::string& ID);
         void Show();

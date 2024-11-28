@@ -5,8 +5,6 @@
 #include "Statistics.h"
 #include "Member.h"
 #include "Salon.h"
-#include "test.h"
-
 
 
 void test() {
@@ -47,45 +45,15 @@ void test() {
 
 }
 
-
-#include "ui.h"
-#include <functional>
-
-std::function<void()> currentScreen = screenWelcome;
-
-int test_ui() 
-{
-    while (currentScreen) {
-        currentScreen();
-    }
-    return 0;
-}
-
-// int main() {
-//     test_ui();
-//     void testthongke() {
-//     dbServiceDone.Show();
-//     std::cout << Statistics::GetCustomerCount(Datetime::Now()) << '\n';
-// }
-std::ofstream flog("log.txt");
-
 int main() {
     //dbAppointment.Query("startTime","30/4/27/11/2024").Show();
-    // Salon& salon = Salon::StartUp();
-    // if (salon.Login("longqt321","123456")) {
-    //     std::cout << salon.GetUserID() << ' ' << salon.GetUserRole() << '\n';
-    //     salon.ShowAllAppointment(Datetime::StringToTime("30/4/27/11/2024"));
-    // }
-    
-    try{
-        test_ui();  
-    } catch (std::exception e) {
-        flog << e.what() << '\n';
-    } catch (int code) {
-        flog << "Error code: " << code << '\n';
-    } catch (...) {
-        flog << "Unknown error\n";
+    //freopen("log.txt","w",stdout);
+    Salon& salon = Salon::StartUp();
+    //salon.Register("Tran","Long","test","pass","pass",true,"09999999",3);
+    if (salon.Login("longqt321","123456")) {
+        std::cout << salon.GetUserID() << ' ' << salon.GetUserRole() << '\n';
+        dbAppointment.Show();
     }
-    flog.close();
+    //test_ui();
     return 0;
 }
