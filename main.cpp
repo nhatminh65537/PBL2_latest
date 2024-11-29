@@ -58,11 +58,8 @@ int main() {
     //freopen("log.txt","w",stdout);
     Salon& salon = Salon::StartUp();
     //salon.Register("Tran","Long","test","pass","pass",true,"09999999",3);
-    if (salon.Login("longqt321","123456")) {
-        std::cout << salon.GetUserID() << ' ' << salon.GetUserRole() << '\n';
-        salon.DeleteUser("2");
-        dbAppointment.Show();
-    }
+    Member a = dbUser.Get("1");
+    dbUser.Query("name","uc Lo").Show();
     //test_ui();
     return 0;
 }
