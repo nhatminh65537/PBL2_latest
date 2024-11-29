@@ -2,7 +2,11 @@
 #include <iostream>
 #include <fstream>
 #include <utility>
+#include <bits/ranges_algo.h>
+#include <algorithm>
+
 #include "serviceDone.h"
+
 #include "test.h"
 
 template class Database<serviceDone>;
@@ -146,6 +150,28 @@ int Database<T>::Count() const{
     return this->_list.size();
 }
 
+template <typename T>
+int Database<T>::Count(const std::string& attributeName, const std::string& val) {
+    if (this->attributeMap.contains(attributeName) == false) {
+        std::cerr << "Attribute " << attributeName << " does not exists\n";
+        return 0;
+    }
+    return this->Query(attributeName,val).GetResults().size();
+}
+
+template<typename T>
+int Database<T>::Count(const std::vector<std::pair<std::string,std::string>>& conditions) {
+    if (conditions.empty()) return this->Count();
+    for (const auto& [attributeName,val] : conditions) {
+        if (this->attributeMap.contains(attributeName) == false) {
+            return 0;
+        }
+        this->Query(attributeName,val);
+    }
+    std::vector<T> results = move(this->GetResults());
+    return results.size();
+}
+
 template<typename T>
 bool Database<T>::IsExist(const std::string& attr, const std::string &val) const {
     if (!this->attributeMap.contains(attr)) { // class T does not have this attribute
@@ -188,7 +214,7 @@ Database<T>& Database<T>::Query(const std::string& attr,const std::string& val) 
     }
 
     auto equal = [&](std::string val1,std::string val2) -> bool {
-        if (attr == "startTime") { // If checking for startTime, we just have to check if they are on the same day.
+        if (attr == "date") { // If checking for date, we just have to check if they are on the same day.
             std::vector<std::string> vt1 = Split(val1,'/');
             std::vector<std::string> vt2 = Split(val2,'/');
             if (vt1.size() != vt2.size() || vt1.size() < 5) return false;
@@ -198,31 +224,46 @@ Database<T>& Database<T>::Query(const std::string& attr,const std::string& val) 
         return val1 == val2;
     };
 
-    std::vector<T> res;
-    if (this->isQuerying==true) {
+    std::vector<std::string> currentIDs;
+    if (this->indexMapList.contains(attr)) { // If this attribute is indexed
+        auto range = this->indexMapList[attr].equal_range(val);
+        for (auto it = range.first; it != range.second;++it) {
+            if(this->isQuerying==false) {
+                this->resultList.push_back(this->Get(it->second));
+                this->resultIDs.push_back(it->second);
+            }
+            currentIDs.push_back(it->second);
+        }
+        this->isQuerying = true;
+    }
+    else {
+        if (this->isQuerying==false) { // Lan query dau tien
+            for (const auto& [ID,obj] : this->_list) {
+                this->resultList.push_back(obj);
+                this->resultIDs.push_back(ID);
+                this->isQuerying = true;
+            }
+        }
         for (const auto& obj : this->resultList) {
-            if (equal(this->attributeMap.at(attr)(obj),val)) {
-                res.push_back(obj);
+            if(equal(this->attributeMap.at(attr)(obj),val)) {
+                currentIDs.push_back(obj.GetID());
             }
         }
     }
 
-    else {
-        if (this->indexMapList.contains(attr)) { // If this attribute is indexed
-            auto range = this->indexMapList[attr].equal_range(val);
-            for (auto it = range.first; it != range.second;++it) {
-                res.push_back(this->_list[it->second]);
-            }
-        }
-        else {
-            for (const auto& [ID,obj] : this->_list) {
-                if(equal(this->attributeMap.at(attr)(obj),val)) {
-                    res.push_back(obj);
-                }
-            }
-        }
-        this->isQuerying=true;
-    }
+    std::vector<T> res;
+    // Find intersection between old result and new result.
+    std::vector<std::string>tmp;
+    std::ranges::sort(this->resultIDs);
+    std::ranges::sort(currentIDs);
+    std::set_intersection(this->resultIDs.begin(),
+    this->resultIDs.end(),
+
+    currentIDs.begin(),currentIDs.end(),
+    std::back_inserter(tmp));
+
+    for (const auto& ID : tmp) res.push_back(this->Get(ID));
+
     this->resultList = move(res); // Hàm "move" là chuyển quyền sở hữu data từ res qua this->resultList  => Tăng hiệu suất
     return *this;
 }
@@ -301,6 +342,7 @@ template<>
 void Database<Appointment>::initIndex() {
     index("stylistID");
     index("customerID");
+    index("status");
 }
 
 template<>
@@ -366,7 +408,7 @@ void Database<Appointment>::initMap() {
     attributeMap["customerID"] = [](const Appointment& obj) -> std::string {
         return obj.GetCustomerID();
     };
-    attributeMap["startTime"] = [](const Appointment& obj) -> std::string {
+    attributeMap["date"] = [](const Appointment& obj) -> std::string {
         const Datetime dt = obj.GetStartTime();
         return Datetime::TimeToString(dt);
     };
@@ -398,7 +440,7 @@ void Database<Appointment>::initMap() {
     updateMap["customerID"] = [](Appointment& obj, const std::string& newVal) {
         obj.SetCustomerID(newVal);
     };
-    updateMap["startTime"] = [](Appointment& obj, const std::string& newVal) {
+    updateMap["time"] = [](Appointment& obj, const std::string& newVal) {
         std::vector<std::string> tokens = Split(newVal,'/'); // minmin/hourhour/dd/mm/yyyy
         if (tokens.size()<5) throw std::runtime_error("Datetime error");
         obj.SetStartTime(Datetime(ToNum(tokens[0]),ToNum(tokens[1]),ToNum(tokens[2]),ToNum(tokens[3]),ToNum(tokens[4])));

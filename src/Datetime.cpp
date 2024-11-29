@@ -8,7 +8,8 @@
 Datetime::Datetime(const int& minute, const int& hour, const int& day, const int& month, const int& year)
     : minute(minute),hour(hour),day(day),month(month),year(year){
     if (!this->isValidTime()) {
-        throw new std::invalid_argument("Invalid time");
+        //std::cerr << "HEHEHEHEHE\n";
+        //throw std::invalid_argument("Invalid time");
     }
 }
 

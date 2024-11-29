@@ -28,6 +28,8 @@ class Database
         void Show();
     
         [[nodiscard]] int Count() const;
+        [[nodiscard]] int Count(const std::string& attributeName, const std::string& val);
+        [[nodiscard]] int Count(const std::vector<std::pair<std::string,std::string>>& conditions);
         [[nodiscard]] bool IsExist(const std::string& attr,const std::string& val) const;
         [[nodiscard]] bool IsEmpty() const;
         [[nodiscard]] std::string GetPath() const;
@@ -36,7 +38,7 @@ class Database
         typename std::map<std::string,T>::const_iterator end() const;   // chứ không phải 1 thành viên của map<string,T>
 
         [[nodiscard]] T Get(const std::string& ID) const;
-        [[nodiscard]] Database<T>& Query(const std::string& attribute,const std::string& val);
+        Database<T>& Query(const std::string& attribute,const std::string& val);
         [[nodiscard]] std::vector<T> GetResults();
     private:
         explicit Database(const std::string& path); // Thêm keyword explicit để tránh implicit conversions (ép kiểu ngầm định)
@@ -57,6 +59,7 @@ class Database
 
         std::map<std::string,T>_list;
         std::vector<T>resultList; // temporary result list for Query method
+        std::vector<std::string> resultIDs; // temporary ID list for Query method
         std::unordered_map<std::string,std::function<void(T&,const std::string&)>>updateMap; // Function map used for update function
         std::unordered_map<std::string,std::function<std::string(const T&)>>attributeMap; // Used to return specific attribute of an object
         std::unordered_map<std::string,std::multimap<std::string,std::string>>indexMapList;

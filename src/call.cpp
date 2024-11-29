@@ -46,7 +46,23 @@ std::string callCheckStylistBusy(std::string stylistID, int day, int month, int 
     // example
     // std::string stylistID = "null"; => stylist is not selected
     // (if stylist is not selected) count all appointment at this time compare to the number of stylist
-    return "All stylist is busy at this time";
+    std::string busyStatus = "Stylists available";
+    const Datetime dt(minute,hour, day, month, year);
+    if (stylistID == "null") {
+        int numberOfAppointments = dbAppointment.Query("time",Datetime::TimeToString(dt)).GetResults().size();
+        int numberOfStylist = dbUser.Query("role","2").GetResults().size();
+        if (numberOfAppointments >= numberOfStylist) {
+            busyStatus = "All stylist is busy at this time";
+        }
+    }
+    else {
+        std::cerr << stylistID << " " << busyStatus << ' ' << dt << '\n';
+
+        if (dbAppointment.Query("stylistID",stylistID).Query("time",Datetime::TimeToString(dt)).GetResults().size() > 0) {
+            busyStatus = "This stylist is busy at this time";
+        }
+    }
+    return busyStatus;
     // return "This stylist is busy at this time";
     // return "Salon is closed at this time";
     // return "";
@@ -71,7 +87,7 @@ std::vector<std::string> callGetCurrentUserAppointmentIDList(int day, int month,
     status = 3 => cancel
     */
     // Handle type
-    flog << "callGetCurrentUserAppointmentIDList\n";
+    std::cerr << "callGetCurrentUserAppointmentIDList\n";
     // change to database data
     std::vector<Service> serviceList;
     for (int i = 0; i < SERVICES_COUNT - 1; i++)
@@ -97,6 +113,11 @@ std::vector<std::string> callGetCurrentUserAppointmentIDList(int day, int month,
         flog << "  Filter by year\n";
         dbAppointment.Query("year", dataYear);
     }
+    // std::cerr << "  " << day << " " << month << " " << year << '\n';
+    // if (day > 0 && month > 0 && year > 0)
+    // {
+    //     dbAppointment.Query("startTime", "0/0/" + dataDay + "/" + dataMonth + "/" + dataYear);
+    // }
 
     // filter by customerID
     dbAppointment.Query("customerID", callGetCurrentUserID());
@@ -116,7 +137,7 @@ std::vector<std::string> callGetCurrentUserAppointmentIDList(int day, int month,
         if (temp.size() > 0)
             appointmentIDList.push_back(appoint.GetID());
     }
-    flog << "End callGetCurrentUserAppointmentIDList\n";
+    std::cerr << "End callGetCurrentUserAppointmentIDList\n";
     return appointmentIDList;
 }
 
@@ -132,10 +153,10 @@ std::string callGetCurrentUserName() // Done
 
 std::string callGetCurrentUserID() // Done
 {
-    flog << "callGetCurrentUserID\n";
+    std::cerr << "callGetCurrentUserID\n";
     Salon& salon = Salon::StartUp();
     // flog << "  " << salon.GetUserID() << '\n';
-    flog << "End callGetCurrentUserID\n";
+    std::cerr << "End callGetCurrentUserID\n";
     return salon.GetUserID();
 }
 
@@ -153,7 +174,7 @@ void callGetCurrentUserPersonInfo(std::string& phonenumber, int& gender) // Done
 
 void callUpdateCurrentUserName(std::string firstname, std::string lastname) // Done
 {
-    flog << "callUpdateCurrentUserName\n";
+    std::cerr << "callUpdateCurrentUserName\n";
     if (firstname.empty() && lastname.empty())
         throw ERROR_CODE::UPDATE_PROFILE_NAME_EMPTY;
     if (firstname.empty())
@@ -166,7 +187,7 @@ void callUpdateCurrentUserName(std::string firstname, std::string lastname) // D
     dbUser.Update(callGetCurrentUserID(), "firstName", firstname);
     // flog << "  Update lastname\n";
     dbUser.Update(callGetCurrentUserID(), "lastName", lastname);
-    flog << "End callUpdateCurrentUserName\n";
+    std::cerr << "End callUpdateCurrentUserName\n";
 }
 
 void callUpdateCurrentPassword(std::string oldPassword, std::string newPassword, std::string confirmpassword) // Done
@@ -213,7 +234,7 @@ void callCreateNewAppointment(bool services[], std::string selectedStylistID, in
     */
     // test exception
     // throw ERROR_CODE::CREATE_APPOINTMENT_CLOSED_TIME;
-    flog << "callCreateNewAppointment\n";
+    std::cerr << "callCreateNewAppointment\n";
     // flog << "  " << selectedStylistID << '\n';
     // flog << "  " << selectedDay << '/' << selectedMonth << '/' << selectedYear << '\n';
     // flog << "  " << selectedHour << ':' << selectedMinute << '\n';
@@ -237,7 +258,7 @@ void callCreateNewAppointment(bool services[], std::string selectedStylistID, in
     Salon& salon = Salon::StartUp();
     // flog << "  ServiceList size: " << serviceList.size() << '\n';   
     salon.CreateAppointment(callGetCurrentUserID(), selectedStylistID, Datetime(minute, hour, day, month, year), serviceList);
-    flog << "End callCreateNewAppointment\n";
+    std::cerr << "End callCreateNewAppointment\n";
 }
 
 std::string callGetNewAppointmentId() // Done
@@ -329,7 +350,7 @@ std::vector<std::string> callGetApointmentIDList(int day, int month, int year, i
     std::string dataMinute = std::to_string((minute - 1) * 30);
     std::string dataStatus = (status == 1? "Done": (status == 2? "Waiting": "Cancel"));
     
-    flog << "callGetApointmentIDList\n";
+    std::cerr << "callGetApointmentIDList\n";
     // filter by day, month, year, hour, minute
     if (minute > 0) {
         flog << "  Filter by minute\n";
@@ -351,16 +372,21 @@ std::vector<std::string> callGetApointmentIDList(int day, int month, int year, i
         flog << "  Filter by year\n";
         dbAppointment.Query("year", dataYear);
     }
+    // if (day > 0 && month > 0 && year > 0)
+    // {
+    //     std::cerr << "  Filter by day, month, year\n";
+    //     dbAppointment.Query("startTime", "0/0/" + dataDay + "/" + dataMonth + "/" + dataYear);
+    // } 
     // filter by customerID
     if (!customerID.empty())
     {
-        flog << "  Filter by customerID\n";
+        std::cerr << "  Filter by customerID\n";
         dbAppointment.Query("customerID", customerID);
     }
     // filter by stylistID
     if (!stylistID.empty())
     {
-        flog << "  Filter by stylistID\n";
+        std::cerr << "  Filter by stylistID\n";
         dbAppointment.Query("stylistID", stylistID);
     }
     // filter by status
@@ -373,17 +399,17 @@ std::vector<std::string> callGetApointmentIDList(int day, int month, int year, i
     // filter by services
     std::vector<std::string> appointmentIDList;
     std::vector<Appointment> appointmentList = dbAppointment.GetResults();
-    flog << "  " << "Appointment list size: " << appointmentList.size() << '\n';
+    std::cerr << "  " << "Appointment list size: " << appointmentList.size() << '\n';
     for (auto appoint : appointmentList)
     {
         std::vector<Service> temp;
         std::set_intersection(serviceList.begin(), serviceList.end(), appoint.GetServices().begin(), appoint.GetServices().end(), back_inserter(temp));
         if (temp.size() > 0)
             appointmentIDList.push_back(appoint.GetID());
-        flog << "    " << "Intersection size:" << temp.size() << '\n';
+        std::cerr << "    " << "Intersection size:" << temp.size() << '\n';
     }
     count = appointmentIDList.size();
-    flog << "End callGetApointmentIDList\n";
+    std::cerr << "End callGetApointmentIDList\n";
     return appointmentIDList;
 }
 
