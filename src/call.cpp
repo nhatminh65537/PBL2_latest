@@ -55,7 +55,7 @@ std::string callCheckStylistBusy(std::string stylistID, int day, int month, int 
 
 // Current user call (Customer)
 
-std::vector<std::string> callGetCurrentUserAppointmentIDList(int day, int month, int year, bool services[], int status) 
+std::vector<std::string> callGetCurrentUserAppointmentIDList(int day, int month, int year, bool services[], int status) // Done
 {
     /*
     day = 0 => all day
@@ -80,6 +80,7 @@ std::vector<std::string> callGetCurrentUserAppointmentIDList(int day, int month,
     std::string dataYear = std::to_string(year + 2020);
     std::string dataMonth = std::to_string(month);
     std::string dataDay = std::to_string(day);
+    std::string dataStatus = (status == 1? "Done": (status == 2? "Waiting": "Cancel"));
 
     // filter by day, month, year
     std::vector<std::string> appointmentIDList;
@@ -98,9 +99,15 @@ std::vector<std::string> callGetCurrentUserAppointmentIDList(int day, int month,
     }
 
     // filter by customerID
-    std::vector<Appointment> appointmentList = dbAppointment.Query("customerID", callGetCurrentUserID()).GetResults();
-    
+    dbAppointment.Query("customerID", callGetCurrentUserID());
+
     // filter by status
+    if (status > 0) {
+        flog << "  Filter by status\n";
+        dbAppointment.Query("status", dataStatus);
+    }
+
+    std::vector<Appointment> appointmentList = dbAppointment.GetResults();
 
     // filter by services
     for (auto appoint: appointmentList) {
@@ -183,7 +190,7 @@ void callUpdateCurrentPersonInfo(std::string phonenumber, int gender) // Done
 
 // Appointment call and auxiliary
 
-void callCreateNewAppointment(bool services[], std::string selectedStylistID, int selectedDay, int selectedMonth, int selectedYear, int selectedHour, int selectedMinute, std::string requirement)
+void callCreateNewAppointment(bool services[], std::string selectedStylistID, int selectedDay, int selectedMonth, int selectedYear, int selectedHour, int selectedMinute) // Done
 {
     /*
     states[0] = true => Service 0 (in enum) is selected
@@ -257,7 +264,7 @@ std::string callGetAppointmentCustomerNameByID(std::string id) // Done
 
 std::string callGetAppointmentStatusByID(std::string id)
 {
-    return "Done";
+    return dbAppointment.Get(id).GetStatus();
 }
 
 std::string callGetAppointmentDateByID(std::string id) // Done
@@ -305,13 +312,6 @@ std::string callGetAppointmentStylistIDByID(std::string id) // Done
     return stylistID;
 }
 
-std::string callGetAppointmentRequirementByID(std::string id)
-{
-    // get appointment requirement by id
-    // example
-    return "This is requirement";
-}
-
 // Don't know implement yet
 std::vector<std::string> callGetApointmentIDList(int day, int month, int year, int hour, int minute, bool services[], int status, std::string customerID, std::string stylistID, int& count)
 {
@@ -327,6 +327,7 @@ std::vector<std::string> callGetApointmentIDList(int day, int month, int year, i
     std::string dataDay = std::to_string(day);
     std::string dataHour = std::to_string(hour - 1);
     std::string dataMinute = std::to_string((minute - 1) * 30);
+    std::string dataStatus = (status == 1? "Done": (status == 2? "Waiting": "Cancel"));
     
     flog << "callGetApointmentIDList\n";
     // filter by day, month, year, hour, minute
@@ -363,6 +364,11 @@ std::vector<std::string> callGetApointmentIDList(int day, int month, int year, i
         dbAppointment.Query("stylistID", stylistID);
     }
     // filter by status
+    if (status > 0)
+    {
+        flog << "  Filter by status\n";
+        dbAppointment.Query("status", dataStatus);
+    }
 
     // filter by services
     std::vector<std::string> appointmentIDList;
@@ -383,18 +389,21 @@ std::vector<std::string> callGetApointmentIDList(int day, int month, int year, i
 
 void callCancelAppointment(std::string id)
 {
-    // check service is done
-    // if (dbAppointment.Get(id).GetStatus() == 1)
-    //     throw ERROR_CODE::CANCEL_APPOINTMENT_DONE;
+    if (dbAppointment.Get(id).GetStatus() == "Done")
+        throw ERROR_CODE::APPOINTMENT_IS_DONE;
+    if (dbAppointment.Get(id).GetStatus() == "Cancel")
+        return;
+    dbAppointment.Update(id, "status", "Cancel");
 }
 
-void callDoneAppointment(std::string id)
+void callDoneAppointment(std::string id) // Done
 {   
-    // check service is canceled
-    // if (dbAppointment.Get(id).GetStatus() == 3)
-    //     throw ERROR_CODE::DONE_APPOINTMENT_CANCELED;
-
+    if (dbAppointment.Get(id).GetStatus() == "Cancel")
+        throw ERROR_CODE::APPOINTMENT_IS_CANCELLED;
+    if (dbAppointment.Get(id).GetStylistID() == "DONE")
+        return;
     // set appointment status to done
+    dbAppointment.Update(id, "status", "Done");
 
     // generate service done
     flog << "callDoneAppointment\n";
@@ -406,6 +415,7 @@ void callDoneAppointment(std::string id)
         sid = std::string(10 - sid.length(), '0') + sid;
         flog << "  " << sid << '\n';
         Datetime now = Datetime::Now();
+        Datetime dt = dbAppointment.Get(id).GetStartTime();
         serviceDone newServiceDone(
             sid, 
             dbAppointment.Get(id).GetCustomerID(),
@@ -413,7 +423,7 @@ void callDoneAppointment(std::string id)
             serviceList[i],
             0,
             true,
-            now
+            dt
         );
         // output parameter
         flog << "  " << dbAppointment.Get(id).GetCustomerID() << '\n';
@@ -575,7 +585,7 @@ void callDeleteCustomer(std::string id) // Done
 
 
 // Service Done call and auxiliary
-std::vector<std::string> callGetServiceDoneIDList(int day, int month, int year, std::string customerID, std::string stylistID, bool rating[], bool status[], bool services[], int& count)
+std::vector<std::string> callGetServiceDoneIDList(int day, int month, int year, std::string customerID, std::string stylistID, bool rating[], bool status[], bool services[], int& count) // Done
 {
     /*
     day = 0 => all day
@@ -648,22 +658,22 @@ std::vector<std::string> callGetServiceDoneIDList(int day, int month, int year, 
     return serviceDoneIDList;
 }
 
-std::string callGetServiceDoneCustomerIDByID(std::string id)
+std::string callGetServiceDoneCustomerIDByID(std::string id) // Done
 {
     return dbServiceDone.Get(id).GetCustomerID();
 }
 
-std::string callGetServiceDoneStylistIDByID(std::string id)
+std::string callGetServiceDoneStylistIDByID(std::string id) // Done
 {
     return dbServiceDone.Get(id).GetStylistID();
 }
 
-std::string callGetServiceDoneRatingByID(std::string id)
+std::string callGetServiceDoneRatingByID(std::string id) // Done
 {
     return std::to_string(dbServiceDone.Get(id).GetRating());
 }
 
-std::string callGetServiceDoneDateByID(std::string id)
+std::string callGetServiceDoneDateByID(std::string id) // Done
 {
     Datetime dt = dbServiceDone.Get(id).GetTime();
     std::string day = std::to_string(dt.GetDay());
@@ -674,19 +684,21 @@ std::string callGetServiceDoneDateByID(std::string id)
     return day + "/" + month + "/" + year;
 }
 
-std::string callGetServiceDoneStatusByID(std::string id)
+std::string callGetServiceDoneStatusByID(std::string id) // Done
 {
     return dbServiceDone.Get(id).GetBookStatus()? "True": "False";
 }
 
-std::string callGetServiceDoneServiceByID(std::string id)
+std::string callGetServiceDoneServiceByID(std::string id) // Done
 {
     return ServiceToString(dbServiceDone.Get(id).GetServiceID());
 }
 
-void callRateServiceDone(std::string id, int rating)
+void callRateServiceDone(std::string id, int rating ) // Done
 {
+    flog << "callRateServiceDone\n";
     dbServiceDone.Update(id, "rating", std::to_string(rating));
+    flog << "End callRateServiceDone\n";
 }
 
 // Statistics call and auxiliary

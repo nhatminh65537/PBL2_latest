@@ -8,6 +8,7 @@
 #define SHOW_CURSOR (std::cout << "\033[?25h")
 #define SCREEN_WIDTH 120
 #define SCREEN_HEIGHT 35
+#define STAR_COUNT 6
 
 extern std::function<void()> currentScreen;
 void screenWelcome();

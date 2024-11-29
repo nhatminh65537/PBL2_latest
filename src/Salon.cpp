@@ -92,7 +92,10 @@ void Salon::CreateAppointment(const std::string& customerID,const std::string& s
     ensurePermission("customer");
 
     // by Minh
-    tempAppointment = Appointment("null",dt,customerID,stylistID,serviceList);
+    time_t now = time(nullptr);
+    std::string id = std::to_string(now);
+    tempAppointment = Appointment(id, dt, customerID, stylistID, serviceList);
+    tempAppointment.SetStatus("Waiting");
 }
 
 // added by Minh

@@ -71,7 +71,6 @@ void screenAdmin()
     std::string detailAppointmentTime;
     std::vector<std::string> detailAppointmentServices;
     std::string detailAppointmentStylist;
-    std::string detailAppointmentRequirement;
     int tabDetail = 0;
 
     auto setDetailAppointment = [&] (std::string id) {
@@ -93,8 +92,6 @@ void screenAdmin()
             detailAppointmentStylist += " (ID: " + callGetAppointmentStylistIDByID(id) + ")";
         }
         flog << "  Stylist: " << detailAppointmentStylist << '\n';
-        detailAppointmentRequirement = callGetAppointmentRequirementByID(id);
-        flog << "  Requirement: " << detailAppointmentRequirement << '\n';
         flog << "End setDetailAppointment\n";
     };
 
@@ -230,9 +227,6 @@ void screenAdmin()
             text("Date and time") | size(WIDTH, EQUAL, 40) | bold,
             text("Date: " + detailAppointmentDate) | size(WIDTH, EQUAL, 40),
             text("Time: " + detailAppointmentTime) | size(WIDTH, EQUAL, 40),
-            filler() | size(HEIGHT, EQUAL, 1),
-            text("Requirement: ") | size(WIDTH, EQUAL, 40) | bold,
-            paragraph(detailAppointmentRequirement) | size(WIDTH, EQUAL, 40),
             filler(),
             separator(),
             hbox({
@@ -1518,7 +1512,7 @@ void screenAdmin()
     int filterServiceDoneYear;
     std::string filterServiceDoneCustomerID;
     std::string filterServiceDoneStylistID;
-    bool filterServiceDoneRating[6] = {true, true, true, true, true, true}; // 0-5 stars
+    bool filterServiceDoneRating[STAR_COUNT] = {true, true, true, true, true, true}; // 0-5 stars
     bool filterServiceDoneStatus[2] = {true, true}; // 0: False, 1: True
     bool *filterServiceDoneServices = new bool[serviceCount];
     std::vector<std::string> serviceDoneFilterDays = {"--", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31"};
@@ -1650,7 +1644,7 @@ void screenAdmin()
     Component inputServiceDoneStylistID = Input(&filterServiceDoneStylistID, "Stylist ID", inputOptionAll);
 
     Component containerServiceDoneRating = Container::Vertical({});
-    for (int i = 0; i < 5; ++i) {
+    for (int i = 0; i < STAR_COUNT; ++i) {
         containerServiceDoneRating->Add(Checkbox(std::to_string(i + 1) + whiteStar, &filterServiceDoneRating[i]) | size(WIDTH, EQUAL, 20));
     }
 

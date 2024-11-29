@@ -41,7 +41,7 @@ namespace ERROR_CODE
     const int SALON_ACCESS_DENIED = 301;
     const int SALON_SOME_FIELD_EMPTY = 302;
 
-    const int DONE_APPOINTMENT_CANCELED = 351;
+    const int APPOINTMENT_IS_DONE = 351;
     const int APPOINTMENT_IS_CANCELLED = 352;
 
     const int APPOINTMENT_HAS_NULL_STYLIST = 401;
