@@ -3,9 +3,9 @@
 //
 
 #include "Salon.h"
-
 #include <Appointment.h>
 #include <Database.h>
+#include <vector>
 
 Salon& Salon::StartUp() {
     static Salon salon;
@@ -85,14 +85,14 @@ void Salon::Register(const std::string& firstName,const std::string& lastName,co
 }
 
 
-void Salon::CreateAppointment(const std::string& customerID,const std::string& stylistID, const Datetime& dt, const std::vector<Service>& serviceList) {
+void Salon::CreateAppointment(const std::string& stylistID, const Datetime& dt, const std::vector<Service>& serviceList) {
     if(serviceList.empty()) throw ERROR_CODE::CREATE_APPOINTMENT_SERVICES_EMPTY;
-    if(customerID.empty()) throw ERROR_CODE::CREATE_APPOINTMENT_CUSTOMER_EMPTY;
+    if(this->userID.empty()) throw ERROR_CODE::CREATE_APPOINTMENT_CUSTOMER_EMPTY;
 
     ensurePermission("customer");
 
     // by Minh
-    tempAppointment = Appointment("null",dt,customerID,stylistID,serviceList);
+    tempAppointment = Appointment("null",dt,this->userID,stylistID,serviceList);
 }
 
 // added by Minh
@@ -116,13 +116,33 @@ void Salon::DeleteAppointment(const std::string& appointmentID) {
 
 void Salon::ShowAppointment(const Datetime& dt) {
     ensurePermission("customer");
-    dbAppointment.Query("customerID",userID).Query("startTime",Datetime::TimeToString(dt)).Show();
+    dbAppointment.Query("customerID",userID).Query("date",Datetime::TimeToString(dt)).Show();
 }
 
 void Salon::ShowAllAppointment(const Datetime& dt) {
     ensurePermission("admin");
-    dbAppointment.Query("startTime",Datetime::TimeToString(dt)).Show();
+    dbAppointment.Query("date",Datetime::TimeToString(dt)).Show();
 }
+
+void Salon::DeleteUser(const std::string &ID) {
+    if (dbUser.Get(ID).GetRole() != 1) return;
+    std::vector<Appointment> appointments = dbAppointment.Query("customerID",ID).GetResults();
+    for (const auto& appointment : appointments) {
+        dbAppointment.Delete(appointment.GetID());
+    }
+    dbUser.Delete(ID);
+}
+
+void Salon::DeleteStylist(const std::string &stylistID) {
+    if (dbUser.Get(stylistID).GetRole() != 2) return;
+    std::vector<Appointment> appointments = dbAppointment.Query("stylistID",stylistID).GetResults();
+    for (const auto& appointment : appointments) {
+        dbAppointment.Delete(appointment.GetID());
+    }
+    dbUser.Delete(stylistID);
+}
+
+
 void Salon::ShowSchedule(const std::string& stylistID, const Datetime& dt) {
 
 }

@@ -20,14 +20,16 @@ class Salon {
         void Logout();
         void Register(const std::string&,const std::string&,const std::string&,const std::string&,const std::string&,const bool&,const std::string&,const int&);
         // repaired by Minh (it makes the appointment but not yet add to the database)
-        void CreateAppointment(const std::string&,const std::string&, const Datetime&,const std::vector<Service>&);
+        void CreateAppointment(const std::string&, const Datetime&,const std::vector<Service>&);
         // added by Minh (it adds the appointment to the database)
         void AddAppointment();
-        void DeleteAppointment(const std::string&);
+        void DeleteAppointment(const std::string& appointmentID);
         void ShowAppointment(const Datetime& = Datetime::Now());
         void ShowAllAppointment(const Datetime& = Datetime::Now());
-        void ShowSchedule(const std::string&, const Datetime& = Datetime::Now());
-        void ShowAllSchedule(const std::string&);
+        void ShowSchedule(const std::string& stylistID, const Datetime& = Datetime::Now());
+        void ShowAllSchedule(const std::string& stylistID);
+        void DeleteUser(const std::string& ID);
+        void DeleteStylist(const std::string& stylistID);
 
         [[nodiscard]] std::string GetUserID();
         [[nodiscard]] int GetUserRole();
