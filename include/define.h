@@ -44,9 +44,7 @@ namespace ERROR_CODE
 
     const int APPOINTMENT_IS_DONE = 351;
     const int APPOINTMENT_IS_CANCELLED = 352;
-
-    const int APPOINTMENT_HAS_NULL_STYLIST = 401;
-    
+    const int APPOINTMENT_HAS_NULL_STYLIST = 353;   
 }
 
 enum Service{

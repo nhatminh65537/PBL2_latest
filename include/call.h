@@ -54,7 +54,6 @@ std::string callGetMemberNameByID(std::string id);
 std::string callGetMemberFirstNameByID(std::string id);
 std::string callGetMemberLastNameByID(std::string id);
 std::string callGetMemberPhoneByID(std::string id);
-std::string callGetMemberAgeByID(std::string id);
 std::string callGetMemberGenderByID(std::string id);
 std::string callGetMemberUsernameByID(std::string id);
 
