@@ -6,6 +6,7 @@
 #include "Member.h"
 #include "Salon.h"
 
+typedef std::vector<std::pair<std::string, std::string>> CONDITIONS;
 
 void test() {
     // serviceDone a;
@@ -46,7 +47,12 @@ void test() {
 }
 
 int main() {
+    CONDITIONS conditions{
+        {"status","Done"},
+        {"stylistID","HEHE"}
+    };
     dbAppointment.Query("status","Done").Query("stylistID","HEHE").Show();
+    std::cout << dbAppointment.Count(conditions);
     //dbAppointment.Query("startTime","30/4/27/11/2024").Show();
     //freopen("log.txt","w",stdout);
     //Salon& salon = Salon::StartUp();

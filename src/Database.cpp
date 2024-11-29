@@ -150,8 +150,6 @@ int Database<T>::Count() const{
     return this->_list.size();
 }
 
-
-
 template<typename T>
 int Database<T>::Count(const std::vector<std::pair<std::string,std::string>>& conditions) {
     if (conditions.empty()) return this->Count();
@@ -162,6 +160,8 @@ int Database<T>::Count(const std::vector<std::pair<std::string,std::string>>& co
         }
         this->Query(attributeName,val);
     }
+    std::vector<T> results = move(this->GetResults());
+    return results.size();
 }
 
 template<typename T>
