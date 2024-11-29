@@ -86,7 +86,7 @@ void Member::Show() const {
 
 
 std::string Member::GetFullName() const {
-    return this->GetFirstName() + ' ' + this->GetLastName();
+    return Replace(this->GetFirstName(),'-',' ') + ' ' + this->GetLastName();
 }
 
 std::ostream& operator<<(std::ostream& os, const Member& obj) {
@@ -97,6 +97,8 @@ std::ostream& operator<<(std::ostream& os, const Member& obj) {
 
 std::istream& operator>>(std::istream& is, Member& obj) {
     is >> obj.ID >> obj.firstName >> obj.lastName >> obj.username >> obj.password >>  obj.gender >> obj.phoneNumber >> obj.role;
+    obj.firstName = Replace(obj.firstName,'-',' ');
+    obj.lastName = Replace(obj.lastName,'-',' ');
     return is;
 }
 

@@ -220,6 +220,11 @@ Database<T>& Database<T>::Query(const std::string& attr,const std::string& val) 
             val1 = vt1[2] + "/" + vt1[3] + "/" + vt1[4];
             val2 = vt2[2] + "/" + vt2[3] + "/" + vt2[4];
         }
+        else if (attr == "name") {
+            val1 = ToLower(val1);
+            val2 = ToLower(val2);
+            return val1.find(val2) != std::string::npos;
+        }
         return val1 == val2;
     };
 
@@ -257,7 +262,6 @@ Database<T>& Database<T>::Query(const std::string& attr,const std::string& val) 
     std::ranges::sort(currentIDs);
     std::set_intersection(this->resultIDs.begin(),
     this->resultIDs.end(),
-
     currentIDs.begin(),currentIDs.end(),
     std::back_inserter(tmp));
 
@@ -459,6 +463,9 @@ void Database<Member>::initMap() {
     };
     attributeMap["lastName"] = [](const Member& obj) -> std::string {
         return obj.GetLastName();
+    };
+    attributeMap["name"] = [](const Member& obj) -> std::string {
+          return obj.GetFullName();
     };
     attributeMap["gender"] = [](const Member& obj) -> std::string {
         return (obj.GetGender() == 1 ? "Male" : "Female");
