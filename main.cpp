@@ -50,21 +50,22 @@ void test() {
 }
 
 int main() {
-    CONDITIONS conditions{
-        {"status","Done"},
-        {"stylistID","HEHE"}
-    };
-    dbAppointment.Query("status","Done").Query("stylistID","HEHE").Show();
-    std::cout << dbAppointment.Count("status","Done") << '\n';
-    std::cout << dbAppointment.Count(conditions);
+    // CONDITIONS conditions{
+    //     {"status","Done"},
+    //     {"stylistID","HEHE"}
+    // };
+    //dbAppointment.Query("status","Done").Query("stylistID","HEHE").Show();
+    //std::cout << dbAppointment.Count("status","Done") << '\n';
+    //std::cout << dbAppointment.Count(conditions);
     //dbAppointment.Query("startTime","30/4/27/11/2024").Show();
     //freopen("log.txt","w",stdout);
-    //Salon& salon = Salon::StartUp();
+    Salon& salon = Salon::StartUp();
     //salon.Register("Tran","Long","test","pass","pass",true,"09999999",3);
-    // if (salon.Login("longqt321","123456")) {
-    //     std::cout << salon.GetUserID() << ' ' << salon.GetUserRole() << '\n';
-    //
-    // }
+    if (salon.Login("longqt321","123456")) {
+        std::cout << salon.GetUserID() << ' ' << salon.GetUserRole() << '\n';
+        salon.DeleteUser("2");
+        dbAppointment.Show();
+    }
     //test_ui();
     return 0;
 }

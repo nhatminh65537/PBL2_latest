@@ -52,8 +52,8 @@ std::string callCheckStylistBusy(std::string stylistID, int day, int month, int 
     std::string busyStatus = "";
     const Datetime dt(dataMinute, dataHour, dataDay, dataMonth, dataYear);
     if (stylistID == "null") {
-        int numberOfAppointments = dbAppointment.Query("time",Datetime::TimeToString(dt)).GetResults().size();
-        int numberOfStylist = dbUser.Query("role","2").GetResults().size();
+        int numberOfAppointments = dbAppointment.Count("time",Datetime::TimeToString(dt));
+        int numberOfStylist = dbUser.Count("role","2");
         if (numberOfAppointments >= numberOfStylist) {
             busyStatus = "All stylist is busy at this time";
         }
