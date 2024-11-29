@@ -15,7 +15,6 @@ using namespace ftxui;
 void screenWelcome()
 {
     // welcome screen
-    HIDE_CURSOR;
     auto screen = ScreenInteractive::FixedSize(SCREEN_WIDTH, SCREEN_HEIGHT);
     
     ButtonOption myButtonOption;
@@ -378,6 +377,15 @@ void screenCustomer()
         }
         return element;
     };
+        MenuOption menuOptionAll;
+    menuOptionAll.direction = Direction::Up;
+    menuOptionAll.entries_option.transform = [](const EntryState& s) {
+        auto element = text(s.label) | center;
+        if (s.focused) {
+            element = element | inverted;
+        }
+        return element;
+    };
 
     // Home Tab
     #pragma region
@@ -454,13 +462,13 @@ void screenCustomer()
 
     // stylist 
     std::vector<std::string> appointmentStylists;
-    appointmentStylists.push_back("None");
+    appointmentStylists.push_back("null");
     for (int i = 0; i < appointmentStylistIDs.size(); ++i) {
         appointmentStylists.push_back(callGetMemberNameByID(appointmentStylistIDs[i]) + " (" + appointmentStylistIDs[i] + ")");
     }
 
     Component dropdownStylists = Dropdown({
-        .checkbox = checkboxOptionAll,
+        // .checkbox = checkboxOptionAll,
         .radiobox = {
             .entries = &appointmentStylists, 
             .selected = &selectedStylist,
@@ -485,20 +493,11 @@ void screenCustomer()
     std::vector<std::string> hours = {"00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23"};
     std::vector<std::string> minutes = {"00", "30"};
 
+    MenuOption menuOptionAppointment(menuOptionAll);
+    menuOptionAppointment.on_change = checkBusy;
 
-    MenuOption menuOptionAll;
-    menuOptionAll.direction = Direction::Up;
-    menuOptionAll.entries_option.transform = [](const EntryState& s) {
-        auto element = text(s.label) | center;
-        if (s.focused) {
-            element = element | inverted;
-        }
-        return element;
-    };
-    menuOptionAll.on_change = checkBusy;
-
-    Component menuDay = Menu(&days, &selectedDay, menuOptionAll);
-    MenuOption menuOptionMonth = MenuOption(menuOptionAll);
+    Component menuDay = Menu(&days, &selectedDay, menuOptionAppointment);
+    MenuOption menuOptionMonth = MenuOption(menuOptionAppointment);
     menuOptionMonth.on_change = ([&] () {
         int curYear = 2021 + selectedYear;
         int curMonth = 1 + selectedMonth;
@@ -525,9 +524,9 @@ void screenCustomer()
     });
 
     Component menuMonth = Menu(&months, &selectedMonth, menuOptionMonth);
-    Component menuYear = Menu(&years, &selectedYear, menuOptionAll);
-    Component menuHour = Menu(&hours, &selectedHour, menuOptionAll);
-    Component menuMinute = Menu(&minutes, &selectedMinute, menuOptionAll);
+    Component menuYear = Menu(&years, &selectedYear, menuOptionAppointment);
+    Component menuHour = Menu(&hours, &selectedHour, menuOptionAppointment);
+    Component menuMinute = Menu(&minutes, &selectedMinute, menuOptionAppointment);
 
     Component containerDate = Container::Horizontal({
         menuDay,
@@ -596,70 +595,34 @@ void screenCustomer()
         }
         return check;
     });
-    
-    // Requirement
-    std::string requirement = "";
-    InputOption inputOptionRequirement;
-    inputOptionRequirement.transform = [](InputState state) {
-        state.element |= color(Color::White);
-
-        if (state.is_placeholder) {
-            state.element |= dim;
-        }
-
-        if (state.focused) {
-            state.element |= inverted;
-        } else if (state.hovered) {
-        state.element |= bgcolor(Color::GrayDark);
-    }
-    state.element |= borderRounded;
-    state.element |= size(WIDTH, EQUAL, 40);
-    state.element |= size(HEIGHT, EQUAL, 8);
-    return state.element;
-    };
-    Component inputRequirement = Input(&requirement, inputOptionRequirement);
-    inputRequirement |= CatchEvent([&] (Event event) {
-        bool check = (event == Event::Return );
-        if (check) {
-            requirement = requirement + "\n";
-        }
-        return false;
-    });
-
-    // event
-    rendererTime |= CatchEvent([&] (Event event) {
-        bool check = event == Event::Tab || event == Event::Return;
-        if (check) {
-            inputRequirement->TakeFocus();
-        }
-        return check;
-    });
 
     // Button next
-    ButtonOption buttonOptionNext;
-    buttonOptionNext.transform = [](const EntryState& s) {
-        auto element = text(s.label) | center | borderRounded;
-        if (s.focused) {
-            element |= inverted;
-        }
-        return element;
-    };
-    
     std::string newAppointmentId;
     Component buttonNext = Button("Next", [&] {
-        errorDateTime = "";
+        if (messageCheckBusy.empty()) {
+            return;
+        }
         errorServicesEmpty = "";
         try {
-            callCreateNewAppointment(selectedServices, toStylistID(selectedStylist), selectedDay, selectedMonth, selectedYear, selectedHour, selectedMinute, requirement);
+            callCreateNewAppointment(selectedServices, toStylistID(selectedStylist), selectedDay, selectedMonth, selectedYear, selectedHour, selectedMinute);
             newAppointmentId = callGetNewAppointmentId();
             tabComfirm = 1;
         }
         catch (int errorCode) {
             errorHandleAppointment(errorCode);
         }
-    }, buttonOptionNext) | size(WIDTH, EQUAL, 8);
+    }, buttonOptionAll) | size(WIDTH, EQUAL, 8);
     buttonNext |= CatchEvent([&] (Event event) {
         bool check = event == Event::Tab;
+        return check;
+    });
+
+    // event
+    rendererTime |= CatchEvent([&] (Event event) {
+        bool check = event == Event::Tab || event == Event::Return;
+        if (check) {
+            buttonNext->TakeFocus();
+        }
         return check;
     });
 
@@ -669,7 +632,6 @@ void screenCustomer()
                 dropdownStylists,
                 rendererDate,
                 rendererTime,
-                inputRequirement,
                 buttonNext
         }) ,[&] {
             auto textError = [&](std::string error) {
@@ -683,7 +645,7 @@ void screenCustomer()
             if (messageCheckBusy.size() > 0) {
                 textBusy = paragraph(messageCheckBusy) | color(Color::Red);
             } else {
-                textBusy = text("Can choose now") | color(Color::Green);
+                textBusy = text("Can choose now    ") | color(Color::Green);
             }
 
             return vbox({
@@ -710,8 +672,7 @@ void screenCustomer()
                 }),
                 // textError(errorDateTime),
                 textBusy | align_right,
-                text("Reqirements") | bold,
-                inputRequirement->Render(),
+                filler() | size(HEIGHT, EQUAL, 1),
                 buttonNext->Render()| align_right,
             }) | size(WIDTH, EQUAL, 40) | borderRounded;
     });
@@ -728,12 +689,11 @@ void screenCustomer()
         selectedYear = 0;
         selectedHour = 0;
         selectedMinute = 0;
-        requirement = "";
         newAppointmentId = "";
     };
     int selectedButtonsAppointment = 1;
 
-    ButtonOption buttonOptionConfirm(buttonOptionNext);
+    ButtonOption buttonOptionConfirm(buttonOptionAll);
     Component buttonAppointmentConfirm = Button("Comfirm", [&] {
         tabComfirm = 0;
         resetAppointment();
@@ -749,21 +709,14 @@ void screenCustomer()
     }, &selectedButtonsAppointment) ,[&] {
         auto textService = [&](int i) {
             if (!selectedServices[i]) {
-                return text("  ") | size(HEIGHT, EQUAL, 0);
+                return text("") | size(HEIGHT, EQUAL, 0);
             }
-            return text(services[i]) | size(WIDTH, EQUAL, 20);
+            return text("  " + services[i]) | size(WIDTH, EQUAL, 20);
         };
         Elements textServiceList;
         for (int i = 0; i < serviceCount; ++i) {
             textServiceList.push_back(textService(i));
         }
-        Elements ps;
-        std::string s = requirement;
-        while (s.find("\n") != std::string::npos) {
-            ps.push_back(paragraph(s.substr(0, s.find("\n"))) | size(WIDTH, EQUAL, 40));
-            s = s.substr(s.find("\n") + 1);
-        }
-        ps.push_back(paragraph(s));
         return vbox({
             text("Comfirm appointment") | center,
             separator(),
@@ -780,11 +733,9 @@ void screenCustomer()
             text("  " + appointmentStylists[selectedStylist]),
             filler() | size(HEIGHT, EQUAL, 1),
             text("Date and time") | bold,
-            text("Date: " + days[selectedDay] + "/" + months[selectedMonth] + "/" + years[selectedYear]),
-            text("Time: " + hours[selectedHour] + ":" + minutes[selectedMinute]),
+            text("  Date: " + days[selectedDay] + "/" + months[selectedMonth] + "/" + years[selectedYear]),
+            text("  Time: " + hours[selectedHour] + ":" + minutes[selectedMinute]),
             filler() | size(HEIGHT, EQUAL, 1),
-            text("Requirement: ") | size(WIDTH, EQUAL, 40) | bold,
-            vbox(ps),
             separator(),
             hbox({
                 buttonAppointmentCancel->Render() | size(WIDTH, EQUAL, 10),
@@ -820,9 +771,6 @@ void screenCustomer()
     #pragma region ServiceDone
     // flog << "Screen Customer: service Done Tab\n";
 
-    const std::string blackStar = " ☆ ";
-    const std::string whiteStar = " ★ ";
-
     std::vector<std::string> serviceDoneIDList;
     int countServiceDone = 0;
 
@@ -831,7 +779,7 @@ void screenCustomer()
     int filterServiceDoneMonth;
     int filterServiceDoneYear;
     std::string filterServiceDoneStylistID;
-    bool filterServiceDoneRating[5] = {true, true, true, true, true}; // 1-5 stars
+    bool filterServiceDoneRating[STAR_COUNT] = {true, true, true, true, true}; // 1-5 stars
     bool filterServiceDoneStatus[2] = {true, true}; // 0: False, 1: True
     bool *filterServiceDoneServices = new bool[serviceCount];
 
@@ -844,9 +792,67 @@ void screenCustomer()
         filterServiceDoneMonth = 0;
         filterServiceDoneYear = 0;
         filterServiceDoneStylistID = "";
-        std::fill(filterServiceDoneRating, filterServiceDoneRating + 5, true);
+        std::fill(filterServiceDoneRating, filterServiceDoneRating + STAR_COUNT, true);
         std::fill(filterServiceDoneStatus, filterServiceDoneStatus + 2, true);
         std::fill(filterServiceDoneServices, filterServiceDoneServices + serviceCount, true);
+    };
+    int detailTabServiceDone = 0;
+    std::string detailServiceDoneID;
+    std::string detailServiceDoneStylistID;
+    std::string detailServiceDoneRating;
+    std::string detailServiceDoneDate;
+    std::string detailServiceDoneStatus;
+    std::string detailServiceDoneService;
+
+    auto setDetailServiceDone = [&] (std::string id) {
+        // flog << "Screen Customer: Service Done Tab: Set Detail\n";
+        detailServiceDoneID = id;
+        // flog << "  ID\n";
+        detailServiceDoneStylistID = callGetServiceDoneStylistIDByID(id);
+        // flog << "  StylistID\n";
+        detailServiceDoneRating = callGetServiceDoneRatingByID(id);
+        // flog << "  Rating\n";
+        detailServiceDoneDate = callGetServiceDoneDateByID(id);
+        // flog << "  Date\n";
+        detailServiceDoneStatus = callGetServiceDoneStatusByID(id);
+        // flog << "  Status\n";
+        detailServiceDoneService = callGetServiceDoneServiceByID(id);
+        // flog << "End Screen Customer: Service Done Tab: Set Detail\n";
+    };
+
+    
+    Component containerServiceDoneList = Container::Vertical({});
+    auto reloadServiceDoneList = [&] () {
+        serviceDoneIDList = callGetServiceDoneIDList(filterServiceDoneDay, filterServiceDoneMonth, filterServiceDoneYear, currentUserID, filterServiceDoneStylistID, filterServiceDoneRating, filterServiceDoneStatus, filterServiceDoneServices, countServiceDone);
+        containerServiceDoneList->DetachAllChildren();
+            for (int i = 0; i < serviceDoneIDList.size(); ++i) {
+            std::string id = serviceDoneIDList[i];
+            Component c = Button("Detail", [&, id] {
+                // flog << "Screen Customer: Service Done Tab: Detail\n";
+                detailTabServiceDone = 1;
+                setDetailServiceDone(id);
+                // flog << "End Screen Customer: Service Done Tab: Detail\n";
+            }, buttonOptionTab);
+            
+            std::string rating = callGetServiceDoneRatingByID(id);
+            std::string date = callGetServiceDoneDateByID(id);
+            std::string status = callGetServiceDoneStatusByID(id);
+            std::string service = callGetServiceDoneServiceByID(id);
+
+            containerServiceDoneList->Add(Renderer(
+                c, [&, c, id, rating, date, status, service] {
+                return hbox({
+                    text(id) | size(WIDTH, EQUAL, 10),
+                    text(rating + whiteStar) | size(WIDTH, EQUAL, 10),
+                    text(date) | size(WIDTH, EQUAL, 15),
+                    text(status) | size(WIDTH, EQUAL, 10),
+                    text(service) | size(WIDTH, EQUAL, 12),
+                    separator(),
+                    c->Render() | center | size(WIDTH, EQUAL, 8),
+                    
+                });
+            }));
+        }
     };
     resetServiceDoneFilter();
 
@@ -899,8 +905,8 @@ void screenCustomer()
     Component inputServiceDoneStylistID = Input(&filterServiceDoneStylistID, "Stylist ID", inputOptionAll);
 
     Component containerServiceDoneRating = Container::Vertical({});
-    for (int i = 0; i < 5; ++i) {
-        containerServiceDoneRating->Add(Checkbox(std::to_string(i + 1) + whiteStar, &filterServiceDoneRating[i]));
+    for (int i = 0; i < STAR_COUNT; ++i) {
+        containerServiceDoneRating->Add(Checkbox(std::to_string(i) + whiteStar, &filterServiceDoneRating[i]));
     }
 
     Component containerServiceDoneStatus = Container::Vertical({
@@ -914,7 +920,7 @@ void screenCustomer()
     }
 
     Component buttonServiceDoneFilter = Button("Filter", [&] {
-        serviceDoneIDList = callGetServiceDoneIDList(filterServiceDoneDay, filterServiceDoneMonth, filterServiceDoneYear, currentUserID, filterServiceDoneStylistID, filterServiceDoneRating, filterServiceDoneStatus, filterServiceDoneServices, countServiceDone);
+        reloadServiceDoneList();
     }, buttonOptionAll);
     Component buttonServiceDoneResetFilter = Button("Reset", [&] {
         resetServiceDoneFilter();
@@ -974,67 +980,6 @@ void screenCustomer()
     });
 
     // ServiceDone list
-    int detailTabServiceDone = 0;
-    std::string detailServiceDoneID;
-    std::string detailServiceDoneStylistID;
-    std::string detailServiceDoneRating;
-    std::string detailServiceDoneDate;
-    std::string detailServiceDoneStatus;
-    std::string detailServiceDoneService;
-
-    serviceDoneIDList = callGetServiceDoneIDList(filterServiceDoneDay, filterServiceDoneMonth, filterServiceDoneYear, currentUserID, filterServiceDoneStylistID, filterServiceDoneRating, filterServiceDoneStatus, filterServiceDoneServices, countServiceDone);
-
-    auto setDetailServiceDone = [&] (std::string id) {
-        // flog << "Screen Customer: Service Done Tab: Set Detail\n";
-        detailServiceDoneID = id;
-        // flog << "  ID\n";
-        detailServiceDoneStylistID = callGetServiceDoneStylistIDByID(id);
-        // flog << "  StylistID\n";
-        detailServiceDoneRating = callGetServiceDoneRatingByID(id);
-        // flog << "  Rating\n";
-        detailServiceDoneDate = callGetServiceDoneDateByID(id);
-        // flog << "  Date\n";
-        detailServiceDoneStatus = callGetServiceDoneStatusByID(id);
-        // flog << "  Status\n";
-        detailServiceDoneService = callGetServiceDoneServiceByID(id);
-        // flog << "End Screen Customer: Service Done Tab: Set Detail\n";
-    };
-
-    
-    Component containerServiceDoneList = Container::Vertical({});
-    auto reloadServiceDoneList = [&] () {
-        containerServiceDoneList->DetachAllChildren();
-            for (int i = 0; i < serviceDoneIDList.size(); ++i) {
-            std::string id = serviceDoneIDList[i];
-            Component c = Button("Detail", [&, id] {
-                // flog << "Screen Customer: Service Done Tab: Detail\n";
-                detailTabServiceDone = 1;
-                setDetailServiceDone(id);
-                // flog << "End Screen Customer: Service Done Tab: Detail\n";
-            }, buttonOptionTab);
-            
-            std::string rating = callGetServiceDoneRatingByID(id);
-            std::string date = callGetServiceDoneDateByID(id);
-            std::string status = callGetServiceDoneStatusByID(id);
-            std::string service = callGetServiceDoneServiceByID(id);
-
-            containerServiceDoneList->Add(Renderer(
-                c, [&, c, id, rating, date, status, service] {
-                return hbox({
-                    text(id) | size(WIDTH, EQUAL, 10),
-                    text(rating + whiteStar) | size(WIDTH, EQUAL, 10),
-                    text(date) | size(WIDTH, EQUAL, 15),
-                    text(status) | size(WIDTH, EQUAL, 10),
-                    text(service) | size(WIDTH, EQUAL, 12),
-                    separator(),
-                    c->Render() | center | size(WIDTH, EQUAL, 8),
-                    
-                });
-            }));
-        }
-    };
-    reloadServiceDoneList();
-
     Component rendererServiceDoneList = Renderer(containerServiceDoneList ,[&] {
         return vbox({
             hbox({
@@ -1056,7 +1001,6 @@ void screenCustomer()
     // ServiceDone detail
     Component buttonServiceDoneDetailBack = Button("Back", [&] {
         reloadServiceDoneList();
-
         detailTabServiceDone = 0;
     }, buttonOptionAll);
 
@@ -1065,7 +1009,6 @@ void screenCustomer()
     Component buttonServiceDoneRating = Button("Rating", [&] {
         starRating = {blackStar, blackStar, blackStar, blackStar, blackStar};
         hoverButtonStar = 0;
-        
         detailTabServiceDone = 2;
     }, buttonOptionAll);
 
@@ -1102,7 +1045,7 @@ void screenCustomer()
     int starCount = 0;
     Component rendererServiceDoneRating = Container::Horizontal({}, &hoverButtonStar);
     
-    for (int i = 0; i < 5; ++i) {
+    for (int i = 0; i < STAR_COUNT; ++i) {
         ButtonOption buttonOptionStar;
         buttonOptionStar.transform = [&, i](const EntryState& s) {
             auto element = text(starRating[i]) | center | borderRounded;
@@ -1112,7 +1055,7 @@ void screenCustomer()
             return element;
         };
         Component b = Button("", [&, i] {
-            for (int j = 0; j < 5; ++j) {
+            for (int j = 0; j < STAR_COUNT; ++j) {
                 starRating[j] = (j <= i ? whiteStar : blackStar);
             }
             starCount = i + 1;
@@ -1199,6 +1142,12 @@ void screenCustomer()
 
     // History list
     // flog << "Screen Customer: History List\n";
+    int filterHistoryDay;
+    int filterHistoryMonth;
+    int filterHistoryYear;
+    bool *filterHistoryServices = new bool[serviceCount];
+    int filterHistoryStatus = 0; // 0: all, 1: done, 2: pending, 3: cancel
+
     int tabDetail = 0;
     int selectedButtonDetail = 0;
 
@@ -1209,7 +1158,6 @@ void screenCustomer()
     std::string detailAppointmentTime;
     std::vector<std::string> detailAppointmentServices;
     std::string detailAppointmentStylist;
-    std::string detailAppointmentRequirement;
 
     auto setDetailAppointment = [&] (std::string id) {
         // flog << "Screen Customer: History Tab: Set Detail\n";
@@ -1228,24 +1176,13 @@ void screenCustomer()
         if (detailAppointmentStylist != "null") {
             detailAppointmentStylist += " (ID: " + callGetAppointmentStylistIDByID(id) + ")";
         }
-        detailAppointmentRequirement = callGetAppointmentRequirementByID(id);
         // flog << "  Requirement\n";
     };
-
-    // Components componentHistoryList = {};
-    // for (int i = 0; i < listAppointmentID.size(); ++i) {
-    //     std::string id = listAppointmentID[i];
-    //     Component buttonDetail = Button("Detail", [&, id] {
-    //         tabDetail = 1;
-    //         detailAppointmentID = id;
-    //         setDetailAppointment(detailAppointmentID);
-    //     }, buttonOptionTab);
-    //     componentHistoryList.push_back(buttonDetail);
-    // }
 
     Component containerHistoryList = Container::Vertical({});
 
     auto reloadHistoryList = [&] () {
+        listAppointmentID = callGetCurrentUserAppointmentIDList(filterHistoryDay, filterHistoryMonth, filterHistoryYear, filterHistoryServices, filterHistoryStatus);
         containerHistoryList->DetachAllChildren();
         for (int i = 0; i < listAppointmentID.size(); ++i) {
             std::string id = listAppointmentID[i];
@@ -1300,14 +1237,25 @@ void screenCustomer()
 
     // Detail appointment
     int selectedButtonsDetail = 0;
+    std::string errorCancel = "";
     Component buttonDetailCancel = Button("Cancel", [&] {
-        callCancelAppointment(detailAppointmentID);
-        detailAppointmentStatus = callGetAppointmentStatusByID(detailAppointmentID);
-    }, buttonOptionNext);
+        try {
+            callCancelAppointment(detailAppointmentID);
+            detailAppointmentStatus = callGetAppointmentStatusByID(detailAppointmentID);
+            errorCancel = "";
+        }
+        catch (int errorCode) {
+            switch (errorCode) {
+                case ERROR_CODE::APPOINTMENT_IS_DONE:
+                    errorCancel = "Appointment is done";
+                    break;
+            }
+        }
+    }, buttonOptionAll);
     Component buttonDetailBack = Button("Back", [&] {
         reloadHistoryList();
         tabDetail = 0;
-    }, buttonOptionNext);
+    }, buttonOptionAll);
     Component rendererTabDetail = Renderer(Container::Horizontal({
         buttonDetailBack,
         buttonDetailCancel
@@ -1321,6 +1269,12 @@ void screenCustomer()
         for (int i = 0; i < detailAppointmentServices.size(); ++i) {
             textServiceList.push_back(textService(i));
         }
+        auto textError = [&](std::string error) {
+            if (error.size() == 0) {
+                return text("") | size(HEIGHT, EQUAL, 0);
+            }
+            return paragraph(error) | align_right | color(Color::Red);
+        };
         return vbox({
             text("Detail appointment") | center,
             separator(),
@@ -1342,9 +1296,6 @@ void screenCustomer()
             text("Date and time") | bold,
             text("Date: " + detailAppointmentDate),
             text("Time: " + detailAppointmentTime),
-            filler() | size(HEIGHT, EQUAL, 1),
-            text("Requirement: ") | bold,
-            paragraph(requirement) | size(WIDTH, EQUAL, 40),
             filler(),
             separator(),
             hbox({
@@ -1352,15 +1303,11 @@ void screenCustomer()
                 filler() | size(WIDTH, EQUAL, 5),
                 buttonDetailCancel->Render() | size(WIDTH, EQUAL, 10),
             })| hcenter,
+            textError(errorCancel),
         }) | center | borderRounded | size(WIDTH, EQUAL, 40);
     });
 
     // filter History
-    int filterHistoryDay;
-    int filterHistoryMonth;
-    int filterHistoryYear;
-    bool *filterHistoryServices = new bool[serviceCount];
-    int filterHistoryStatus = 0; // 0: all, 1: done, 2: pending, 3: cancel
     std::vector<std::string> historyDays = {"--", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31"};
     std::vector<std::string> historyMonths = {"--", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"};
     std::vector<std::string> historyYears = {"----", "2021", "2022", "2023", "2024", "2025", "2026", "2027", "2028", "2029", "2030"};
@@ -1430,18 +1377,17 @@ void screenCustomer()
         containerFilterServices->Add(Checkbox(services[i], &filterHistoryServices[i]) | size(WIDTH, EQUAL, 20));
     }
     
-    std::vector<std::string> filterStatus = {"All", "Done", "Pending", "Cancel"};
+    std::vector<std::string> filterStatus = {"All", "Done", "Waiting", "Cancel"};
     Component radioboxStatus = Radiobox(filterStatus, &filterHistoryStatus);
     
     // flog << "  break point 2.5\n";
     Component buttonFilter = Button("Filter", [&] {
-        listAppointmentID = callGetCurrentUserAppointmentIDList(filterHistoryDay, filterHistoryMonth, filterHistoryYear, filterHistoryServices, filterHistoryStatus);
         reloadHistoryList();
-    }, buttonOptionNext);
+    }, buttonOptionAll);
     
     Component buttonResetFilter = Button("Reset", [&] {
         resetFilter();
-    }, buttonOptionNext);
+    }, buttonOptionAll);
 
     // flog << "  break point 3\n";
     // Catch event
@@ -1537,7 +1483,6 @@ void screenCustomer()
     std::string newPassword;
     std::string confirmpassword;
     std::string phonenumber;
-    std::string age;
     int gender = 0;
 
     auto resetName = [&] {
@@ -1576,7 +1521,6 @@ void screenCustomer()
     Component inputConfirmpassword = Input(&confirmpassword, "Confirm Password", inputOptionPassword);
 
     Component inputPhonenumber = Input(&phonenumber, "Phone Number", inputOptionProfile);
-    Component inputAge = Input(&age, "Age", inputOptionProfile);
 
     ComponentDecorator eventNumberOnly = CatchEvent([&](Event event) {
         return event.is_character() && !std::isdigit(event.character()[0]);
@@ -1584,10 +1528,6 @@ void screenCustomer()
     inputPhonenumber |= eventNumberOnly;
     inputPhonenumber |=  CatchEvent([&](Event event) {
         return event.is_character() && phonenumber.size() >= 11;
-    });
-    inputAge |= eventNumberOnly;
-    inputAge |= CatchEvent([&](Event event) {
-        return event.is_character() && age.size() >= 3;
     });
     ComponentDecorator eventAlphabetOnly = CatchEvent([&](Event event) {
         return event.is_character() && 
@@ -1604,7 +1544,7 @@ void screenCustomer()
     std::string errorUpdateProfileLastnameEmpty  = "";
     Component buttonNameUpdate = Button("Update", [&] {
         errorUpdateProfileFirstnameEmpty = "";
-        errorUpdateProfileLastnameEmpty = "";
+        errorUpdateProfileLastnameEmpty  = "";
         try {
             callUpdateCurrentUserName(firstname, lastname);
         }
@@ -1667,7 +1607,7 @@ void screenCustomer()
             switch (errorCode)
             {
                 case ERROR_CODE::UPDATE_PROFILE_PERSONINFO_EMPTY:
-                    errorUpdateProfilePersoninfoEmpty = "Phone number or age is empty";
+                    errorUpdateProfilePersoninfoEmpty = "Phone number is empty";
                     break;
                 default:
                     break;
@@ -1705,7 +1645,7 @@ void screenCustomer()
     radioboxGender |= CatchEvent([&] (Event event) {
         bool check = event == Event::TabReverse;
         if (check) {
-            inputAge->TakeFocus();
+            inputPhonenumber->TakeFocus();
         }
         return check;
     });
@@ -1771,13 +1711,11 @@ void screenCustomer()
 
     Component containerUpdatePersoninfo = Renderer(Container::Vertical({
         inputPhonenumber,
-        inputAge,
         radioboxGender,
         containerButtonsPersoninfo,
     }), [&] {
         return vbox({
             hbox({text("Phone Number    : "), inputPhonenumber->Render()}),
-            hbox({text("Age             : "), inputAge->Render()}),
             hbox({text("Gender          : "), radioboxGender->Render()}),
             textError(errorUpdateProfilePersoninfoEmpty),
             separator(),
@@ -1818,9 +1756,11 @@ void screenCustomer()
     
     Component buttonHome = Button("Home", [&] {selectedTab = 0;}, buttonOptionTab);
     Component buttonAppointment = Button("Appointment", [&] {selectedTab = 1;}, buttonOptionTab);
-    Component buttonServiceDone = Button("Service Done", [&] {selectedTab = 2;}, buttonOptionTab);
+    Component buttonServiceDone = Button("Service Done", [&] {
+            reloadServiceDoneList();
+            selectedTab = 2;
+    }, buttonOptionTab);
     Component buttonHistory = Button("History", [&] {
-        listAppointmentID = callGetCurrentUserAppointmentIDList(filterHistoryDay, filterHistoryMonth, filterHistoryYear, filterHistoryServices, filterHistoryStatus);
         reloadHistoryList();
         selectedTab = 3;
     }, buttonOptionTab);
@@ -1919,6 +1859,7 @@ void screenStylist()
     std::string currentUserID = callGetCurrentUserID();
     std::vector<std::string> services;
     int serviceCount = callGetServiceList(services);
+    std::string nameCurrentUser = callGetCurrentUserName();
 
     ButtonOption buttonOptionAll;
     buttonOptionAll.transform = [](const EntryState& s) {
@@ -1939,15 +1880,6 @@ void screenStylist()
         return element;
     };
 
-    // customer screen
-    auto screen = ScreenInteractive::FixedSize(SCREEN_WIDTH, SCREEN_HEIGHT);
-    int exit = 0;
-
-    // Navigation tab buttons
-    #pragma region 
-    std::string nameCurrentUser = callGetCurrentUserName();
-    int selectedTab = 0;
-
     ButtonOption buttonOptionTab;
     buttonOptionTab.transform = [](const EntryState& s) {
         auto element = text(s.label) | center ;
@@ -1956,54 +1888,12 @@ void screenStylist()
         }
         return element;
     };
-    Component buttonHome = Button("Home", [&] {
-        selectedTab = 0;
-    }, buttonOptionTab);
-    Component buttonSchedule = Button("Schedule", [&] {
-        selectedTab = 1;
-    }, buttonOptionTab);
-    Component buttonServiceDone = Button("Service Done", [&] {
-        selectedTab = 2;
-    }, buttonOptionTab);
-    Component buttonProfile = Button("Profile", [&] { // Only can change pass and person info
-        selectedTab = 3;
-    }, buttonOptionTab);
-    Component buttonLogout = Button("Logout", [&] {
-        exit = 1;
-    }, buttonOptionTab);
-    Component containerButtons = Container::Vertical({
-        buttonHome,
-        buttonSchedule,
-        buttonServiceDone,
-        buttonProfile,
-        buttonLogout,
-    });
-    Component rendererButtons = Renderer(containerButtons, [&] {
-        return vbox({
-            text("Welcome " + nameCurrentUser) | hcenter,
-            filler() | size(HEIGHT, EQUAL, 2),
-            separator(),
-            buttonHome->Render(),
-            separator(),
-            buttonSchedule->Render(),
-            separator(),
-            buttonServiceDone->Render(),
-            separator(),
-            buttonProfile->Render(),
-            separator(),
-            filler(),
-            separator(),
-            buttonLogout->Render()
-        }) | borderRounded | size(WIDTH, EQUAL, 30);
-    });
-    #pragma endregion
     
     // Home tab
     Component tabHome = Renderer([&] {
         return text("Home") | center ;
     });
 
-    // Schedule tab
     // Schedule tab
     #pragma region Schedule
 
@@ -2020,7 +1910,7 @@ void screenStylist()
     std::vector<std::string> scheduleDays = {"--", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31"};
     std::vector<std::string> scheduleMonths = {"--", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"};
     std::vector<std::string> scheduleYears = {"----", "2021", "2022", "2023", "2024", "2025", "2026", "2027", "2028", "2029", "2030"};
-    std::vector<std::string> scheduleStatus = {"All", "Done", "Pending", "Cancel"};
+    std::vector<std::string> scheduleStatus = {"All", "Done", "Waiting", "Cancel"};
 
     auto resetScheduleFilter = [&] {
         filterScheduleDay = 0;
@@ -2186,7 +2076,6 @@ void screenStylist()
     std::string detailScheduleTime;
     std::vector<std::string> detailScheduleServices;
     std::string detailScheduleStylist;
-    std::string detailScheduleRequirement;
     int tabDetail = 0;
 
     auto setDetailSchedule = [&] (std::string id) {
@@ -2196,10 +2085,9 @@ void screenStylist()
         detailScheduleTime = callGetAppointmentTimeByID(id);
         detailScheduleServices = callGetAppointmentServicesByID(id);
         detailScheduleStylist = callGetAppointmentStylistByID(id);
-        if (detailScheduleStylist != "None") {
+        if (detailScheduleStylist != "null") {
             detailScheduleStylist += " (ID: " + callGetAppointmentStylistIDByID(id) + ")";
         }
-        detailScheduleRequirement = callGetAppointmentRequirementByID(id);
     };
 
     listScheduleID = callGetApointmentIDList(filterScheduleDay, filterScheduleMonth, filterScheduleYear, 0, 0, filterScheduleServices, filterScheduleStatus, filterScheduleCustomerID, currentUserID, countSchedule);
@@ -2295,9 +2183,6 @@ void screenStylist()
             text("Date and time") | size(WIDTH, EQUAL, 40) | bold,
             text("Date: " + detailScheduleDate) | size(WIDTH, EQUAL, 40),
             text("Time: " + detailScheduleTime) | size(WIDTH, EQUAL, 40),
-            filler() | size(HEIGHT, EQUAL, 1),
-            text("Requirement: ") | size(WIDTH, EQUAL, 40) | bold,
-            paragraph(detailScheduleRequirement) | size(WIDTH, EQUAL, 40),
             filler(),
             separator(),
             buttonScheduleDetailBack->Render() | center,
@@ -2342,7 +2227,7 @@ void screenStylist()
     int filterServiceDoneMonth;
     int filterServiceDoneYear;
     std::string filterServiceDoneCustomerID;
-    bool filterServiceDoneRating[5] = {true, true, true, true, true}; // 1-5 stars
+    bool filterServiceDoneRating[STAR_COUNT] = {true, true, true, true, true, true}; // 1-5 stars
     bool filterServiceDoneStatus[2] = {true, true}; // 0: False, 1: True
     bool *filterServiceDoneServices = new bool[serviceCount];
     std::vector<std::string> filterServiceDoneDays = {"--", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31"};
@@ -2354,7 +2239,7 @@ void screenStylist()
         filterServiceDoneMonth = 0;
         filterServiceDoneYear = 0;
         filterServiceDoneCustomerID = "";
-        std::fill(filterServiceDoneRating, filterServiceDoneRating + 5, true);
+        std::fill(filterServiceDoneRating, filterServiceDoneRating + STAR_COUNT, true);
         std::fill(filterServiceDoneStatus, filterServiceDoneStatus + 2, true);
         std::fill(filterServiceDoneServices, filterServiceDoneServices + serviceCount, true);
     };
@@ -2412,8 +2297,8 @@ void screenStylist()
     Component inputServiceDoneCustomerID = Input(&filterServiceDoneCustomerID, "CustomerID", inputOptionAll);
 
     Component containerServiceDoneRating = Container::Vertical({});
-    for (int i = 0; i < 5; ++i) {
-        containerServiceDoneRating->Add(Checkbox(std::to_string(i + 1) + " Star", &filterServiceDoneRating[i]));
+    for (int i = 0; i < STAR_COUNT; ++i) {
+        containerServiceDoneRating->Add(Checkbox(std::to_string(i) + whiteStar, &filterServiceDoneRating[i]));
     }
 
     Component containerServiceDoneStatus = Container::Vertical({
@@ -2809,13 +2694,63 @@ void screenStylist()
     });
     #pragma endregion
 
+    // customer screen
+    auto screen = ScreenInteractive::FixedSize(SCREEN_WIDTH, SCREEN_HEIGHT);
+    int exit = 0;
+
+    // Navigation tab buttons
+    #pragma region 
+    int selectedTab = 0;
+
+    
+    Component buttonHome = Button("Home", [&] {
+        selectedTab = 0;
+    }, buttonOptionTab);
+    Component buttonSchedule = Button("Schedule", [&] {
+        selectedTab = 1;
+    }, buttonOptionTab);
+    Component buttonServiceDone = Button("Service Done", [&] {
+        selectedTab = 2;
+    }, buttonOptionTab);
+    Component buttonProfile = Button("Profile", [&] { // Only can change pass and person info
+        selectedTab = 3;
+    }, buttonOptionTab);
+    Component buttonLogout = Button("Logout", [&] {
+        exit = 1;
+    }, buttonOptionTab);
+    Component containerButtons = Container::Vertical({
+        buttonHome,
+        buttonSchedule,
+        buttonServiceDone,
+        buttonProfile,
+        buttonLogout,
+    });
+    Component rendererButtons = Renderer(containerButtons, [&] {
+        return vbox({
+            text("Welcome " + nameCurrentUser) | hcenter,
+            filler() | size(HEIGHT, EQUAL, 2),
+            separator(),
+            buttonHome->Render(),
+            separator(),
+            buttonSchedule->Render(),
+            separator(),
+            buttonServiceDone->Render(),
+            separator(),
+            buttonProfile->Render(),
+            separator(),
+            filler(),
+            separator(),
+            buttonLogout->Render()
+        }) | borderRounded | size(WIDTH, EQUAL, 30);
+    });
+    #pragma endregion
+
     Component containerTabs = Container::Tab({
         tabHome,
         tabSchedule,
         tabServiceDone,
         tabProfile,
     }, &selectedTab) | borderRounded | size(WIDTH, EQUAL, 90);
-
     // All
     Component containerAll = Container::Horizontal({
         rendererButtons,
@@ -2882,14 +2817,6 @@ void screenAdmin()
         }
         return element;
     };
-
-    // customer screen
-    auto screen = ScreenInteractive::FixedSize(SCREEN_WIDTH, SCREEN_HEIGHT);
-    int exit = 0;
-
-    #pragma region
-    // Navigation tab buttons
-    int selectedTab = 0;
     ButtonOption buttonOptionTab;
     buttonOptionTab.transform = [](const EntryState& s) {
         auto element = text(s.label) | center ;
@@ -2898,82 +2825,25 @@ void screenAdmin()
         }
         return element;
     };
-    Component buttonHome = Button("Home", [&] {
-        selectedTab = 0;
-    }, buttonOptionTab);
-    Component buttonStatistics = Button("Statistics", [&] {
-        selectedTab = 1;
-    }, buttonOptionTab);
-    Component buttonAppointment = Button("Appointment", [&] {
-        selectedTab = 2;
-    }, buttonOptionTab);
-    Component buttonServiceDone = Button("Service Done", [&] {
-        selectedTab = 3;
-    }, buttonOptionTab);
-    Component buttonCustomer = Button("Customer", [&] {
-        selectedTab = 4;
-    }, buttonOptionTab);
-    Component buttonStylist = Button("Stylist", [&] {
-        selectedTab = 5;
-    }, buttonOptionTab);
 
-    Component buttonProfile = Button("Profile", [&] {
-        selectedTab = 6;
-    }, buttonOptionTab);
-
-    Component buttonLogout = Button("Logout", [&] {
-        exit = 1;
-    }, buttonOptionTab);
-    Component containerButtons = Container::Vertical({
-        buttonHome,
-        buttonStatistics,
-        buttonAppointment,
-        buttonServiceDone,
-        buttonCustomer,
-        buttonStylist,
-        buttonProfile,
-        buttonLogout,
-    });
-    Component rendererButtons = Renderer(containerButtons, [&] {
-        return vbox({
-            text("Welcome " + name) | hcenter,
-            filler() | size(HEIGHT, EQUAL, 2),
-            separator(),
-            buttonHome->Render(),
-            separator(),
-            buttonStatistics->Render(),
-            separator(),
-            buttonAppointment->Render(),
-            separator(),
-            buttonServiceDone->Render(),
-            separator(),
-            buttonCustomer->Render(),
-            separator(),
-            buttonStylist->Render(),
-            separator(),
-            buttonProfile->Render(),
-            separator(),
-            filler(),
-            separator(),
-            buttonLogout->Render()
-        }) | borderRounded | size(WIDTH, EQUAL, 30);
-    });
-    #pragma endregion
+    // customer screen
+    auto screen = ScreenInteractive::FixedSize(SCREEN_WIDTH, SCREEN_HEIGHT);
+    int exit = 0;
 
     // Home tab
-    std::cerr << "Screen Admin: Home Tab\n";
+    // flog << "Screen Admin: Home Tab\n";
     Component tabHome = Renderer([&] {
         return text("Home") | center ;
     });
 
     // Statistics tab
-    std::cerr << "Screen Admin: Statistics Tab\n";
+    // flog << "Screen Admin: Statistics Tab\n";
     Component tabStatistics = Renderer([&] {
         return text("Statistics") | center;
     });
 
     // Appointment tab
-    std::cerr << "Screen Admin: Appointment Tab\n";
+    // flog << "Screen Admin: Appointment Tab\n";
     #pragma region Appointment
 
     std::vector<std::string> listAppointmentID;
@@ -2987,35 +2857,42 @@ void screenAdmin()
     std::string detailAppointmentTime;
     std::vector<std::string> detailAppointmentServices;
     std::string detailAppointmentStylist;
-    std::string detailAppointmentRequirement;
     int tabDetail = 0;
 
     auto setDetailAppointment = [&] (std::string id) {
-        std::cerr << "setDetailAppointment\n";
-        std::cerr << "  ID: " << id << '\n';
+        flog << "setDetailAppointment\n";
+        flog << "  ID: " << id << '\n';
         detailAppointmentCustomerName = callGetAppointmentCustomerNameByID(id) + " (ID: " + callGetAppointmentCustomerIDByID(id) + ")";
-        std::cerr << "  Customer: " << detailAppointmentCustomerName << '\n';
+        flog << "  Customer: " << detailAppointmentCustomerName << '\n';
         detailAppointmentStatus = callGetAppointmentStatusByID(id);
-        std::cerr << "  Status: " << detailAppointmentStatus << '\n';
+        flog << "  Status: " << detailAppointmentStatus << '\n';
         detailAppointmentDate = callGetAppointmentDateByID(id);
-        std::cerr << "  Date: " << detailAppointmentDate << '\n';
+        flog << "  Date: " << detailAppointmentDate << '\n';
         detailAppointmentTime = callGetAppointmentTimeByID(id);
-        std::cerr << "  Time: " << detailAppointmentTime << '\n';
+        flog << "  Time: " << detailAppointmentTime << '\n';
         detailAppointmentServices = callGetAppointmentServicesByID(id);
-        std::cerr << "  Services: ";
+        flog << "  Services: ";
         detailAppointmentStylist = callGetAppointmentStylistByID(id);
-        std::cerr << "  Stylist: " << detailAppointmentStylist << '\n';
+        flog << "  Stylist: " << detailAppointmentStylist << '\n';
         if (detailAppointmentStylist != "null") {
             detailAppointmentStylist += " (ID: " + callGetAppointmentStylistIDByID(id) + ")";
         }
-        std::cerr << "  Stylist: " << detailAppointmentStylist << '\n';
-        detailAppointmentRequirement = callGetAppointmentRequirementByID(id);
-        std::cerr << "  Requirement: " << detailAppointmentRequirement << '\n';
-        std::cerr << "End setDetailAppointment\n";
+        flog << "  Stylist: " << detailAppointmentStylist << '\n';
+        flog << "End setDetailAppointment\n";
     };
 
+    int filterAppointmentDay;
+    int filterAppointmentMonth;
+    int filterAppointmentYear;
+    int filterAppointmentHour;
+    int filterAppointmentMinute;
+    bool *filterAppointmentServices = new bool[serviceCount];
+    int filterAppointmentStatus;
+    std::string filterAppointmentCustomerID;
+    std::string filterAppointmentStylistID;
     Component containerAppointmentHistoryList = Container::Vertical({});
     auto reloadAppointmentHistoryList = [&] () {
+        listAppointmentID = callGetApointmentIDList(filterAppointmentDay, filterAppointmentMonth, filterAppointmentYear, filterAppointmentHour, filterAppointmentMinute, filterAppointmentServices, filterAppointmentStatus, filterAppointmentCustomerID, filterAppointmentStylistID, countAppointment);
         containerAppointmentHistoryList->DetachAllChildren();
         for (int i = 0; i < listAppointmentID.size(); ++i) {
             std::string id = listAppointmentID[i];
@@ -3024,7 +2901,7 @@ void screenAdmin()
                 detailAppointmentID = id;
                 setDetailAppointment(detailAppointmentID);
             }, buttonOptionTab);
-
+            
             std::string status = callGetAppointmentStatusByID(id);
             std::string date = callGetAppointmentDateByID(id);
             std::string time = callGetAppointmentTimeByID(id);
@@ -3076,16 +2953,20 @@ void screenAdmin()
         callCancelAppointment(detailAppointmentID);
         detailAppointmentStatus = callGetAppointmentStatusByID(detailAppointmentID);
     }, buttonOptionAll);
+
     Component buttonAppointmentDetailBack = Button("Back", [&] {
         errorAppointmentDetailStylistChosen = "";
         reloadAppointmentHistoryList();
-
         tabDetail = 0;
     }, buttonOptionAll);
+
     Component buttonAppointmentDetailDone = Button("Done", [&] {
+        flog << "callDoneAppointment\n";
         callDoneAppointment(detailAppointmentID);
         detailAppointmentStatus = callGetAppointmentStatusByID(detailAppointmentID);
+        flog << "End callDoneAppointment\n";
     }, buttonOptionAll);
+
     Component buttonAppointmentDetailChoose = Button("Choose stylist", [&] {
         if (detailAppointmentStylist == "null") {
             tabDetail = 2;
@@ -3104,7 +2985,7 @@ void screenAdmin()
         }, &selectedButtonsAppointment),
         buttonAppointmentDetailChoose,
         }),[&] {
-
+        
         auto textService = [&](int i) {
             return hbox({
                 text(detailAppointmentServices[i]) | size(WIDTH, EQUAL, 20)
@@ -3132,9 +3013,6 @@ void screenAdmin()
             text("Date and time") | size(WIDTH, EQUAL, 40) | bold,
             text("Date: " + detailAppointmentDate) | size(WIDTH, EQUAL, 40),
             text("Time: " + detailAppointmentTime) | size(WIDTH, EQUAL, 40),
-            filler() | size(HEIGHT, EQUAL, 1),
-            text("Requirement: ") | size(WIDTH, EQUAL, 40) | bold,
-            paragraph(detailAppointmentRequirement) | size(WIDTH, EQUAL, 40),
             filler(),
             separator(),
             hbox({
@@ -3226,22 +3104,14 @@ void screenAdmin()
     });
 
     // Filter
-    int filterAppointmentDay;
-    int filterAppointmentMonth;
-    int filterAppointmentYear;
-    int filterAppointmentHour;
-    int filterAppointmentMinute;
-    bool *filterAppointmentServices = new bool[serviceCount];
-    int filterAppointmentStatus;
-    std::string filterAppointmentCustomerID;
-    std::string filterAppointmentStylistID;
+
     std::vector<std::string> appointmentDays = {"--", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31"};
     std::vector<std::string> appointmentMonths = {"--", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"};
     std::vector<std::string> appointmentYears = {"----", "2021", "2022", "2023", "2024", "2025", "2026", "2027", "2028", "2029", "2030"};
     std::vector<std::string> appointmentHours = {"--", "00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23"};
     std::vector<std::string> appointmentMinutes = {"--", "00", "30"};
     std::vector<std::string> appointmentStatus = {"All", "Done", "Pending", "Cancel"};
-
+    
     auto resetAppointmentFilter = [&] {
         filterAppointmentDay = 0;
         filterAppointmentMonth = 0;
@@ -3254,7 +3124,6 @@ void screenAdmin()
         std::fill(filterAppointmentServices, filterAppointmentServices + serviceCount, true);
     };
     resetAppointmentFilter();
-    listAppointmentID = callGetApointmentIDList(filterAppointmentDay, filterAppointmentMonth, filterAppointmentYear, filterAppointmentHour, filterAppointmentMinute, filterAppointmentServices, filterAppointmentStatus, filterAppointmentCustomerID, filterAppointmentStylistID, countAppointment);
     reloadAppointmentHistoryList();
 
     MenuOption menuOptionAll;
@@ -3315,7 +3184,7 @@ void screenAdmin()
             menuAppointmentFilterYear->Render() | size(WIDTH, EQUAL, 4) | frame | size(HEIGHT, EQUAL, 1),
         });
     });
-
+    
     Component rendererAppointmentFilterTime = Renderer(
         Container::Horizontal({
             menuAppointmentFilterHour,
@@ -3342,7 +3211,7 @@ void screenAdmin()
     Component inputStylistID = Input(&filterAppointmentStylistID, "Stylist ID", inputOptionAll);
 
     Component buttonAppointmentFilter = Button("Filter", [&] {
-        listAppointmentID = callGetApointmentIDList(filterAppointmentDay, filterAppointmentMonth, filterAppointmentYear, filterAppointmentHour, filterAppointmentMinute, filterAppointmentServices, filterAppointmentStatus, filterAppointmentCustomerID, filterAppointmentStylistID, countAppointment);
+        listAppointmentID = callGetApointmentIDList(filterAppointmentDay, filterAppointmentMonth, filterAppointmentYear, filterAppointmentHour, filterAppointmentMinute, filterAppointmentServices, filterAppointmentStatus, filterAppointmentCustomerID, filterAppointmentStylistID, countAppointment);        
         reloadAppointmentHistoryList();
     }, buttonOptionAll);
     Component buttonAppointmentResetFilter = Button("Reset", [&] {
@@ -3425,16 +3294,23 @@ void screenAdmin()
     #pragma endregion
 
     // Customer tab
-    std::cerr << "Screen Admin: Customer Tab\n";
+    // flog << "Screen Admin: Customer Tab\n";
     #pragma region Customer
 
     std::vector<std::string> customerIDList;
     int countCustomer = 0;
 
-    // Customer filter
+    // Customer variables
     std::string customerFilterName;
     std::string customerFilterAge;
     bool customerFilterGender[2] = {true, true}; // 0: Male, 1: Female
+
+    int detailTabCustomer = 0;
+    std::string detailCustomerID;
+    std::string detailCustomerName;
+    std::string detailCustomerGender;
+    std::string detailCustomerAge;
+    std::string detailCustomerPhonenumber;
 
     auto resetCustomerFilter = [&] {
         customerFilterName = "";
@@ -3442,8 +3318,48 @@ void screenAdmin()
         customerFilterGender[0] = true;
         customerFilterGender[1] = true;
     };
-    resetCustomerFilter();
+    auto setDetailCustomer = [&] (std::string id) {
+        detailCustomerName = callGetMemberNameByID(id);
+        detailCustomerGender = callGetMemberGenderByID(id);
+        detailCustomerAge = callGetMemberAgeByID(id);
+        detailCustomerPhonenumber = callGetMemberPhoneByID(id);
+    };
 
+    Component containerCustomerList = Container::Vertical({});
+    auto reloadCustomerList = [&] () {
+        customerIDList = callGetCustomerIDList(customerFilterGender, customerFilterName, customerFilterAge, countCustomer);
+        containerCustomerList->DetachAllChildren();
+        for (int i = 0; i < customerIDList.size(); ++i) {
+            std::string cid = customerIDList[i];
+            Component c = Button("Detail", [&, cid] {
+                detailCustomerID = cid;
+                setDetailCustomer(detailCustomerID);
+                detailTabCustomer = 1;
+            }, buttonOptionTab);
+            
+            std::string id = customerIDList[i];
+            std::string name = callGetMemberNameByID(id);
+            std::string gender = callGetMemberGenderByID(id);
+            std::string age = callGetMemberAgeByID(id);
+            std::string phonenumber = callGetMemberPhoneByID(id);
+            containerCustomerList->Add(Renderer(
+                c, [&, c, id, name, gender, phonenumber] {
+                return hbox({
+                    text(id) | size(WIDTH, EQUAL, 12),
+                    text(name) | size(WIDTH, EQUAL, 25),
+                    text(gender) | size(WIDTH, EQUAL, 8),
+                    text(phonenumber) | size(WIDTH, EQUAL, 12),
+                    separator(),
+                    c->Render() | center | size(WIDTH, EQUAL, 8),
+                });
+            }));
+        }
+    };
+
+    resetCustomerFilter();
+    reloadCustomerList();
+    
+    // Customer Filter
     Component checkboxCustomerGenderMale = Checkbox("Male", &customerFilterGender[0]);
     Component checkboxCustomerGenderFemale = Checkbox("Female", &customerFilterGender[1]);
     Component containerCustomerGender = Container::Vertical({
@@ -3457,7 +3373,7 @@ void screenAdmin()
     Component inputCustomerName = Input(&customerFilterName, "Name", inputOptionCustomerAll);
 
     Component buttonCustomerFilter = Button("Filter", [&] {
-        customerIDList = callGetCustomerIDList(customerFilterGender, customerFilterName, customerFilterAge, countCustomer);
+        reloadCustomerList();
     }, buttonOptionAll);
     Component buttonCustomerResetFilter = Button("Reset", [&] {
         resetCustomerFilter();
@@ -3507,54 +3423,11 @@ void screenAdmin()
             hbox({
                 buttonCustomerFilter->Render() | size(WIDTH, EQUAL, 10),
                 buttonCustomerResetFilter->Render() | size(WIDTH, EQUAL, 10),
-            }) | hcenter
+            }) | hcenter 
         }) | size(WIDTH, EQUAL, 20);
     });
 
     // Customer list
-    int detailTabCustomer = 0;
-    std::string detailCustomerID;
-    std::string detailCustomerName;
-    std::string detailCustomerGender;
-    std::string detailCustomerAge;
-    std::string detailCustomerPhonenumber;
-
-    customerIDList = callGetCustomerIDList(customerFilterGender, customerFilterName, customerFilterAge, countCustomer);
-
-    auto setDetailCustomer = [&] (std::string id) {
-        detailCustomerName = callGetMemberNameByID(id);
-        detailCustomerGender = callGetMemberGenderByID(id);
-        detailCustomerAge = callGetMemberAgeByID(id);
-        detailCustomerPhonenumber = callGetMemberPhoneByID(id);
-    };
-
-    Component containerCustomerList = Container::Vertical({});
-    for (int i = 0; i < customerIDList.size(); ++i) {
-        std::string cid = customerIDList[i];
-        Component c = Button("Detail", [&, cid] {
-            detailCustomerID = cid;
-            setDetailCustomer(detailCustomerID);
-            detailTabCustomer = 1;
-        }, buttonOptionTab);
-
-        std::string id = customerIDList[i];
-        std::string name = callGetMemberNameByID(id);
-        std::string gender = callGetMemberGenderByID(id);
-        std::string age = callGetMemberAgeByID(id);
-        std::string phonenumber = callGetMemberPhoneByID(id);
-        containerCustomerList->Add(Renderer(
-            c, [&, c, id, name, gender, age, phonenumber] {
-            return hbox({
-                text(id) | size(WIDTH, EQUAL, 7),
-                text(name) | size(WIDTH, EQUAL, 25),
-                text(gender) | size(WIDTH, EQUAL, 8),
-                text(age) | size(WIDTH, EQUAL, 5),
-                text(phonenumber) | size(WIDTH, EQUAL, 12),
-                separator(),
-                c->Render() | center | size(WIDTH, EQUAL, 8),
-            });
-        }));
-    }
 
     Component rendererCustomerList = Renderer(
         Container::Vertical({
@@ -3562,10 +3435,9 @@ void screenAdmin()
         }), [&] {
         return vbox({
             hbox({
-                text("ID") | size(WIDTH, EQUAL, 7),
+                text("ID") | size(WIDTH, EQUAL, 12),
                 text("Name") | size(WIDTH, EQUAL, 25),
                 text("Gender") | size(WIDTH, EQUAL, 8),
-                text("Age") | size(WIDTH, EQUAL, 5),
                 text("Phonenumber") | size(WIDTH, EQUAL, 12),
             }) | bold,
             separator(),
@@ -3574,16 +3446,20 @@ void screenAdmin()
             filler(),
             separator(),
             hbox({
-                text("Total: " + std::to_string(countCustomer)),
-                filler(),
+                text("Total: " + std::to_string(countCustomer)), 
+                filler() | size(WIDTH, EQUAL, 5),
             }) | align_right,
         });
     });
 
 
     // Customer detail
-
     Component buttonCustomerDetailBack = Button("Back", [&] {
+        detailTabCustomer = 0;
+    }, buttonOptionAll);
+    Component buttonCustomerDetailDelete = Button("Delete", [&] {
+        callDeleteCustomer(detailCustomerID);
+        reloadCustomerList();
         detailTabCustomer = 0;
     }, buttonOptionAll);
 
@@ -3638,12 +3514,14 @@ void screenAdmin()
     #pragma endregion
 
     // Stylist tab
-    std::cerr << "Screen Admin: Stylist Tab\n";
+    // flog << "Screen Admin: Stylist Tab\n";
     #pragma region Stylist
 
     std::vector<std::string> stylistIDList;
     int countStylist = 0;
-
+    int selectedAddStylist = 0;
+    int selectedUpdateStylist = 0;
+    
     // Stylist filter
     bool stylistFilterGender[2] = {true, true}; // 0: Male, 1: Female
     std::string stylistFilterName;
@@ -3656,26 +3534,113 @@ void screenAdmin()
         stylistFilterAge = "";
     };
     resetStylistFilter();
+    
+    int selectedTabStylist = 0;
+    std::string detailStylistID;
+    std::string detailStylistName;
+    std::string detailStylistGender;
+    std::string detailStylistAge;
+    std::string detailStylistPhonenumber;
+    std::string detailStylistUsername;
 
+    auto setDetailStylist = [&] (std::string id) {
+        detailStylistName = callGetMemberNameByID(id);
+        detailStylistGender = callGetMemberGenderByID(id);
+        detailStylistAge = callGetMemberAgeByID(id);
+        detailStylistPhonenumber = callGetMemberPhoneByID(id);
+        detailStylistUsername = callGetMemberUsernameByID(id);
+    };
+
+    Component containerStylistList = Container::Vertical({});
+        Component buttonAddStylist = Button("Add Stylist", [&] {
+            selectedAddStylist = 0;
+            selectedTabStylist = 3;
+    }, buttonOptionAll);
+
+    auto reloadStylistList = [&] () {
+        stylistIDList = callGetStylistIDList(stylistFilterGender, stylistFilterName, stylistFilterAge, countStylist);
+        containerStylistList->DetachAllChildren();
+        for (int i = 0; i < stylistIDList.size(); ++i) {
+            std::string id = stylistIDList[i];
+            
+            Component c = Button("Detail", [&, id] {
+                selectedTabStylist = 1;
+                detailStylistID = id;
+                setDetailStylist(detailStylistID);
+            }, buttonOptionTab);
+            c |= CatchEvent([&] (Event event) {
+                bool check = event == Event::Tab;
+                if (check) {
+                    buttonAddStylist->TakeFocus();
+                }
+                return check;
+            });
+            
+            std::string name = callGetMemberNameByID(id);
+            std::string gender = callGetMemberGenderByID(id);
+            std::string phonenumber = callGetMemberPhoneByID(id);
+            
+            containerStylistList->Add(Renderer(
+                c, [&, c, id, name, gender, phonenumber] {
+                return hbox({
+                    text(id) | size(WIDTH, EQUAL, 12),
+                    text(name) | size(WIDTH, EQUAL, 25),
+                    text(gender) | size(WIDTH, EQUAL, 8),
+                    text(phonenumber) | size(WIDTH, EQUAL, 12),
+                    separator(),
+                    c->Render() | center | size(WIDTH, EQUAL, 8),
+                });
+            }));
+        }
+    };
+    reloadStylistList();
+
+    Component rendererStylistList = Renderer(
+        Container::Vertical({
+            containerStylistList,
+            buttonAddStylist,
+        }), [&] {
+        return vbox({
+            hbox({
+                text("ID") | size(WIDTH, EQUAL, 12),
+                text("Name") | size(WIDTH, EQUAL, 25),
+                text("Gender") | size(WIDTH, EQUAL, 8),
+                text("Phonenumber") | size(WIDTH, EQUAL, 12),
+            }) | bold,
+            separator(),
+            containerStylistList->Render() | vscroll_indicator | frame,
+            separator(),
+            filler(),
+            separator(),
+            hbox({
+                text("Total: " + std::to_string(countStylist)), 
+                filler(),
+                buttonAddStylist->Render() | size(WIDTH, EQUAL, 15),
+            })
+        });
+    });
+
+
+    // Stylist filter
     Component checkboxStylistGenderMale = Checkbox("Male", &stylistFilterGender[0]);
     Component checkboxStylistGenderFeMale = Checkbox("Female", &stylistFilterGender[1]);
     Component containerStylistGender = Container::Vertical({
         checkboxStylistGenderMale,
         checkboxStylistGenderFeMale,
     });
-
+    
     InputOption inputOptionStylistAll = InputOption::Default();
     inputOptionStylistAll.multiline = false;
     Component inputStylistAge = Input(&stylistFilterAge, "Age", inputOptionStylistAll);
     Component inputStylistName = Input(&stylistFilterName, "Name", inputOptionStylistAll);
 
     Component buttonStylistFilter = Button("Filter", [&] {
-        stylistIDList = callGetStylistIDList(stylistFilterGender, stylistFilterName, stylistFilterAge, countStylist);
+        reloadStylistList();
     }, buttonOptionAll);
     Component buttonStylistResetFilter = Button("Reset", [&] {
         resetStylistFilter();
     }, buttonOptionAll);
-
+    
     int childStylistFilter = 0;
     Component containerStylistFilter = Container::Vertical({
         containerStylistGender,
@@ -3720,98 +3685,8 @@ void screenAdmin()
             hbox({
                 buttonStylistFilter->Render() | size(WIDTH, EQUAL, 10),
                 buttonStylistResetFilter->Render() | size(WIDTH, EQUAL, 10),
-            }) | hcenter
+            }) | hcenter 
         }) | size(WIDTH, EQUAL, 20);
-    });
-
-    // tab in Stylist list
-    int selectedTabStylist = 0; // 0: Stylist list, 1: Stylist detail 2: Update stylist 3: Add stylist
-    // Stylist list
-    std::string detailStylistID;
-    std::string detailStylistName;
-    std::string detailStylistGender;
-    std::string detailStylistAge;
-    std::string detailStylistPhonenumber;
-    std::string detailStylistUsername;
-
-    stylistIDList = callGetStylistIDList(stylistFilterGender, stylistFilterName, stylistFilterAge, countStylist);
-
-    auto setDetailStylist = [&] (std::string id) {
-        detailStylistName = callGetMemberNameByID(id);
-        detailStylistGender = callGetMemberGenderByID(id);
-        detailStylistAge = callGetMemberAgeByID(id);
-        detailStylistPhonenumber = callGetMemberPhoneByID(id);
-        detailStylistUsername = callGetMemberUsernameByID(id);
-    };
-
-    Component containerStylistList = Container::Vertical({});
-    auto reloadStylistList = [&] () {
-        containerStylistList->DetachAllChildren();
-        for (int i = 0; i < stylistIDList.size(); ++i) {
-            std::string sid = stylistIDList[i];
-            Component c = Button("Detail", [&, sid] {
-                selectedTabStylist = 1;
-                detailStylistID = sid;
-                setDetailStylist(detailStylistID);
-            }, buttonOptionTab);
-
-            std::string id = stylistIDList[i];
-            std::string name = callGetMemberNameByID(id);
-            std::string gender = callGetMemberGenderByID(id);
-            std::string age = callGetMemberAgeByID(id);
-            std::string phonenumber = callGetMemberPhoneByID(id);
-            containerStylistList->Add(Renderer(
-                c, [&, c, id, name, gender, age, phonenumber] {
-                return hbox({
-                    text(id) | size(WIDTH, EQUAL, 7),
-                    text(name) | size(WIDTH, EQUAL, 25),
-                    text(gender) | size(WIDTH, EQUAL, 8),
-                    text(age) | size(WIDTH, EQUAL, 5),
-                    text(phonenumber) | size(WIDTH, EQUAL, 12),
-                    separator(),
-                    c->Render() | center | size(WIDTH, EQUAL, 8),
-                });
-            }));
-        }
-    };
-    reloadStylistList();
-
-    Component buttonAddStylist = Button("Add Stylist", [&] {
-        selectedTabStylist = 3;
-    }, buttonOptionAll);
-
-    containerStylistList |= CatchEvent([&] (Event event) {
-        bool check = event == Event::Tab;
-        if (check) {
-            buttonAddStylist->TakeFocus();
-        }
-        return check;
-    });
-
-    Component rendererStylistList = Renderer(
-        Container::Vertical({
-            containerStylistList,
-            buttonAddStylist,
-        }), [&] {
-        return vbox({
-            hbox({
-                text("ID") | size(WIDTH, EQUAL, 7),
-                text("Name") | size(WIDTH, EQUAL, 25),
-                text("Gender") | size(WIDTH, EQUAL, 8),
-                text("Age") | size(WIDTH, EQUAL, 5),
-                text("Phonenumber") | size(WIDTH, EQUAL, 12),
-            }) | bold,
-            separator(),
-            containerStylistList->Render() | vscroll_indicator | frame,
-            separator(),
-            filler(),
-            separator(),
-            hbox({
-                text("Total: " + std::to_string(countStylist)),
-                filler(),
-                buttonAddStylist->Render() | size(WIDTH, EQUAL, 15),
-            })
-        });
     });
 
     // Detail Stylist
@@ -3834,19 +3709,17 @@ void screenAdmin()
     };
 
     Component buttonStylistDetailBack = Button("Back", [&] {
-        resetUpdateStylist();
-
+        reloadStylistList();
         selectedTabStylist = 0;
     }, buttonOptionAll);
     Component buttonStylistDetailModify = Button("Update", [&] {
         resetUpdateStylist();
+        selectedUpdateStylist = 0;
         selectedTabStylist = 2;
     }, buttonOptionAll);
     Component buttonStylistDetailDelete = Button("Delete", [&] {
         callDeleteStylist(detailStylistID);
-        stylistIDList = callGetStylistIDList(stylistFilterGender, stylistFilterName, stylistFilterAge, countStylist);
-        resetUpdateStylist();
-
+        reloadStylistList();
         selectedTabStylist = 0;
     }, buttonOptionAll);
 
@@ -3905,8 +3778,7 @@ void screenAdmin()
         setDetailStylist(detailStylistID);
         selectedTabStylist = 1;
     }, buttonOptionAll);
-
-    int selectedUpdateStylist = 0;
+    
     Component containerUpdateStylist = Container::Vertical({
         inputUpdateStylistFirstName,
         inputUpdateStylistLastName,
@@ -4017,11 +3889,10 @@ void screenAdmin()
         callAddStylist(stylistAddFirstName, stylistAddLastName, stylistAddGender, stylistAddAge, stylistAddPhonenumber, stylistAddUsername, stylistAddPassword);
         stylistIDList = callGetStylistIDList(stylistFilterGender, stylistFilterName, stylistFilterAge, countStylist);
         reloadStylistList();
-
+        resetAddStylist();
         selectedTabStylist = 0;
     }, buttonOptionAll);
 
-    int selectedAddStylist = 0;
     Component containerAddStylist = Container::Vertical({
         inputAddStylistFirstName,
         inputAddStylistLastName,
@@ -4050,7 +3921,7 @@ void screenAdmin()
         if (check) {
             selectedAddStylist--;
         }
-        return check;
+        return check;   
     });
 
     Component rendererAddStylist = Renderer(containerAddStylist, [&] {
@@ -4085,11 +3956,11 @@ void screenAdmin()
             }),
             filler(),
             hbox({
-                buttonAddStylistAdd->Render() | size(WIDTH, EQUAL, 10),
+                buttonAddStylistBack->Render() | size(WIDTH, EQUAL, 10),
                 filler() | size(WIDTH, EQUAL, 5),
                 buttonAddStylistReset->Render() | size(WIDTH, EQUAL, 10),
                 filler() | size(WIDTH, EQUAL, 5),
-                buttonAddStylistBack->Render() | size(WIDTH, EQUAL, 10),
+                buttonAddStylistAdd->Render() | size(WIDTH, EQUAL, 10),
             }) | hcenter,
         }) | size(WIDTH, EQUAL, 40) | borderRounded;
     });
@@ -4136,7 +4007,7 @@ void screenAdmin()
     #pragma endregion
 
     // Profile tab
-    std::cerr << "Screen Admin: Profile Tab\n";
+    // flog << "Screen Admin: Profile Tab\n";
     #pragma region Profile
     std::string profileFirstname;
     std::string profileLastname;
@@ -4198,8 +4069,8 @@ void screenAdmin()
         return event.is_character() && profileAge.size() >= 3;
     });
     ComponentDecorator eventAlphabetOnly = CatchEvent([&](Event event) {
-        return event.is_character() &&
-            !std::isalpha(event.character()[0]) &&
+        return event.is_character() && 
+            !std::isalpha(event.character()[0]) && 
             !std::isspace(event.character()[0]);
     });
     inputFirstname |= eventAlphabetOnly;
@@ -4281,7 +4152,7 @@ void screenAdmin()
             }
         }
     }, buttonOptionTab);
-
+    
     Component buttonPersoninfoReset = Button("Reset", [&] {
         errorUpdateProfilePersoninfoEmpty = "";
         resetPersonInfo();
@@ -4411,11 +4282,11 @@ void screenAdmin()
             containerUpdatePersoninfo->Render(),
         }) | size(WIDTH, EQUAL, PROFILE_ALIGN_WIDTH) | center;
     });
-    #pragma endregion
+    #pragma endregion  
 
 
     // ServiceDone tab
-    std::cerr << "Screen Admin: ServiceDone Tab\n";
+    // flog << "Screen Admin: ServiceDone Tab\n";
     #pragma region ServiceDone
 
     std::vector<std::string> serviceDoneIDList;
@@ -4427,7 +4298,7 @@ void screenAdmin()
     int filterServiceDoneYear;
     std::string filterServiceDoneCustomerID;
     std::string filterServiceDoneStylistID;
-    bool filterServiceDoneRating[5] = {true, true, true, true, true}; // 1-5 stars
+    bool filterServiceDoneRating[STAR_COUNT] = {true, true, true, true, true, true}; // 0-5 stars
     bool filterServiceDoneStatus[2] = {true, true}; // 0: False, 1: True
     bool *filterServiceDoneServices = new bool[serviceCount];
     std::vector<std::string> serviceDoneFilterDays = {"--", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31"};
@@ -4444,8 +4315,70 @@ void screenAdmin()
         std::fill(std::begin(filterServiceDoneStatus), std::end(filterServiceDoneStatus), true);
         std::fill(filterServiceDoneServices, filterServiceDoneServices + serviceCount, true);
     };
+
+    int detailTabServiceDone = 0;
+    std::string detailServiceDoneID;
+    std::string detailServiceDoneCustomerID;
+    std::string detailServiceDoneStylistID;
+    std::string detailServiceDoneRating;
+    std::string detailServiceDoneDate;
+    std::string detailServiceDoneStatus;
+    std::string detailServiceDoneService;
+
+    auto setDetailServiceDone = [&] (std::string id) {
+        flog << "Set Detail ServiceDone\n";
+        detailServiceDoneCustomerID = callGetServiceDoneCustomerIDByID(id);
+        flog << "  " << detailServiceDoneCustomerID << "\n";
+        detailServiceDoneStylistID = callGetServiceDoneStylistIDByID(id);
+        flog << "  " << detailServiceDoneStylistID << "\n";
+        detailServiceDoneRating = callGetServiceDoneRatingByID(id);
+        flog << "  " << detailServiceDoneRating << "\n";
+        detailServiceDoneDate = callGetServiceDoneDateByID(id);
+        flog << "  " << detailServiceDoneDate << "\n";
+        detailServiceDoneStatus = callGetServiceDoneStatusByID(id);
+        flog << "  " << detailServiceDoneStatus << "\n";
+        detailServiceDoneService = callGetServiceDoneServiceByID(id);
+        flog << "  " << detailServiceDoneService << "\n";
+        flog << "End Set Detail ServiceDone\n";
+    };
+
+    Component containerServiceDoneList = Container::Vertical({});
+    auto reloadServiceDoneList = [&] {
+        flog << "Reload ServiceDone List\n";
+        serviceDoneIDList = callGetServiceDoneIDList(filterServiceDoneDay, filterServiceDoneMonth, filterServiceDoneYear, filterServiceDoneCustomerID, filterServiceDoneStylistID, filterServiceDoneRating, filterServiceDoneStatus, filterServiceDoneServices, countServiceDone);
+        containerServiceDoneList->DetachAllChildren();
+        for (int i = 0; i < serviceDoneIDList.size(); ++i) {
+            std::string sid = serviceDoneIDList[i];
+            Component c = Button("Detail", [&, sid] {
+                detailServiceDoneID = sid;
+                setDetailServiceDone(detailServiceDoneID);
+                detailTabServiceDone = 1;
+            }, buttonOptionTab);
+            
+            std::string id = serviceDoneIDList[i];
+            std::string rating = callGetServiceDoneRatingByID(id);
+            std::string date = callGetServiceDoneDateByID(id);
+            std::string status = callGetServiceDoneStatusByID(id);
+            std::string service = callGetServiceDoneServiceByID(id);
+            containerServiceDoneList->Add(Renderer(
+                c, [&, c, id, rating, date, status, service] {
+                return hbox({
+                    text(id) | size(WIDTH, EQUAL, 10),
+                    text(rating) | size(WIDTH, EQUAL, 8),
+                    text(date) | size(WIDTH, EQUAL, 15),
+                    text(status) | size(WIDTH, EQUAL, 12),
+                    text(service) | size(WIDTH, EQUAL, 12),
+                    separator(),
+                    c->Render() | center | size(WIDTH, EQUAL, 8),
+                });
+            }));
+        }
+        flog <<  "  " << containerServiceDoneList->ChildCount() << "\n";
+        flog << "End Reload ServiceDone List\n";
+    };
     resetServiceDoneFilter();
 
+    // Filter components
     MenuOption menuOptionserviceDoneMonth = MenuOption(menuOptionAll);
     menuOptionserviceDoneMonth.on_change = [&] {
         int curYear = 2020 + filterServiceDoneYear;
@@ -4497,8 +4430,8 @@ void screenAdmin()
     Component inputServiceDoneStylistID = Input(&filterServiceDoneStylistID, "Stylist ID", inputOptionAll);
 
     Component containerServiceDoneRating = Container::Vertical({});
-    for (int i = 0; i < 5; ++i) {
-        containerServiceDoneRating->Add(Checkbox(std::to_string(i + 1) + " Star", &filterServiceDoneRating[i]) | size(WIDTH, EQUAL, 20));
+    for (int i = 0; i < STAR_COUNT; ++i) {
+        containerServiceDoneRating->Add(Checkbox(std::to_string(i + 1) + whiteStar, &filterServiceDoneRating[i]) | size(WIDTH, EQUAL, 20));
     }
 
     Component containerServiceDoneStatus = Container::Vertical({
@@ -4512,7 +4445,7 @@ void screenAdmin()
     }
 
     Component buttonServiceDoneFilter = Button("Filter", [&] {
-        serviceDoneIDList = callGetServiceDoneIDList(filterServiceDoneDay, filterServiceDoneMonth, filterServiceDoneYear, filterServiceDoneCustomerID, filterServiceDoneStylistID, filterServiceDoneRating, filterServiceDoneStatus, filterServiceDoneServices, countServiceDone);
+        reloadServiceDoneList();
     }, buttonOptionAll);
     Component buttonServiceDoneResetFilter = Button("Reset", [&] {
         resetServiceDoneFilter();
@@ -4578,54 +4511,6 @@ void screenAdmin()
     });
 
     // ServiceDone list
-    int detailTabServiceDone = 0;
-    std::string detailServiceDoneID;
-    std::string detailServiceDoneCustomerID;
-    std::string detailServiceDoneStylistID;
-    std::string detailServiceDoneRating;
-    std::string detailServiceDoneDate;
-    std::string detailServiceDoneStatus;
-    std::string detailServiceDoneService;
-
-    serviceDoneIDList = callGetServiceDoneIDList(filterServiceDoneDay, filterServiceDoneMonth, filterServiceDoneYear, filterServiceDoneCustomerID, filterServiceDoneStylistID, filterServiceDoneRating, filterServiceDoneStatus, filterServiceDoneServices, countServiceDone);
-
-    auto setDetailServiceDone = [&] (std::string id) {
-        detailServiceDoneCustomerID = callGetServiceDoneCustomerIDByID(id);
-        detailServiceDoneStylistID = callGetServiceDoneStylistIDByID(id);
-        detailServiceDoneRating = callGetServiceDoneRatingByID(id);
-        detailServiceDoneDate = callGetServiceDoneDateByID(id);
-        detailServiceDoneStatus = callGetServiceDoneStatusByID(id);
-        detailServiceDoneService = callGetServiceDoneServiceByID(id);
-    };
-
-    Component containerServiceDoneList = Container::Vertical({});
-    for (int i = 0; i < serviceDoneIDList.size(); ++i) {
-        std::string sid = serviceDoneIDList[i];
-        Component c = Button("Detail", [&, sid] {
-            detailServiceDoneID = sid;
-            setDetailServiceDone(detailServiceDoneID);
-            detailTabServiceDone = 1;
-        }, buttonOptionTab);
-
-        std::string id = serviceDoneIDList[i];
-        std::string rating = callGetServiceDoneRatingByID(id);
-        std::string date = callGetServiceDoneDateByID(id);
-        std::string status = callGetServiceDoneStatusByID(id);
-        std::string service = callGetServiceDoneServiceByID(id);
-        containerServiceDoneList->Add(Renderer(
-            c, [&, c, id, rating, date, status, service] {
-            return hbox({
-                text(id) | size(WIDTH, EQUAL, 10),
-                text(rating) | size(WIDTH, EQUAL, 8),
-                text(date) | size(WIDTH, EQUAL, 15),
-                text(status) | size(WIDTH, EQUAL, 12),
-                text(service) | size(WIDTH, EQUAL, 12),
-                separator(),
-                c->Render() | center | size(WIDTH, EQUAL, 8),
-            });
-        }));
-    }
-
     Component rendererServiceDoneList = Renderer(
         Container::Vertical({
             containerServiceDoneList,
@@ -4643,7 +4528,7 @@ void screenAdmin()
             separator(),
             filler(),
             separator(),
-            text("    Total: " + std::to_string(countServiceDone)) | align_right,
+            text("    Total: " + std::to_string(countServiceDone)) | align_right, 
         });
     });
 
@@ -4665,7 +4550,7 @@ void screenAdmin()
             text("Stylist") | bold,
             text("  " + callGetMemberNameByID(detailServiceDoneStylistID) + " (" + detailServiceDoneStylistID + ")"),
             text("Rating") | bold,
-            text("  " + detailServiceDoneRating),
+            text("  " + detailServiceDoneRating + whiteStar),
             text("Date") | bold,
             text("  " + detailServiceDoneDate),
             text("Status") | bold,
@@ -4704,6 +4589,74 @@ void screenAdmin()
     });
     #pragma endregion
 
+    #pragma region 
+    // Navigation tab buttons
+    int selectedTab = 0;
+    Component buttonHome = Button("Home", [&] {
+        selectedTab = 0;
+    }, buttonOptionTab);
+    Component buttonStatistics = Button("Statistics", [&] {
+        selectedTab = 1;
+    }, buttonOptionTab);
+    Component buttonAppointment = Button("Appointment", [&] {
+        reloadAppointmentHistoryList();
+        selectedTab = 2;
+    }, buttonOptionTab);
+    Component buttonServiceDone = Button("Service Done", [&] {
+        reloadServiceDoneList();
+        selectedTab = 3;
+    }, buttonOptionTab);
+    Component buttonCustomer = Button("Customer", [&] {
+        reloadCustomerList();
+        selectedTab = 4;
+    }, buttonOptionTab);
+    Component buttonStylist = Button("Stylist", [&] { 
+        reloadStylistList();
+        selectedTab = 5;
+    }, buttonOptionTab);
+
+    Component buttonProfile = Button("Profile", [&] { 
+        selectedTab = 6;
+    }, buttonOptionTab);
+
+    Component buttonLogout = Button("Logout", [&] {
+        exit = 1;
+    }, buttonOptionTab);
+    Component containerButtons = Container::Vertical({
+        buttonHome,
+        buttonStatistics,
+        buttonAppointment,
+        buttonServiceDone,
+        buttonCustomer,
+        buttonStylist,
+        buttonProfile,
+        buttonLogout,
+    });
+    Component rendererButtons = Renderer(containerButtons, [&] {
+        return vbox({
+            text("Welcome " + name) | hcenter,
+            filler() | size(HEIGHT, EQUAL, 2),
+            separator(),
+            buttonHome->Render(),
+            separator(),
+            buttonStatistics->Render(),
+            separator(),
+            buttonAppointment->Render(),
+            separator(),
+            buttonServiceDone->Render(),
+            separator(),
+            buttonCustomer->Render(),
+            separator(),
+            buttonStylist->Render(),
+            separator(),
+            buttonProfile->Render(),
+            separator(),
+            filler(),
+            separator(),
+            buttonLogout->Render()
+        }) | borderRounded | size(WIDTH, EQUAL, 30);
+    });
+    #pragma endregion
 
     Component containerTabs = Container::Tab({
         tabHome,
@@ -4721,7 +4674,7 @@ void screenAdmin()
         containerTabs,
     });
 
-    #pragma region
+    #pragma region 
     // exit dialog
     Component buttonYes = Button("Yes", [&] {
         exit = 0;
@@ -4729,7 +4682,7 @@ void screenAdmin()
         screen.Exit();
     }, buttonOptionTab);
     Component buttonNo = Button("No", [&] {
-        exit = 0;
+        exit = 0; 
     }, buttonOptionTab);
     Component containerButtonsExit = Container::Horizontal({
         buttonNo,
@@ -4743,7 +4696,7 @@ void screenAdmin()
                 buttonNo->Render() | size(WIDTH, EQUAL, 10),
                 separator(),
                 buttonYes->Render()| size(WIDTH, EQUAL, 10)
-            })
+            }) 
         }) | borderRounded;
     });
     #pragma endregion

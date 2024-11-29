@@ -5,6 +5,9 @@
 #include "Statistics.h"
 #include "Member.h"
 #include "Salon.h"
+#include "ui.h"
+#include "test.h"
+#include <functional>
 
 typedef std::vector<std::pair<std::string, std::string>> CONDITIONS;
 

@@ -4,10 +4,13 @@
 #include <functional>
 #include "call.h"
 #include "test.h"
+
+
 #define HIDE_CURSOR (std::cout << "\033[?25l")
 #define SHOW_CURSOR (std::cout << "\033[?25h")
 #define SCREEN_WIDTH 120
-#define SCREEN_HEIGHT 30
+#define STAR_COUNT 6
+#define SCREEN_HEIGHT 35
 
 extern std::function<void()> currentScreen;
 void screenWelcome();
@@ -16,5 +19,8 @@ void screenRegister();
 void screenCustomer();
 void screenStylist();
 void screenAdmin();
+
+inline const std::string blackStar = " ☆ ";
+inline const std::string whiteStar = " ★ ";
 
 #endif // UI_H

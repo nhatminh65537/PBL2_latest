@@ -374,6 +374,15 @@ void Database<serviceDone>::initMap(){
     attributeMap["bookStatus"] = [](const serviceDone& obj) -> std::string {
         return std::to_string(obj.GetBookStatus());
     };
+    attributeMap["day"] = [](const serviceDone& obj) -> std::string {
+        return std::to_string(obj.GetTime().GetDay());
+    };
+    attributeMap["month"] = [](const serviceDone& obj) -> std::string {
+        return std::to_string(obj.GetTime().GetMonth());
+    };
+    attributeMap["year"] = [](const serviceDone& obj) -> std::string {
+        return std::to_string(obj.GetTime().GetYear());
+    };
     updateMap["customerID"] = [](serviceDone& obj, const std::string& newVal) {
         obj.SetCustomerID(newVal);
     };
@@ -405,6 +414,21 @@ void Database<Appointment>::initMap() {
     attributeMap["date"] = [](const Appointment& obj) -> std::string {
         const Datetime dt = obj.GetStartTime();
         return Datetime::TimeToString(dt);
+    };
+    attributeMap["minute"] = [](const Appointment& obj) -> std::string {
+        return std::to_string(obj.GetStartTime().GetMinute());
+    };
+    attributeMap["hour"] = [](const Appointment& obj) -> std::string {
+        return std::to_string(obj.GetStartTime().GetHour());
+    };
+    attributeMap["day"] = [](const Appointment& obj) -> std::string {
+        return std::to_string(obj.GetStartTime().GetDay());
+    };
+    attributeMap["month"] = [](const Appointment& obj) -> std::string {
+        return std::to_string(obj.GetStartTime().GetMonth());
+    };
+    attributeMap["year"] = [](const Appointment& obj) -> std::string {
+        return std::to_string(obj.GetStartTime().GetYear());
     };
     attributeMap["time"] = [](const Appointment& obj) -> std::string {
         const Datetime dt = obj.GetStartTime();

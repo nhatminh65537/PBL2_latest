@@ -31,7 +31,7 @@ void callUpdateCurrentPassword(std::string oldPassword, std::string newPassword,
 void callUpdateCurrentPersonInfo(std::string phonenumber, int gender);
 
 // Appointment call and auxiliary
-void callCreateNewAppointment(bool services[], std::string selectedStylistID, int selectedDay, int selectedMonth, int selectedYear, int selectedHour, int selectedMinute, std::string requirement);
+void callCreateNewAppointment(bool services[], std::string selectedStylistID, int selectedDay, int selectedMonth, int selectedYear, int selectedHour, int selectedMinute);
 std::string callGetNewAppointmentId();
 void callAddNewAppointment();
 
@@ -43,7 +43,6 @@ std::string callGetAppointmentTimeByID(std::string id);
 std::vector<std::string> callGetAppointmentServicesByID(std::string id);
 std::string callGetAppointmentStylistByID(std::string id);
 std::string callGetAppointmentStylistIDByID(std::string id);
-std::string callGetAppointmentRequirementByID(std::string id);
 
 std::vector<std::string> callGetApointmentIDList(int day, int month, int year, int hour, int minute, bool services[], int status, std::string customerID, std::string stylistID, int& count);
 void callCancelAppointment(std::string id);

@@ -4,3 +4,7 @@ thay the trong bang 'null'
 
 bỏ trường age
 bỏ trường requirement
+
+catch cac ngoai le
+
+filter name
