@@ -37,7 +37,7 @@ class Database
         typename std::map<std::string,T>::const_iterator end() const;   // chứ không phải 1 thành viên của map<string,T>
 
         [[nodiscard]] T Get(const std::string& ID) const;
-        [[nodiscard]] Database<T>& Query(const std::string& attribute,const std::string& val);
+        Database<T>& Query(const std::string& attribute,const std::string& val);
         [[nodiscard]] std::vector<T> GetResults();
     private:
         explicit Database(const std::string& path); // Thêm keyword explicit để tránh implicit conversions (ép kiểu ngầm định)
