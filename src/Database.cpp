@@ -150,12 +150,20 @@ int Database<T>::Count() const{
     return this->_list.size();
 }
 
+template <typename T>
+int Database<T>::Count(const std::string& attributeName, const std::string& val) {
+    if (this->attributeMap.contains(attributeName) == false) {
+        std::cerr << "Attribute " << attributeName << " does not exists\n";
+        return 0;
+    }
+    return this->Query(attributeName,val).GetResults().size();
+}
+
 template<typename T>
 int Database<T>::Count(const std::vector<std::pair<std::string,std::string>>& conditions) {
     if (conditions.empty()) return this->Count();
     for (const auto& [attributeName,val] : conditions) {
         if (this->attributeMap.contains(attributeName) == false) {
-            std::cerr << "Attribute " << attributeName << " does not exist\n";
             return 0;
         }
         this->Query(attributeName,val);

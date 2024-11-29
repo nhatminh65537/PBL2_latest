@@ -28,6 +28,7 @@ class Database
         void Show();
     
         [[nodiscard]] int Count() const;
+        [[nodiscard]] int Count(const std::string& attributeName, const std::string& val);
         [[nodiscard]] int Count(const std::vector<std::pair<std::string,std::string>>& conditions);
         [[nodiscard]] bool IsExist(const std::string& attr,const std::string& val) const;
         [[nodiscard]] bool IsEmpty() const;
