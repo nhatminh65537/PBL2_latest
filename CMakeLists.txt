@@ -18,8 +18,11 @@ FetchContent_Declare(ftxui
 )
 FetchContent_MakeAvailable(ftxui)
 
-add_executable(PBL2_Clion 
+add_executable(PBL2_Clion
         main.cpp
+        #ui_demo.cpp
+        #src/call.cpp #2 dòng này đang bị lỗi  undefined reference to `currentScreen'
+        #src/ui.cpp
         src/Database.cpp
         src/serviceDone.cpp
         src/Identifiable.cpp
@@ -29,10 +32,7 @@ add_executable(PBL2_Clion
         src/Datetime.cpp
         src/Salon.cpp
         # src/Statistics.cpp
-        #src/call.cpp #2 dòng này đang bị lỗi  undefined reference to `currentScreen'
-        #src/ui.cpp
         src/Salon.cpp
-        #ui_demo.cpp
 )
 
 # Dùng các thành phần trong thư viện FTXUI
