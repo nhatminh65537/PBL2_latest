@@ -599,7 +599,9 @@ void screenCustomer()
     // Button next
     std::string newAppointmentId;
     Component buttonNext = Button("Next", [&] {
-        errorDateTime = "";
+        if (messageCheckBusy.empty()) {
+            return;
+        }
         errorServicesEmpty = "";
         try {
             callCreateNewAppointment(selectedServices, toStylistID(selectedStylist), selectedDay, selectedMonth, selectedYear, selectedHour, selectedMinute);
@@ -643,7 +645,7 @@ void screenCustomer()
             if (messageCheckBusy.size() > 0) {
                 textBusy = paragraph(messageCheckBusy) | color(Color::Red);
             } else {
-                textBusy = text("Can choose now") | color(Color::Green);
+                textBusy = text("Can choose now    ") | color(Color::Green);
             }
 
             return vbox({

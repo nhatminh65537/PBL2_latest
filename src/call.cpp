@@ -40,14 +40,17 @@ std::string makeName(std::string firstname, std::string lastname, bool reverse)
     return firstname + " " + lastname;
 }
 
-std::string callCheckStylistBusy(std::string stylistID, int day, int month, int year, int hour, int minute)
+std::string callCheckStylistBusy(std::string stylistID, int day, int month, int year, int hour, int minute) // Done
 {
-    // check if stylist is busy at the time
-    // example
-    // std::string stylistID = "null"; => stylist is not selected
-    // (if stylist is not selected) count all appointment at this time compare to the number of stylist
-    std::string busyStatus = "Stylists available";
-    const Datetime dt(minute,hour, day, month, year);
+    // change to database data
+    int dataYear = year + 2021;
+    int dataMonth = month + 1;
+    int dataDay = day + 1;
+    int dataHour = hour;
+    int dataMinute = minute*30;
+    
+    std::string busyStatus = "";
+    const Datetime dt(dataMinute, dataHour, dataDay, dataMonth, dataYear);
     if (stylistID == "null") {
         int numberOfAppointments = dbAppointment.Query("time",Datetime::TimeToString(dt)).GetResults().size();
         int numberOfStylist = dbUser.Query("role","2").GetResults().size();
@@ -58,14 +61,11 @@ std::string callCheckStylistBusy(std::string stylistID, int day, int month, int 
     else {
         std::cerr << stylistID << " " << busyStatus << ' ' << dt << '\n';
 
-        if (dbAppointment.Query("stylistID",stylistID).Query("time",Datetime::TimeToString(dt)).GetResults().size() > 0) {
+        if (dbAppointment.Query("stylistID", stylistID).Query("time",Datetime::TimeToString(dt)).GetResults().size() > 0) {
             busyStatus = "This stylist is busy at this time";
         }
     }
     return busyStatus;
-    // return "This stylist is busy at this time";
-    // return "Salon is closed at this time";
-    // return "";
 }
 
 
@@ -113,6 +113,7 @@ std::vector<std::string> callGetCurrentUserAppointmentIDList(int day, int month,
         flog << "  Filter by year\n";
         dbAppointment.Query("year", dataYear);
     }
+
     // std::cerr << "  " << day << " " << month << " " << year << '\n';
     // if (day > 0 && month > 0 && year > 0)
     // {
