@@ -58,14 +58,14 @@ std::string callGetMemberGenderByID(std::string id);
 std::string callGetMemberUsernameByID(std::string id);
 
 // Stylist call and auxiliary
-std::vector<std::string> callGetStylistIDList(bool gender[2], std::string name, std::string age, int& count);
+std::vector<std::string> callGetStylistIDList(bool gender[2], std::string name, int& count);
 std::vector<std::string> callGetStylistIDList();
 void callDeleteStylist(std::string id);
-void callUpdateStylist (std::string id, std::string firstname, std::string lastname, int gender, std::string age, std::string phonenumber, std::string username, std::string password);
-void callAddStylist(std::string firstname, std::string lastname, int gender, std::string age, std::string phonenumber, std::string username, std::string password);
+void callUpdateStylist (std::string id, std::string firstname, std::string lastname, int gender, std::string phonenumber, std::string username, std::string password);
+void callAddStylist(std::string firstname, std::string lastname, int gender, std::string phonenumber, std::string username, std::string password);
 
 // Customer call and auxiliary
-std::vector<std::string> callGetCustomerIDList(bool gender[2], std::string name, std::string age, int& count);
+std::vector<std::string> callGetCustomerIDList(bool gender[2], std::string name, int& count);
 void callDeleteCustomer(std::string id);
 
 // Service done call and auxiliary

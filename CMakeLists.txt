@@ -10,19 +10,19 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++20")
 
 include_directories(include)
 
-include(FetchContent)
-set(FETCHCONTENT_UPDATES_DISCONNECTED ON)
-FetchContent_Declare(ftxui
-        GIT_REPOSITORY https://github.com/ArthurSonzogni/ftxui
-        GIT_TAG main  # Sử dụng nhánh chính
-)
-FetchContent_MakeAvailable(ftxui)
+# include(FetchContent)
+# set(FETCHCONTENT_UPDATES_DISCONNECTED ON)
+# FetchContent_Declare(ftxui
+#         GIT_REPOSITORY https://github.com/ArthurSonzogni/ftxui
+#         GIT_TAG main  # Sử dụng nhánh chính
+# )
+# FetchContent_MakeAvailable(ftxui)
+
+add_definitions(-DMY_CODE) # Cho phép biên dịch các đoạn code được chỉnh sửa trong thư viện FTXUI
+add_subdirectory(FTXUI)
 
 add_executable(PBL2_Clion
         #main.cpp
-        #ui_demo.cpp
-        #src/call.cpp #2 dòng này đang bị lỗi  undefined reference to `currentScreen'
-        #src/ui.cpp
         src/Database.cpp
         src/serviceDone.cpp
         src/Identifiable.cpp
