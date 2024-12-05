@@ -7,13 +7,13 @@
 
 std::string ServiceToString(const int& service) {
     switch (service) {
-        case CatToc: return "Cat toc";
-        case NhuomToc: return "Nhuom toc";
-        case TayToc: return "Tay toc";
-        case UonToc: return "Uon toc";
-        case PhucHoiToc: return "Phuc hoi toc";
-        case TaoKieu: return "Tao kieu";
-        case GoiDau: return "Goi dau";
+        case CatToc: return "Haircut";
+        case NhuomToc: return "Hair Dye";
+        case TayToc: return "Hair Bleach";
+        case UonToc: return "Hair Perm";
+        case PhucHoiToc: return "Hair Restoration";
+        case TaoKieu: return "Hair Styling";
+        case GoiDau: return "Shampoo";
         default: return "Unknown";
     }
 }

@@ -80,5 +80,19 @@ std::string callGetServiceDoneServiceByID(std::string id);
 void callRateServiceDone(std::string id, int rating);
 
 // Statistics call and auxiliary
+float callGetAverage(const std::vector<int>&);
+float callGetStandardDeviation(const std::vector<int>&);
+std::vector<int> callGetCustomerCountStatistics(int day, int month, int year);
+
+std::vector<int> callGetServiceCustomerCountStatistics(int day, int month, int year);
+std::vector<float> callGetServiceFrequencyStatistics(int day, int month, int year);
+std::vector<int> callGetServiceRateCountStatistics(int day, int month, int year);
+std::vector<float> callGetServiceRateAverageStatistics(int day, int month, int year);
+
+int callGetStylistCustomerCountStatistics(std::string stylistID, int day, int month, int year);
+float callGetStylistRateAverageStatistics(std::string stylistID, int day, int month, int year);
+
+std::vector<int> callGetStylistServiceCustomerCountStatistics(std::string stylistID, int day, int month, int year);
+std::vector<float> callGetStylistServiceRateAverageStatistics(std::string stylistID, int day, int month, int year);
 
 #endif // CALL_H

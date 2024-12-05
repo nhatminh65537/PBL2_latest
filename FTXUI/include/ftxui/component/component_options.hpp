@@ -267,7 +267,7 @@ struct WindowOptions {
 /// @brief Option for the Dropdown component.
 /// @ingroup component
 /// A dropdown menu is a checkbox opening/closing a radiobox.
-struct DropdownOption {
+struct                          DropdownOption {
   /// Whether the dropdown is open or closed:
   Ref<bool> open = false;
   // The options for the checkbox:

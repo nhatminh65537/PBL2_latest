@@ -22,7 +22,7 @@ add_definitions(-DMY_CODE) # Cho phép biên dịch các đoạn code được c
 add_subdirectory(FTXUI)
 
 add_executable(PBL2_Clion
-        #main.cpp
+        main.cpp
         src/Database.cpp
         src/serviceDone.cpp
         src/Identifiable.cpp
@@ -31,11 +31,10 @@ add_executable(PBL2_Clion
         src/define.cpp
         src/Datetime.cpp
         src/Salon.cpp
-        # src/Statistics.cpp
+        src/Statistics.cpp
         src/call.cpp
         src/ui.cpp
         src/Salon.cpp
-        ui_demo.cpp
 )
 
 # Dùng các thành phần trong thư viện FTXUI

@@ -7,7 +7,9 @@
 #include <fstream>
 #include <vector>
 #include <functional>
+#include <cmath>
 #include <Datetime.h>
+#include <ftxui/dom/table.hpp>   
 #include "ui.h"
 
 using namespace ftxui;
@@ -20,7 +22,6 @@ ComponentDecorator getComponentDecorator(std::string label, std::string& value =
             bool check = event.is_character() && 
                         (!std::isdigit(event.character()[0]) ||
                         (value.size() > 10));
-            flog << "  " << value.size() << " " << value << '\n';
             return check;
         });   
     }
@@ -419,7 +420,6 @@ void screenCustomer()
 
     // Appointment Tab
     #pragma region
-    // flog << "Screen Customer: Appointment Tab\n";
     std::string errorServicesEmpty = "";
     std::string errorApointmentTime = "";
     
@@ -461,9 +461,7 @@ void screenCustomer()
     };
 
     auto checkBusy = [&] () {
-        // flog << "Screen Customer: Appointment Tab: Check Busy\n";
         errorApointmentTime = callCheckStylistBusy(toStylistID(selectedStylist), selectedDay, selectedMonth, selectedYear, selectedHour, selectedMinute);
-        // flog << "End Screen Customer: Appointment Tab: Check Busy\n";
     };
     checkBusy();
 
@@ -796,7 +794,6 @@ void screenCustomer()
 
     // Service done Tab
     #pragma region ServiceDone
-    // flog << "Screen Customer: service Done Tab\n";
 
     std::vector<std::string> serviceDoneIDList;
     int countServiceDone = 0;
@@ -832,19 +829,12 @@ void screenCustomer()
     std::string detailServiceDoneService;
 
     auto setDetailServiceDone = [&] (std::string id) {
-        // flog << "Screen Customer: Service Done Tab: Set Detail\n";
         detailServiceDoneID = id;
-        // flog << "  ID\n";
         detailServiceDoneStylistID = callGetServiceDoneStylistIDByID(id);
-        // flog << "  StylistID\n";
         detailServiceDoneRating = callGetServiceDoneRatingByID(id);
-        // flog << "  Rating\n";
         detailServiceDoneDate = callGetServiceDoneDateByID(id);
-        // flog << "  Date\n";
         detailServiceDoneStatus = callGetServiceDoneStatusByID(id);
-        // flog << "  Status\n";
         detailServiceDoneService = callGetServiceDoneServiceByID(id);
-        // flog << "End Screen Customer: Service Done Tab: Set Detail\n";
     };
 
     
@@ -855,10 +845,8 @@ void screenCustomer()
             for (int i = 0; i < serviceDoneIDList.size(); ++i) {
             std::string id = serviceDoneIDList[i];
             Component c = Button("Detail", [&, id] {
-                // flog << "Screen Customer: Service Done Tab: Detail\n";
                 detailTabServiceDone = 1;
                 setDetailServiceDone(id);
-                // flog << "End Screen Customer: Service Done Tab: Detail\n";
             }, buttonOptionTab);
             
             std::string rating = callGetServiceDoneRatingByID(id);
@@ -1161,11 +1149,9 @@ void screenCustomer()
 
     // History Tab
     #pragma region history
-    // flog << "Screen Customer: History Tab\n";
     std::vector<std::string> listAppointmentID;
 
     // History list
-    // flog << "Screen Customer: History List\n";
     int filterHistoryDay;
     int filterHistoryMonth;
     int filterHistoryYear;
@@ -1184,23 +1170,15 @@ void screenCustomer()
     std::string detailAppointmentStylist;
 
     auto setDetailAppointment = [&] (std::string id) {
-        // flog << "Screen Customer: History Tab: Set Detail\n";
         detailAppointmentCustomerName = callGetAppointmentCustomerNameByID(id);
-        // flog << "  CustomerName\n";
         detailAppointmentStatus = callGetAppointmentStatusByID(id);
-        // flog << "  Status\n";
         detailAppointmentDate = callGetAppointmentDateByID(id);
-        // flog << "  Date\n";
         detailAppointmentTime = callGetAppointmentTimeByID(id);
-        // flog << "  Time\n";
         detailAppointmentServices = callGetAppointmentServicesByID(id);
-        // flog << "  Services\n";
         detailAppointmentStylist = callGetAppointmentStylistByID(id);
-        // flog << "  Stylist\n";
         if (detailAppointmentStylist != "null") {
             detailAppointmentStylist += " (ID: " + callGetAppointmentStylistIDByID(id) + ")";
         }
-        // flog << "  Requirement\n";
     };
 
     Component containerHistoryList = Container::Vertical({});
@@ -1351,7 +1329,7 @@ void screenCustomer()
             maxDay = 31;
         } else {
             Datetime dt(0, 0, filterHistoryDay, filterHistoryMonth, 2020 + filterHistoryYear);
-            int maxDay = dt.MonthDays();
+            maxDay = dt.MonthDays();
             if (filterHistoryDay > maxDay) {
                 filterHistoryDay = maxDay;
             }
@@ -1363,7 +1341,6 @@ void screenCustomer()
         }
     });
 
-    // flog << "  break point 1\n";
     Component menuFilterDay = Menu(&historyDays, &filterHistoryDay, menuOptionAll);
     Component menuFilterMonth = Menu(&historyMonths, &filterHistoryMonth, menuOptionFilterMonth);
     Component menuFilterYear = Menu(&historyYears, &filterHistoryYear, menuOptionAll);
@@ -1382,11 +1359,9 @@ void screenCustomer()
         });
     });
     
-    // flog << "  break point 2\n";
     int selectedFilterService = 0;
     Component containerFilterServices = Container::Vertical({}, &selectedFilterService);
     for (int i = 0; i < serviceCount; ++i) {
-        // flog << "    count: " << i << "\n";
         filterHistoryServices[i] = true;
         containerFilterServices->Add(Checkbox(services[i], &filterHistoryServices[i]) | size(WIDTH, EQUAL, 20));
     }
@@ -1394,7 +1369,6 @@ void screenCustomer()
     std::vector<std::string> filterStatus = {"All", "Done", "Waiting", "Cancel"};
     Component radioboxStatus = Radiobox(filterStatus, &filterHistoryStatus);
     
-    // flog << "  break point 2.5\n";
     Component buttonFilter = Button("Filter", [&] {
         reloadHistoryList();
     }, buttonOptionAll);
@@ -1403,7 +1377,6 @@ void screenCustomer()
         resetFilter();
     }, buttonOptionAll);
 
-    // flog << "  break point 3\n";
     // Catch event
     rendererFilterDate |= CatchEvent([&] (Event event) {
         bool check = event == Event::Tab;
@@ -1427,7 +1400,6 @@ void screenCustomer()
         return check;
     });
 
-    // flog << "  break point 4\n";
     Component rendererFilter = Renderer(Container::Vertical({
         rendererFilterDate,
         containerFilterServices,
@@ -1490,7 +1462,6 @@ void screenCustomer()
 
     // Profile Tab
     #pragma region profile
-    // flog << "Screen Customer: Profile Tab\n";
     std::string firstname;
     std::string lastname;
     std::string username;
@@ -1509,9 +1480,7 @@ void screenCustomer()
         confirmpassword = "";
     };
     auto resetPersonInfo = [&] {
-        // flog << "Screen Customer: Profile Tab: resetPersonInfo\n";
         callGetCurrentUserPersonInfo(phonenumber, gender);
-        // flog << "End Screen Customer: Profile Tab: resetPersonInfo\n";
     };
     auto resetProfile = [&] {
         resetName();
@@ -1544,7 +1513,7 @@ void screenCustomer()
     inputOldpassword |= getComponentDecorator("password");
     inputNewpassword |= getComponentDecorator("password");
     inputConfirmpassword |= getComponentDecorator("password");
-    inputPhonenumber |= getComponentDecorator("phonenumber");
+    inputPhonenumber |= getComponentDecorator("phonenumber", phonenumber);
 
     std::vector <std::string> genders = {"Male", "Female"};
     Component radioboxGender = Radiobox(&genders, &gender);
@@ -2005,7 +1974,7 @@ void screenStylist()
             maxDay = 31;
         } else {
             Datetime dt(0, 0, filterScheduleDay, filterScheduleMonth, 2020 + filterScheduleYear);
-            int maxDay = dt.MonthDays();
+            maxDay = dt.MonthDays();
             if (filterScheduleDay > maxDay) {
                 filterScheduleDay = maxDay;
             }
@@ -2328,10 +2297,13 @@ void screenStylist()
 
     MenuOption menuOptionServiceDoneMonth = MenuOption(menuOptionAll);
     menuOptionServiceDoneMonth.on_change = [&] () {
-        Datetime dt(0, 0, filterServiceDoneDay, filterServiceDoneMonth, 2020 + filterServiceDoneYear);
-        int maxDay = dt.MonthDays();
-        if (filterServiceDoneDay > maxDay) {
-            filterServiceDoneDay = maxDay;
+        int maxDay = 31;
+        if (filterServiceDoneMonth != 0) {
+            Datetime dt(0, 0, filterServiceDoneDay, filterServiceDoneMonth, 2020 + filterServiceDoneYear);
+            maxDay = dt.MonthDays();
+            if (filterServiceDoneDay > maxDay) {
+                filterServiceDoneDay = maxDay;
+            }
         }
         filterServiceDoneDays.clear();
         filterServiceDoneDays.push_back("--");
@@ -2561,7 +2533,7 @@ void screenStylist()
     inputOldpassword |= getComponentDecorator("password");
     inputNewpassword |= getComponentDecorator("password");
     inputConfirmpassword |= getComponentDecorator("password");
-    inputPhonenumber |= getComponentDecorator("phonenumber");
+    inputPhonenumber |= getComponentDecorator("phonenumber", phonenumber);
 
     std::vector <std::string> genders = {"Male", "Female"};
     Component radioboxGender = Radiobox(&genders, &gender);
@@ -2824,6 +2796,7 @@ void screenStylist()
 void screenAdmin()
 {
     // function variables
+    #pragma region 
     std::string currentUserID = callGetCurrentUserID();
     std::vector<std::string> services;
     int serviceCount = callGetServiceList(services);
@@ -2846,21 +2819,394 @@ void screenAdmin()
         }
         return element;
     };
+    MenuOption menuOptionAll;
+    menuOptionAll.direction = Direction::Up;
+    menuOptionAll.entries_option.transform = [](const EntryState& s) {
+        auto element = text(s.label) | center;
+        if (s.focused) {
+            element = element | inverted;
+        }
+        return element;
+    };
+    #pragma endregion
 
     // customer screen
     auto screen = ScreenInteractive::FixedSize(SCREEN_WIDTH, SCREEN_HEIGHT);
     int exit = 0;
 
     // Home tab
-    // flog << "Screen Admin: Home Tab\n";
     Component tabHome = Renderer([&] {
         return text("Home") | center ;
     });
 
     // Statistics tab
-    // flog << "Screen Admin: Statistics Tab\n";
-    Component tabStatistics = Renderer([&] {
-        return text("Statistics") | center;
+    int selectedStatisticsTab = 0;
+    bool firstTime = true;
+    std::vector<std::string> listStatistics = {"Customer Count Statistics", "Service Statistics", "Stylist Statistics"};
+    Component dropdownStatistics = Dropdown({
+        .radiobox = {
+            .entries = &listStatistics, 
+            .selected = &selectedStatisticsTab,
+            .on_change = [&] () {
+                firstTime = true;
+            }
+        },
+        .transform = [](bool open, Element checkbox, Element radiobox) {
+            if (open) {
+                const int maxHeight = 2;
+                return vbox({
+                    checkbox | inverted,
+                    radiobox | vscroll_indicator | frame | size(HEIGHT, LESS_THAN, maxHeight),
+                });
+            }
+            return vbox({checkbox, filler()});
+        }
+    });
+
+    int statisticsDay = 0;
+    int statisticsMonth = 0;
+    int statisticsYear = 0;
+    std::vector<std::string> listStatisticsDay = {"--", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31"};
+    std::vector<std::string> listStatisticsMonth = {"--", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"};
+    std::vector<std::string> listStatisticsYear = {"----", "2021", "2022", "2023", "2024", "2025", "2026", "2027", "2028", "2029", "2030"};
+
+    Component menuStatisticsDay = Menu(&listStatisticsDay, &statisticsDay, menuOptionAll);
+    MenuOption menuOptionStatisticsMonth(menuOptionAll);
+    menuOptionStatisticsMonth.on_change = [&] () {
+        int maxDay = 31;
+        if (statisticsMonth != 0) {
+            Datetime dt(0, 0, statisticsDay, statisticsMonth, 2020 + statisticsYear);
+            maxDay = dt.MonthDays();
+            if (statisticsDay > maxDay) {
+                statisticsDay = maxDay;
+            }
+        }
+        listStatisticsDay.clear();
+        listStatisticsDay.push_back("--");
+        for (int i = 1; i <= maxDay; ++i) {
+            listStatisticsDay.push_back(std::to_string(i).size() == 1 ? "0" + std::to_string(i) : std::to_string(i));
+        }
+    };
+    Component menuStatisticsMonth = Menu(&listStatisticsMonth, &statisticsMonth, menuOptionStatisticsMonth);
+    Component menuStatisticsYear = Menu(&listStatisticsYear, &statisticsYear, menuOptionAll);
+    Component rendererStatisticDate = Renderer(Container::Horizontal({
+        menuStatisticsDay,
+        menuStatisticsMonth,
+        menuStatisticsYear,
+    }), [&] {
+        return hbox({
+            menuStatisticsDay->Render() | size(WIDTH, EQUAL, 2) | frame | size(HEIGHT, EQUAL, 1),
+            text("/") | size(WIDTH, EQUAL, 1),
+            menuStatisticsMonth->Render() | size(WIDTH, EQUAL, 2) | frame | size(HEIGHT, EQUAL, 1),
+            text("/") | size(WIDTH, EQUAL, 1),
+            menuStatisticsYear->Render() | size(WIDTH, EQUAL, 4) | frame | size(HEIGHT, EQUAL, 1),
+        });
+    });
+
+    std::string errorStatisticsDate = "";
+    std::function<void()> reloadCustumerCountStatistics;
+    std::function<void()> reloadServiceStatistics;
+    std::function<void()> reloadStylistStatistics;
+    Component buttonStatisticsView = Button("View", [&] {
+        errorStatisticsDate = "";
+        if (statisticsYear == 0) {
+            errorStatisticsDate = "Please select a time period";
+            return;
+        } else if (statisticsDay > 0 && statisticsMonth == 0) {
+            errorStatisticsDate = "Please select month";
+            return;
+        }
+        if (selectedStatisticsTab == 0) {
+            reloadCustumerCountStatistics();
+        } else if (selectedStatisticsTab == 1) {
+            reloadServiceStatistics();
+        } else if (selectedStatisticsTab == 2) {
+            reloadStylistStatistics();
+        }
+        firstTime = false;
+    }, buttonOptionTab);
+    Component buttonStatisticsReset = Button("Reset", [&] {
+        statisticsDay = 0;
+        statisticsMonth = 0;
+        statisticsYear = 0;
+    }, buttonOptionTab);
+    
+    
+    Component rendererStatisticsOption = Renderer(
+        Container::Horizontal({
+            dropdownStatistics,
+            rendererStatisticDate,
+            buttonStatisticsView,
+            buttonStatisticsReset,
+        }), [&] {
+        auto textError = [&](std::string error) {
+            if (error.size() == 0) {
+                return text("") | size(HEIGHT, EQUAL, 0);
+            }
+            return paragraph(error) | align_right | color(Color::Red);
+        };
+        return vbox({
+            hbox({
+                dropdownStatistics->Render() | size(WIDTH, EQUAL, 30),
+                separator(),
+                hbox({
+                    text("Time Period: ") | size(WIDTH, EQUAL, 13),
+                    rendererStatisticDate->Render() | size(WIDTH, EQUAL, 10),
+                }) | hcenter,
+                filler(),
+                separator() | align_right,
+                buttonStatisticsView->Render() | size(WIDTH, EQUAL, 10) | align_right,
+                separator() | align_right,
+                buttonStatisticsReset->Render() | size(WIDTH, EQUAL, 10) | align_right,
+            }),
+            textError(errorStatisticsDate),
+        });
+    });
+
+    // Customer Count Statistics
+    std::vector<int> customerCountStatistics;
+    int maxCustomerCount;
+    float customerCountAverage;
+    float customerCountStandardDeviation;
+    std::string dayUnit;
+    int widthGraph;
+    reloadCustumerCountStatistics = [&] {
+        if (statisticsMonth == 0) {
+            widthGraph = 52;
+            dayUnit = "Week";
+        } else {
+            widthGraph = Datetime(0, 0, 1, statisticsMonth, 2020 + statisticsYear).MonthDays() * 2;
+            dayUnit = "Day";
+        }
+        customerCountStatistics = callGetCustomerCountStatistics(statisticsDay, statisticsMonth, statisticsYear);
+        customerCountAverage = callGetAverage(customerCountStatistics);
+        customerCountStandardDeviation = callGetStandardDeviation(customerCountStatistics);
+        maxCustomerCount = *std::max_element(customerCountStatistics.begin(), customerCountStatistics.end());
+    };
+
+    auto graphCustomerCountStatistics = [&] (int width, int height) {
+        int step = width / customerCountStatistics.size();
+        float scale = maxCustomerCount > 0? (float)height / maxCustomerCount: 0;
+        std::vector<int> scaledCustomerCountStatistics;
+        for (int i = 0; i < customerCountStatistics.size(); ++i) {
+            for (int j = 0; j < step; ++j) {
+                scaledCustomerCountStatistics.push_back(std::round(customerCountStatistics[i] * scale));
+            }
+        }
+        return scaledCustomerCountStatistics;
+    };
+
+    Component rendererCustomerCountStatistics = Renderer([&] {
+        return vbox({
+            hbox({
+                text("Average: " + std::to_string(customerCountAverage)),
+                filler() | size(WIDTH, EQUAL, 5),
+                text("Standard Deviation: " + std::to_string(customerCountStandardDeviation)),
+                filler() | size(WIDTH, EQUAL, 5),
+                text("Unit: per" + dayUnit),
+            }) | hcenter,
+            separator(),
+            text("Max: " + std::to_string(maxCustomerCount)) | center,
+            graph(graphCustomerCountStatistics) | size(HEIGHT, EQUAL, 20) | size(WIDTH, EQUAL, widthGraph) | borderRounded | center,
+            text("Min: 0") | center,
+        });
+    });
+
+    // Service Statistics
+    std::vector<std::vector<std::string>> dataService;
+    auto tableService = Table();
+    Element tableServiceElement;
+
+    auto ignoreNan = [] (float value) {
+        return std::isnan(value)? 0: value;
+    };
+
+    reloadServiceStatistics = [&] () {
+        std::vector<int> serviceCustomerCountStatistics = callGetServiceCustomerCountStatistics(statisticsDay, statisticsMonth, statisticsYear);
+        std::vector<float> serviceFrequencyStatistics = callGetServiceFrequencyStatistics(statisticsDay, statisticsMonth, statisticsYear);
+        std::vector<int> serviceRateCountStatistics = callGetServiceRateCountStatistics(statisticsDay, statisticsMonth, statisticsYear);
+        std::vector<float> serviceRateAverageStatistics = callGetServiceRateAverageStatistics(statisticsDay, statisticsMonth, statisticsYear);
+        dataService.clear();
+        
+        dataService.push_back({"Service", "CustomerCount", "Frequency", "RateCount", "RateAvg"});
+        for (int i = 1; i < SERVICES_COUNT; ++i) {
+            std::vector<std::string> row;
+            row.push_back(services[i - 1]);
+            row.push_back(std::to_string(serviceCustomerCountStatistics[i]));
+            row.push_back(std::to_string(ignoreNan(serviceFrequencyStatistics[i])));
+            row.push_back(std::to_string(serviceRateCountStatistics[i]));
+            row.push_back(std::to_string(ignoreNan(serviceRateAverageStatistics[i])));
+            dataService.push_back(row);
+        }
+        tableService = Table(dataService);
+        tableService.SelectAll().Border(LIGHT);
+        tableService.SelectAll().DecorateCells(center);
+        tableService.SelectAll().DecorateCells(size(WIDTH, GREATER_THAN, 12));
+        tableService.SelectRow(0).Decorate(bold);
+        tableService.SelectAll().SeparatorVertical(LIGHT);
+        tableService.SelectRow(0).Border(LIGHT);
+
+        tableServiceElement = tableService.Render();
+    };
+
+    Component rendererServiceStatistics = Renderer([&] {
+        return tableServiceElement;
+    });
+
+    // Stylist Statistics
+    std::vector<std::string> stylistIDlistStatistics = callGetStylistIDList();
+    int stylistListSize = stylistIDlistStatistics.size();
+    std::vector<std::string> stylistNameStatistics;
+    for (int i = 0; i < stylistListSize; ++i) {
+        stylistNameStatistics.push_back(callGetMemberNameByID(stylistIDlistStatistics[i]) + " (" + stylistIDlistStatistics[i] + ")");
+    }
+    std::vector<std::vector<std::string>> dataStylist;
+    std::vector<std::vector<std::string>> dataStylistName;
+    auto tableStylist = Table();
+    auto tableStylistName = Table();
+    Element tableStylistElement;
+    Element tableStylistNameElement;
+
+    int sortOption = 0;
+    std::vector<std::string> listSortOptions = {"None", "CustomerCount", "Frequency", "RateAvg"};
+    for (int i = 1; i < SERVICES_COUNT; ++i) {
+        listSortOptions.push_back("CC(" + services[i - 1] + ")");
+        listSortOptions.push_back("RA(" + services[i - 1] + ")");
+    }
+    Component dropdownSortOption = Dropdown({
+        .radiobox = {
+            .entries = &listSortOptions, 
+            .selected = &sortOption,
+        },
+        .transform = [](bool open, Element checkbox, Element radiobox) {
+            if (open) {
+                const int maxHeight = 5;
+                return vbox({
+                    checkbox | inverted,
+                    radiobox | vscroll_indicator | frame | size(HEIGHT, LESS_THAN, maxHeight),
+                });
+            }
+            return vbox({checkbox, filler()});
+        }
+    });
+
+    int sliderValue = 0;
+    Component sliderStatistics = Slider("", &sliderValue, 0, 100, 1);
+
+    reloadStylistStatistics = [&] () {
+        dataStylist.clear();
+        dataStylist.push_back({"Stylist", "CustomerCount(CC)", "Frequency", "RateAvg(RA)"});
+        for (int i = 1; i < SERVICES_COUNT; ++i) {
+            dataStylist[0].push_back( "CC(" +services[i - 1] + ")");
+            dataStylist[0].push_back( "RA(" +services[i - 1] + ")");
+        }
+
+        std::vector<int> all = callGetCustomerCountStatistics(statisticsDay, statisticsMonth, statisticsYear);
+        int sum = 0;
+        for (int i = 0; i < all.size(); i++)
+            sum += all[i];
+        int stylistCustomerCountStatistics;
+        float stylistFrequencyStatistics;
+        float stylistRateAverageStatistics;
+        for (int i = 0; i < stylistListSize; ++i) {
+            stylistCustomerCountStatistics = callGetStylistCustomerCountStatistics(stylistIDlistStatistics[i], statisticsDay, statisticsMonth, statisticsYear);
+            stylistFrequencyStatistics = stylistCustomerCountStatistics / (float)sum;
+            stylistRateAverageStatistics = callGetStylistRateAverageStatistics(stylistIDlistStatistics[i], statisticsDay, statisticsMonth, statisticsYear);
+            std::vector<std::string> row;
+            row.push_back(stylistNameStatistics[i]);
+            row.push_back(std::to_string(stylistCustomerCountStatistics));
+            row.push_back(std::to_string(ignoreNan(stylistFrequencyStatistics)));
+            row.push_back(std::to_string(ignoreNan(stylistRateAverageStatistics)));
+            std::vector<int> stylistServiceCustomerCountStatistics = callGetStylistServiceCustomerCountStatistics(stylistIDlistStatistics[i], statisticsDay, statisticsMonth, statisticsYear);
+            std::vector<float> stylistServiceRateAverageStatistics = callGetStylistServiceRateAverageStatistics(stylistIDlistStatistics[i], statisticsDay, statisticsMonth, statisticsYear);
+            for (int j = 1; j < SERVICES_COUNT; ++j) {
+                row.push_back(std::to_string(stylistServiceCustomerCountStatistics[j]));
+                row.push_back(std::to_string(ignoreNan(stylistServiceRateAverageStatistics[j])));
+            }
+            dataStylist.push_back(row);
+        }
+        if (sortOption > 0) {
+            std::sort(dataStylist.begin() + 1, dataStylist.end(), [&] (std::vector<std::string> a, std::vector<std::string> b) {
+                return std::stof(a[sortOption]) > std::stof(b[sortOption]);
+            });
+        }
+
+        dataStylistName.clear();
+        for (int i = 0; i <= stylistListSize; ++i) {
+            std::vector<std::string> row;
+            row.push_back(dataStylist[i][0]);
+            dataStylistName.push_back(row);
+            dataStylist[i].erase(dataStylist[i].begin());
+        }    
+
+        tableStylist = Table(dataStylist);
+        tableStylist.SelectAll().Border(LIGHT);
+        tableStylist.SelectAll().DecorateCells(center);
+        tableStylist.SelectAll().DecorateCells(size(WIDTH, GREATER_THAN, 12));
+        tableStylist.SelectRow(0).Decorate(bold);
+        tableStylist.SelectAll().SeparatorVertical(LIGHT);
+        tableStylist.SelectRow(0).Border(LIGHT);
+
+        tableStylistElement = tableStylist.Render();
+
+        tableStylistName = Table(dataStylistName);
+
+        tableStylistName.SelectAll().Border(LIGHT);
+        tableStylistName.SelectAll().DecorateCells(center);
+        tableStylistName.SelectAll().DecorateCells(size(WIDTH, GREATER_THAN, 40));
+        tableStylistName.SelectRow(0).Decorate(bold);
+        tableStylistName.SelectAll().SeparatorVertical(LIGHT);
+        tableStylistName.SelectRow(0).Border(LIGHT);
+
+        tableStylistNameElement = tableStylistName.Render();
+    };
+
+    Component rendererStylistStatistics = Renderer(
+        Container::Vertical({
+            dropdownSortOption,
+            sliderStatistics,
+        }), [&] {
+        return vbox({
+            hbox({
+                text("Sort by: ") | size(WIDTH, EQUAL, 10),
+                dropdownSortOption->Render(),
+            }) | hcenter,
+            sliderStatistics->Render() | hcenter,
+            hbox({
+                tableStylistNameElement,
+                tableStylistElement | focusPositionRelative(sliderValue / (float)100,  0) | frame | size(WIDTH, EQUAL, 40),
+                vbox({}) | borderLight,
+            }),
+        });
+    });
+
+    // Statistics Tab
+    Component tabStatisticsOption = Container::Tab({
+        rendererCustomerCountStatistics,
+        rendererServiceStatistics,
+        rendererStylistStatistics,
+    }, &selectedStatisticsTab);
+
+    Component tabStatistics = Renderer(
+        Container::Vertical({
+            rendererStatisticsOption,
+            tabStatisticsOption,
+        }), [&] {
+        Element last;
+        if (selectedStatisticsTab == 0 && !firstTime) {
+            last = rendererCustomerCountStatistics->Render();
+        } else if (selectedStatisticsTab == 1 && !firstTime) {
+            last = rendererServiceStatistics->Render();
+        } else if (selectedStatisticsTab == 2 && !firstTime) {
+            last = rendererStylistStatistics->Render();
+        } else {
+            last = text("Click View") | center;
+        }
+        return vbox({
+            rendererStatisticsOption->Render(),
+            separator(),
+            last | center,
+        });
     });
 
     // Appointment tab
@@ -2985,7 +3331,6 @@ void screenAdmin()
     }, buttonOptionAll);
 
     Component buttonAppointmentDetailDone = Button("Done", [&] {
-        flog << "callDoneAppointment\n";
         errorAppointmentChangeStatus = "";
         try {
             callDoneAppointment(detailAppointmentID);
@@ -3004,7 +3349,6 @@ void screenAdmin()
             }
         }
         detailAppointmentStatus = callGetAppointmentStatusByID(detailAppointmentID);
-        flog << "End callDoneAppointment\n";
     }, buttonOptionAll);
 
     int selectedButtonsAppointmentChooseStylist = 0;
@@ -3174,23 +3518,13 @@ void screenAdmin()
     resetAppointmentFilter();
     reloadAppointmentHistoryList();
 
-    MenuOption menuOptionAll;
-    menuOptionAll.direction = Direction::Up;
-    menuOptionAll.entries_option.transform = [](const EntryState& s) {
-        auto element = text(s.label) | center;
-        if (s.focused) {
-            element = element | inverted;
-        }
-        return element;
-    };
-
     Component menuAppointmentFilterDay = Menu(&appointmentDays, &filterAppointmentDay, menuOptionAll);
     MenuOption menuOptionAppointmentMonth = MenuOption(menuOptionAll);
     menuOptionAppointmentMonth.on_change = ([&] () {
         int maxDay = 31;
         if (filterAppointmentMonth > 0) {
             Datetime dt = Datetime(0, 0, filterAppointmentDay, filterAppointmentMonth, filterAppointmentYear);
-            int maxDay = dt.MonthDays();
+            maxDay = dt.MonthDays();
             if (filterAppointmentDay > maxDay) {
                 filterAppointmentDay = maxDay;
             }
@@ -3331,7 +3665,6 @@ void screenAdmin()
     #pragma endregion
 
     // Customer tab
-    // flog << "Screen Admin: Customer Tab\n";
     #pragma region Customer
 
     std::vector<std::string> customerIDList;
@@ -3545,7 +3878,6 @@ void screenAdmin()
     #pragma endregion
 
     // Stylist tab
-    // flog << "Screen Admin: Stylist Tab\n";
     #pragma region Stylist
 
     std::vector<std::string> stylistIDList;
@@ -3787,7 +4119,7 @@ void screenAdmin()
     Component inputUpdateStylistPassword = Input(&stylistUpdatePassword, "Password", inputOptionStylistAll);
     inputUpdateStylistFirstName |= getComponentDecorator("name");
     inputUpdateStylistLastName |= getComponentDecorator("name");
-    inputUpdateStylistPhonenumber |= getComponentDecorator("phonenumber");
+    inputUpdateStylistPhonenumber |= getComponentDecorator("phonenumber", stylistUpdatePhonenumber);
     inputUpdateStylistUsername |= getComponentDecorator("username");
     inputUpdateStylistPassword |= getComponentDecorator("password");
 
@@ -3896,7 +4228,7 @@ void screenAdmin()
     Component inputAddStylistPassword = Input(&stylistAddPassword, "Password", inputOptionStylistAll);
     inputAddStylistFirstName |= getComponentDecorator("name");
     inputAddStylistLastName |= getComponentDecorator("name");
-    inputAddStylistPhonenumber |= getComponentDecorator("phonenumber");
+    inputAddStylistPhonenumber |= getComponentDecorator("phonenumber", stylistAddPhonenumber);
     inputAddStylistUsername |= getComponentDecorator("username");
     inputAddStylistPassword |= getComponentDecorator("password");
 
@@ -4023,7 +4355,6 @@ void screenAdmin()
     #pragma endregion
 
     // Profile tab
-    // flog << "Screen Admin: Profile Tab\n";
     #pragma region Profile
     std::string profileFirstname;
     std::string profileLastname;
@@ -4076,7 +4407,7 @@ void screenAdmin()
     inputOldpassword |= getComponentDecorator("password");
     inputNewpassword |= getComponentDecorator("password");
     inputConfirmpassword |= getComponentDecorator("password");
-    inputPhonenumber |= getComponentDecorator("phonenumber");
+    inputPhonenumber |= getComponentDecorator("phonenumber", profilePhonenumber);
 
     Component radioboxGender = Radiobox(&listGenders, &profileGender);
 
@@ -4284,9 +4615,7 @@ void screenAdmin()
     });
     #pragma endregion  
 
-
     // ServiceDone tab
-    // flog << "Screen Admin: ServiceDone Tab\n";
     #pragma region ServiceDone
 
     std::vector<std::string> serviceDoneIDList;
@@ -4336,7 +4665,6 @@ void screenAdmin()
 
     Component containerServiceDoneList = Container::Vertical({});
     auto reloadServiceDoneList = [&] {
-        flog << "Reload ServiceDone List\n";
         serviceDoneIDList = callGetServiceDoneIDList(filterServiceDoneDay, filterServiceDoneMonth, filterServiceDoneYear, filterServiceDoneCustomerID, filterServiceDoneStylistID, filterServiceDoneRating, filterServiceDoneStatus, filterServiceDoneServices, countServiceDone);
         containerServiceDoneList->DetachAllChildren();
         for (int i = 0; i < serviceDoneIDList.size(); ++i) {
@@ -4365,8 +4693,6 @@ void screenAdmin()
                 });
             }));
         }
-        flog <<  "  " << containerServiceDoneList->ChildCount() << "\n";
-        flog << "End Reload ServiceDone List\n";
     };
     resetServiceDoneFilter();
 
@@ -4376,7 +4702,7 @@ void screenAdmin()
         int maxDay = 31;
         if (filterServiceDoneMonth > 0) {
             Datetime dt = Datetime(0, 0, filterServiceDoneDay, filterServiceDoneMonth, filterServiceDoneYear);
-            int maxDay = dt.MonthDays();
+            maxDay = dt.MonthDays();
             if (filterServiceDoneDay > maxDay) {
                 filterServiceDoneDay = maxDay;
             }

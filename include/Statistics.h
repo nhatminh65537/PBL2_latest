@@ -3,40 +3,41 @@
 #include <map>
 #include "Datetime.h"
 #include "vector"
-
-
+ 
+ 
 class Statistics {
-    public:
+    private:
         Statistics();
-        ~Statistics();
+    public:
+        static Statistics& getInstance() {
+            static Statistics instance;
+            return instance;
+        }
+        Statistics(Statistics const&) = delete;
+        void operator=(Statistics const&) = delete;
+        
+        // Statistics functions
+        static float GetAverage(const std::vector<float>);
+        static float GetStandardDeviation(const std::vector<float>);
 
         //Lượng khách hàng trong 1 ngày
         static int GetCustomerCount(const Datetime& = Datetime::Now()); // OK
-        static int GetCustomerCount_UpToNow(); // CHO ĐẾN NAY
-
+        static int GetCustomerCount_UpToNow(); // CHO ĐẾN NAY 
+ 
         //Tần số sử dụng của mỗi dịch vụ trong 1 ngày
         static std::vector<int> GetServiceCount(const Datetime& = Datetime::Now()); // OK
         static std::vector<int> GetServiceCount_UpToNow(); // CHO ĐẾN NAY // OK
 
-        //Đánh giá trung bình cho toàn bộ dịch vụ trong 1 ngày
-        static double GetAverageRating(const Datetime& = Datetime::Now()); // OK
-        static double GetAverageRating_UpToNow(); // CHO ĐẾN NAY
+        static std::vector<int> GetServiceRateCount(const Datetime& = Datetime::Now()); // OK
+        static std::vector<int> GetServiceRateSum(const Datetime& = Datetime::Now()); // OK
+        static std::vector<int> GetServiceCustomerCount(const Datetime& = Datetime::Now()); // OK
 
-        //Số lần phục vụ của mỗi stylist
-        static std::map<std::string, int> GetStylistServeTimes(const Datetime& = Datetime::Now()); // Trong 1 ngày
-        static std::map<std::string, int> GetStylistServeTimes_UpToNow(); //CHO ĐẾN NAY
+        static int GetStylistCustomerCount(std::string stylistID, const Datetime& T);
+        static int GetStylistRateSum(std::string stylistID, const Datetime& T);
+        static int GetStylistRateCount(std::string stylistID, const Datetime& T);
 
-        //Chất lượng phục vụ trung bình của mỗi stylist trong 1 ngày
-        static std::map<std::string,double> GetStylistQuality(const Datetime& = Datetime::Now());
-        static std::map<std::string,double> GetStylistQuality_UpToNow(); // CHO ĐẾN NAY
-
-        // Tóm tắt các thông tin. Gồm (maxRating,minRating,avgRating,customerCount)
-        static std::map<std::string,double>GetSummary(const Datetime& = Datetime::Now());
-        static std::map<std::string,double> GetSummary_UpToNow(); // CHO ĐẾN NAY
-
-        static void statistics(Datetime);                        ///Ghi dữ liệu vào file
-        static void statistics();                                // thống kê ngày now
-        static void statistics(Datetime, Datetime);
-
+        static std::vector<int> GetStylistServiceCustomerCount(std::string stylistID, const Datetime& T);
+        static std::vector<int> GetStylistServiceRateCount(std::string stylistID, const Datetime& T);
+        static std::vector<int> GetStylistServiceRateSum(std::string stylistID, const Datetime& T);
 };
 #endif // STATISTICS_H
