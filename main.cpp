@@ -6,6 +6,7 @@ std::function<void()> currentScreen = screenWelcome;
 
 int main(){
     freopen("log.txt","w", stderr);
+    std::cerr << Hash("pass");
     try {
         while(currentScreen) currentScreen();
     } catch (int code) {

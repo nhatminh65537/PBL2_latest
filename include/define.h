@@ -78,5 +78,7 @@ bool IsNumber(const std::string&);
 bool IsBetween(const int&, const int&, const int&);
 bool IsBetween(const char&, const char&, const char&);
 
+std::string Hash(const std::string& password);
+bool Pwd_match(const std::string& input,const std::string& hashed_password);
 
 #endif //DEFINE_H
