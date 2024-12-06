@@ -6,12 +6,7 @@
 #include <iostream>
 
 Datetime::Datetime(const int& minute, const int& hour, const int& day, const int& month, const int& year)
-    : minute(minute),hour(hour),day(day),month(month),year(year){
-    if (!this->isValidTime()) {
-        //std::cerr << "HEHEHEHEHE\n";
-        //throw std::invalid_argument("Invalid time");
-    }
-}
+    : minute(minute),hour(hour),day(day),month(month),year(year)    { }
 
 Datetime::~Datetime() {
 
@@ -69,6 +64,14 @@ bool Datetime::isValidTime() const {
 
 bool Datetime::isValidAppointment() const { // Unfinished
     if(!this->isValidTime()) return false;
+
+    Datetime now = Datetime::Now();
+    tm tmNow = Datetime::ToTm(now);
+    tm tmAppointment = Datetime::ToTm(*this);
+    time_t timeNow = std::mktime(&tmNow);
+    time_t timeAppointment = std::mktime(&tmAppointment);
+    if (timeAppointment < timeNow) return false; // Check if appointmentTime is in the past?
+
     return true;
 }
 

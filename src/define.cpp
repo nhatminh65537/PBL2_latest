@@ -60,6 +60,16 @@ std::string Replace(const std::string& s, const char& oldChar, const char& newCh
     return result;
 }
 
+std::string Strip(const std::string& s) {
+    std::string result = s;
+    while (result.size() > 0 && result.front() == ' ') result.erase(0,1);
+    while (result.size() > 0 && result.back() == ' ') result.pop_back();
+    while (result.size() > 0 && result.find("  ") != std::string::npos) {
+        result.erase(result.find("  "),1);
+    }
+    return result;
+}
+
 int ToNum(const std::string& s) {
     if (!IsNumber(s)) return -1;
     int ans=0;
@@ -111,8 +121,8 @@ std::string Hash(const std::string& password) {
     const int MOD2 = 1000000009; // Một số nguyên tố lớn khác
     const int BASE1 = 31;        // Cơ sở băm 1
     const int BASE2 = 37;        // Cơ sở băm 2
-    const int OUTPUT_LENGTH = 128; // Độ dài cố định của hashResult
-    const int HASH_BASE = 64;
+    const int OUTPUT_LENGTH = 32; // Độ dài cố định của hashResult
+    const int HASH_BASE = 16;
 
     std::string hashResult="";
     unsigned long long hash1=0, hash2=0;

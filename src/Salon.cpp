@@ -51,7 +51,7 @@ bool Salon::Login(const std::string& username, const std::string& password) {
         throw ERROR_CODE::LOGIN_PASSWORD_EMPTY;
 
     std::vector<Member> members = dbUser.Query("username",username).
-                                        Query("password",password).
+                                        Query("password",Hash(password)).
                                         GetResults();
 
 
@@ -80,7 +80,7 @@ void Salon::Register(const std::string& firstName,const std::string& lastName,co
         throw ERROR_CODE::REGISTER_PASSWORD_NOT_MATCH;
     if (dbUser.IsExist("username",username))
         throw ERROR_CODE::REGISTER_USERNAME_EXIST;
-    Member instance("null",firstName,lastName,username,password,gender,phoneNumber,role);
+    Member instance("null",firstName,lastName,username,Hash(password),gender,phoneNumber,role);
     dbUser.Insert(instance);
 }
 
@@ -127,7 +127,7 @@ void Salon::ShowAllAppointment(const Datetime& dt) {
     dbAppointment.Query("date",Datetime::TimeToString(dt)).Show();
 }
 
-void Salon::DeleteUser(const std::string &ID) {
+void Salon::DeleteCustomer(const std::string &ID) {
     if (dbUser.Get(ID).GetRole() != 1) return;
     std::vector<Appointment> appointments = dbAppointment.Query("customerID",ID).GetResults();
     for (const auto& appointment : appointments) {

@@ -71,7 +71,9 @@ std::string callCheckStylistBusy(std::string stylistID, int day, int month, int 
     Datetime endLunch(59, 12, dataDay, dataMonth, dataYear);
     if (!IsBetween(dt, beginWork, endWork) || IsBetween(dt, beginLunch, endLunch))
         busyStatus = "This time is out of work time";
-    
+    Datetime AppointmentTime(dataMinute,dataHour,dataDay,dataMonth,dataYear);
+    if (!AppointmentTime.isValidAppointment())
+        busyStatus = "Invalid time";
     // check time in the past
 
     return busyStatus;
