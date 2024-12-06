@@ -7,13 +7,13 @@
 
 std::string ServiceToString(const int& service) {
     switch (service) {
-        case CatToc: return "Cat toc";
-        case NhuomToc: return "Nhuom toc";
-        case TayToc: return "Tay toc";
-        case UonToc: return "Uon toc";
-        case PhucHoiToc: return "Phuc hoi toc";
-        case TaoKieu: return "Tao kieu";
-        case GoiDau: return "Goi dau";
+        case CatToc: return "Haircut";
+        case NhuomToc: return "Hair Dye";
+        case TayToc: return "Hair Bleach";
+        case UonToc: return "Hair Perm";
+        case PhucHoiToc: return "Hair Restoration";
+        case TaoKieu: return "Hair Styling";
+        case GoiDau: return "Shampoo";
         default: return "Unknown";
     }
 }
@@ -100,4 +100,50 @@ std::string ToLower(std::string s) {
 std::string ToUpper(std::string s) {
     for (char& x : s) x = ToUpper(x);
     return s;
+}
+
+std::string Hash(const std::string& password) {
+    const int MOD1 = 1000000007; // Số nguyên tố lớn
+    const int MOD2 = 1000000009; // Một số nguyên tố lớn khác
+    const int BASE1 = 31;        // Cơ sở băm 1
+    const int BASE2 = 37;        // Cơ sở băm 2
+    const int OUTPUT_LENGTH = 32; // Độ dài cố định của hashResult
+    const int HASH_BASE = 16;
+ 
+    std::string hashResult="";
+    unsigned long long hash1=0, hash2=0;
+    for (int i=0;i<OUTPUT_LENGTH;i++) {
+        for (const char& x : password) {
+            hash1 = (hash1*BASE1 + x + i)%MOD1;
+            hash2 = (hash2*BASE2 + x + i)%MOD2;
+        }
+    }
+    auto toHex = [](int x) -> char {
+        return (x < 10 ? x+'0' : x-10+'A');
+    };
+ 
+    const unsigned long long hash1_tmp = hash1;
+    const unsigned long long hash2_tmp = hash2;
+ 
+    while (hashResult.size()<OUTPUT_LENGTH) {
+        int digit1 = hash1 % HASH_BASE;
+        int digit2 = hash2 % HASH_BASE;
+ 
+        int val = digit1^digit2;
+        //std::cout << val << ' ';
+        hashResult += toHex(val);
+ 
+        hash1 /= HASH_BASE;
+        hash2 /= HASH_BASE;
+ 
+        if (hash1 == 0 && hashResult.size()<OUTPUT_LENGTH) hash1 = hash1_tmp*hashResult.size();
+        if (hash2 == 0 && hashResult.size()<OUTPUT_LENGTH) hash2 = hash2_tmp*hashResult.size();
+    }
+ 
+    return hashResult;
+}
+ 
+bool Pwd_match(const std::string& input,const std::string& hashed_password) {
+    //std::cout << input << '\n' << hashed_password << '\n';
+    return Hash(input) == hashed_password;
 }

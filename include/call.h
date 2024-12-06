@@ -54,19 +54,18 @@ std::string callGetMemberNameByID(std::string id);
 std::string callGetMemberFirstNameByID(std::string id);
 std::string callGetMemberLastNameByID(std::string id);
 std::string callGetMemberPhoneByID(std::string id);
-std::string callGetMemberAgeByID(std::string id);
 std::string callGetMemberGenderByID(std::string id);
 std::string callGetMemberUsernameByID(std::string id);
 
 // Stylist call and auxiliary
-std::vector<std::string> callGetStylistIDList(bool gender[2], std::string name, std::string age, int& count);
+std::vector<std::string> callGetStylistIDList(bool gender[2], std::string name, int& count);
 std::vector<std::string> callGetStylistIDList();
 void callDeleteStylist(std::string id);
-void callUpdateStylist (std::string id, std::string firstname, std::string lastname, int gender, std::string age, std::string phonenumber, std::string username, std::string password);
-void callAddStylist(std::string firstname, std::string lastname, int gender, std::string age, std::string phonenumber, std::string username, std::string password);
+void callUpdateStylist (std::string id, std::string firstname, std::string lastname, int gender, std::string phonenumber, std::string username, std::string password);
+void callAddStylist(std::string firstname, std::string lastname, int gender, std::string phonenumber, std::string username, std::string password);
 
 // Customer call and auxiliary
-std::vector<std::string> callGetCustomerIDList(bool gender[2], std::string name, std::string age, int& count);
+std::vector<std::string> callGetCustomerIDList(bool gender[2], std::string name, int& count);
 void callDeleteCustomer(std::string id);
 
 // Service done call and auxiliary
@@ -81,5 +80,19 @@ std::string callGetServiceDoneServiceByID(std::string id);
 void callRateServiceDone(std::string id, int rating);
 
 // Statistics call and auxiliary
+float callGetAverage(const std::vector<int>&);
+float callGetStandardDeviation(const std::vector<int>&);
+std::vector<int> callGetCustomerCountStatistics(int day, int month, int year);
+
+std::vector<int> callGetServiceCustomerCountStatistics(int day, int month, int year);
+std::vector<float> callGetServiceFrequencyStatistics(int day, int month, int year);
+std::vector<int> callGetServiceRateCountStatistics(int day, int month, int year);
+std::vector<float> callGetServiceRateAverageStatistics(int day, int month, int year);
+
+int callGetStylistCustomerCountStatistics(std::string stylistID, int day, int month, int year);
+float callGetStylistRateAverageStatistics(std::string stylistID, int day, int month, int year);
+
+std::vector<int> callGetStylistServiceCustomerCountStatistics(std::string stylistID, int day, int month, int year);
+std::vector<float> callGetStylistServiceRateAverageStatistics(std::string stylistID, int day, int month, int year);
 
 #endif // CALL_H
