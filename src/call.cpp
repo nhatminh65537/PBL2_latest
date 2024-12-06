@@ -258,7 +258,7 @@ void callCreateNewAppointment(bool services[], std::string selectedStylistID, in
         selectedStylistID = "null";
     Salon& salon = Salon::StartUp();
     // flog << "  ServiceList size: " << serviceList.size() << '\n';   
-    salon.CreateAppointment(callGetCurrentUserID(), selectedStylistID, Datetime(minute, hour, day, month, year), serviceList);
+    salon.CreateAppointment(selectedStylistID, Datetime(minute, hour, day, month, year), serviceList);
     std::cerr << "End callCreateNewAppointment\n";
 }
 

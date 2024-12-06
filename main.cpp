@@ -59,10 +59,18 @@ int main() {
     //std::cout << dbAppointment.Count(conditions);
     //dbAppointment.Query("startTime","30/4/27/11/2024").Show();
     //freopen("log.txt","w",stdout);
-    Salon& salon = Salon::StartUp();
+    //Salon& salon = Salon::StartUp();
     //salon.Register("Tran","Long","test","pass","pass",true,"09999999",3);
-    Member a = dbUser.Get("1");
-    dbUser.Query("name","uc Lo").Show();
+    //Member a = dbUser.Get("1");
+    //dbUser.Query("name","uc Lo").Show();
     //test_ui();
+    std::string t = "123456";
+    std::string s = "b";
+    std::string r = "123456789b";
+    //std::cout << Hash(t) << '\n' << Hash(s) << '\n' << Hash(r) << '\n';
+    //std::cout << Hash(t).size() << '\n' << Hash(s).size() << '\n' << Hash(r).size() << '\n';
+
+    std::cout << Hash(t) << '\n' << Hash(s) << '\n';
+    std::cout << Pwd_match(t,Hash(s));
     return 0;
 }
