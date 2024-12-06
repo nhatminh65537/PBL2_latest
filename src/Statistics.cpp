@@ -1,36 +1,56 @@
-#include "Statistics.h"
 #include <filesystem>
 #include "Database.h"
 #include "Datetime.h"
 #include "serviceDone.h"
+#include "Statistics.h"
+#include "define.h"
+#include <iostream>
+#include <fstream>
+#include <cmath>
 
 Statistics::Statistics() {
     //ctor
 }
 
-Statistics::~Statistics() {
-    //dtor
+float Statistics::GetAverage(const std::vector<float> vt) {
+    float sum = 0.0;
+    for(const auto& x : vt) {
+        sum += x;
+    }
+    return sum/vt.size();
+}
+
+float Statistics::GetStandardDeviation(const std::vector<float> vt) {
+    float avg = GetAverage(vt);
+    float sum = 0.0;
+    for(const auto& x : vt) {
+        sum += (x - avg)*(x - avg);
+    }
+    return std::sqrt(sum/vt.size());
 }
 
 int Statistics::GetCustomerCount(const Datetime& T){
+    dbServiceDone.Query("year", std::to_string(T.GetYear()));
+    dbServiceDone.Query("month", std::to_string(T.GetMonth()));
+    dbServiceDone.Query("day", std::to_string(T.GetDay()));
+    return dbServiceDone.GetResults().size();
+}
+
+int Statistics::GetCustomerCount_UpToNow() {
     std::vector<serviceDone> DB = dbServiceDone.GetResults();
-    int count = 0;
-    for(const auto& service : DB){
-        if(IsSameDay(service.GetTime(), T)){
-            count++;
-        }
-    }
-    return count;
+    return DB.size();
 }
 
 std::vector<int> Statistics::GetServiceCount(const Datetime& T){
+    dbServiceDone.Query("year", std::to_string(T.GetYear()));
+    dbServiceDone.Query("month", std::to_string(T.GetMonth()));
+    dbServiceDone.Query("day", std::to_string(T.GetDay()));
+
     std::vector<serviceDone> DB = dbServiceDone.GetResults();
-    std::vector<int>serviceCount(8,0);
+    std::vector<int>serviceCount(SERVICES_COUNT, 0);
 
     for(const auto& service : DB){
-        if(IsSameDay(service.GetTime(), T)){
-            serviceCount[service.GetServiceID()]++;
-        }
+        serviceCount[service.GetServiceID()]++;
     }
 
     return serviceCount;
@@ -43,118 +63,136 @@ std::vector<int> Statistics::GetServiceCount_UpToNow(){
     for(const auto& service : DB){
         serviceCount[service.GetServiceID()]++;
     }
-
     return serviceCount;
 }
 
-double Statistics::GetAverageRating(const Datetime&  T){
+std::vector<int> Statistics::GetServiceRateCount(const Datetime& T){
+    dbServiceDone.Query("year", std::to_string(T.GetYear()));
+    dbServiceDone.Query("month", std::to_string(T.GetMonth()));
+    dbServiceDone.Query("day", std::to_string(T.GetDay()));
+
     std::vector<serviceDone> DB = dbServiceDone.GetResults();
-    double sum = 0.0;
-    int cnt=0;
-    for(const auto& service : DB) {
-        if(IsSameDay(service.GetTime(), T)) {
-            sum += service.GetRating();
-            cnt++;
-        }
+    std::vector<int>serviceRateCount(SERVICES_COUNT, 0);
+
+    for(const auto& service : DB){
+        if (service.GetRating() == 0) continue;
+        serviceRateCount[service.GetRating()]++;
     }
-    return sum/double(cnt);
+
+    return serviceRateCount;
 }
 
-std::map<std::string, int> Statistics::GetStylistServeTimes(const Datetime& T){
-    std::vector<serviceDone> vtServiceDone = dbServiceDone.GetResults();
-    std::vector<Stylist> vtStylist = dbStylist.GetResults();
-    std::map<std::string, int> ServeTimesCount;
+std::vector<int> Statistics::GetServiceRateSum(const Datetime& T){
+    dbServiceDone.Query("year", std::to_string(T.GetYear()));
+    dbServiceDone.Query("month", std::to_string(T.GetMonth()));
+    dbServiceDone.Query("day", std::to_string(T.GetDay()));
 
-    for (const auto& x : vtStylist) {
-        ServeTimesCount[x.GetID()] = 0;
-    }
-
-    for(const auto& service : vtServiceDone){
-        if(IsSameDay(service.GetTime(), T)){
-            ServeTimesCount[service.GetStylistID()]++;
-        }
-    }
-
-    return ServeTimesCount;
-}
-
-std::map<std::string, double> Statistics::GetStylistQuality(const Datetime& T){
     std::vector<serviceDone> DB = dbServiceDone.GetResults();
-    std::map<std::string,double> stylishQuality;
-    std::map<std::string,double> countQualityPerStylist;
+    std::vector<int>serviceRateSum(SERVICES_COUNT, 0);
 
+    for(const auto& service : DB){
+        if (service.GetRating() == 0) continue;
+        serviceRateSum[service.GetRating()] += service.GetRating();
+    }
+
+    return serviceRateSum;
+}
+
+std::vector<int> Statistics::GetServiceCustomerCount(const Datetime& T){
+    dbServiceDone.Query("year", std::to_string(T.GetYear()));
+    dbServiceDone.Query("month", std::to_string(T.GetMonth()));
+    dbServiceDone.Query("day", std::to_string(T.GetDay()));
+
+    std::vector<serviceDone> DB = dbServiceDone.GetResults();
+    std::vector<int>serviceCustomerCount(SERVICES_COUNT, 0);
+
+    for(const auto& service : DB){
+        serviceCustomerCount[service.GetServiceID()]++;
+    }
+    return serviceCustomerCount;
+}
+
+int Statistics::GetStylistCustomerCount(std::string stylistID, const Datetime& T){
+    dbServiceDone.Query("stylistID", stylistID);
+    dbServiceDone.Query("year", std::to_string(T.GetYear()));
+    dbServiceDone.Query("month", std::to_string(T.GetMonth()));
+    dbServiceDone.Query("day", std::to_string(T.GetDay()));
+    return dbServiceDone.GetResults().size();
+}
+
+int Statistics::GetStylistRateSum(std::string stylistID, const Datetime& T){
+    dbServiceDone.Query("stylistID", stylistID);
+    dbServiceDone.Query("year", std::to_string(T.GetYear()));
+    dbServiceDone.Query("month", std::to_string(T.GetMonth()));
+    dbServiceDone.Query("day", std::to_string(T.GetDay()));
+
+    std::vector<serviceDone> DB = dbServiceDone.GetResults();
+    int sum = 0;
     for(const auto& service : DB) {
-        if(IsSameDay(service.GetTime(), T)) {
-            if(stylishQuality.find(service.GetStylistID()) == stylishQuality.end()) {
-                stylishQuality[service.GetStylistID()] = static_cast<double>(service.GetRating());
-                countQualityPerStylist[service.GetStylistID()] = 1;
-            } else {
-                stylishQuality[service.GetStylistID()] += static_cast<double>(service.GetRating());
-                countQualityPerStylist[service.GetStylistID()]++;
-            }
-        }
+        sum += service.GetRating();
     }
-
-    for(auto& stylist : stylishQuality) {
-        stylist.second /= countQualityPerStylist[stylist.first];
-    }
-
-    return stylishQuality;
+    return sum;
 }
 
-void Statistics::statistics(Datetime T){
-    std::string time = std::to_string(T.GetDay()) + "/" + std::to_string(T.GetMonth()) + "/" + std::to_string(T.GetYear());
-    std::string fileNameCustomer = time + "_Customer.txt";
-    std::string fileNameStylist  = time + "_Stylist.txt";
+int Statistics::GetStylistRateCount(std::string stylistID, const Datetime& T){
+    dbServiceDone.Query("stylistID", stylistID);
+    dbServiceDone.Query("year", std::to_string(T.GetYear()));
+    dbServiceDone.Query("month", std::to_string(T.GetMonth()));
+    dbServiceDone.Query("day", std::to_string(T.GetDay()));
 
-    int customerCount = GetCustomerCount(T);
-    std::string customerHabit = getCustomerHabit(T);
-    std::string customerFeedback = getCustomerFeedback(T);
-    std::map<std::string, int> stylishServe = getStylishServe(T);
-    std::map<std::string, float> stylishQuality = getStylishQuality(T);
-
-    //Kiểm tra file có tồn tại? Nhưng vẫn không ảnh hưởng!!!
-    if(std::filesystem::exists(fileNameCustomer)) {
-        std::cout << "Thư mục " << fileNameCustomer << " đã tồn tại" << '\n';
+    std::vector<serviceDone> DB = dbServiceDone.GetResults();
+    int cnt = 0;
+    for(const auto& service : DB) {
+        if(service.GetRating() != 0) cnt++;
     }
-    else if(std::filesystem::exists(fileNameStylist)) {
-        std::cout << "Thư mục " << fileNameStylist << " đã tồn tại" << '\n';
-    }
-
-
-    std::ofstream outCustomer(fileNameCustomer);
-    if(outCustomer.is_open()){
-        outCustomer << "Số lượng khách hàng trong ngày"          << time << ":" << '\n' <<  customerCount << '\n';
-        outCustomer << "Tần suất sử dụng mỗi dịch vụ trong ngày" << time << ":" << '\n' << customerHabit << '\n';
-        outCustomer << "Đánh giá mỗi dịch vụ trong ngày"         << time << ":" << '\n' << customerFeedback << '\n';
-        outCustomer.close();
-    } else {
-        std::cout << "Không thể mở file " << fileNameCustomer << '\n';
-    }
-
-    std::ofstream outStylist(fileNameStylist);
-    if(outStylist.is_open()){
-        outStylist << "Số lần phục vụ của mỗi stylist trong ngày" << time << ":" << '\n';
-        for(const auto& stylist : stylishServe){
-            outStylist << stylist.first << ": " << stylist.second << '\n';
-        }
-        outStylist << "Chất lượng phục vụ của mỗi stylist trong ngày" << time << ":" << '\n';
-        for(const auto& stylist : stylishQuality){
-            outStylist << stylist.first << ": " << stylist.second << '\n';
-        }
-        outStylist.close();
-    } else {
-        std::cout << "Không thể mở file " << fileNameStylist << '\n';
-    }
+    return cnt;
 }
 
-void Statistics::statistics() {
-    statistics(Datetime::Now());
+std::vector<int> Statistics::GetStylistServiceCustomerCount(std::string stylistID, const Datetime& T){
+    dbServiceDone.Query("stylistID", stylistID);
+    dbServiceDone.Query("year", std::to_string(T.GetYear()));
+    dbServiceDone.Query("month", std::to_string(T.GetMonth()));
+    dbServiceDone.Query("day", std::to_string(T.GetDay()));
+
+    std::vector<serviceDone> DB = dbServiceDone.GetResults();
+    std::vector<int>serviceCustomerCount(SERVICES_COUNT, 0);
+
+    for(const auto& service : DB){
+        serviceCustomerCount[service.GetServiceID()]++;
+    }
+    return serviceCustomerCount;
 }
 
-void Statistics::statistics(Datetime L, Datetime R) {
-    do {
-        statistics(L);
-        L.NextDay();
-    }while (!IsSameDay(L, R));
+std::vector<int> Statistics::GetStylistServiceRateCount(std::string stylistID, const Datetime& T){
+    dbServiceDone.Query("stylistID", stylistID);
+    dbServiceDone.Query("year", std::to_string(T.GetYear()));
+    dbServiceDone.Query("month", std::to_string(T.GetMonth()));
+    dbServiceDone.Query("day", std::to_string(T.GetDay()));
+
+    std::vector<serviceDone> DB = dbServiceDone.GetResults();
+    std::vector<int>serviceRateCount(SERVICES_COUNT, 0);
+
+    for(const auto& service : DB){
+        if (service.GetRating() == 0) continue;
+        serviceRateCount[service.GetRating()]++;
+    }
+
+    return serviceRateCount;
+}
+
+std::vector<int> Statistics::GetStylistServiceRateSum(std::string stylistID, const Datetime& T){
+    dbServiceDone.Query("stylistID", stylistID);
+    dbServiceDone.Query("year", std::to_string(T.GetYear()));
+    dbServiceDone.Query("month", std::to_string(T.GetMonth()));
+    dbServiceDone.Query("day", std::to_string(T.GetDay()));
+
+    std::vector<serviceDone> DB = dbServiceDone.GetResults();
+    std::vector<int>serviceRateSum(SERVICES_COUNT, 0);
+
+    for(const auto& service : DB){
+        if (service.GetRating() == 0) continue;
+        serviceRateSum[service.GetRating()] += service.GetRating();
+    }
+
+    return serviceRateSum;
 }

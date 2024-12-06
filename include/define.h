@@ -8,7 +8,6 @@
 #include <string>
 #include <vector>
 #include "Datetime.h"
-#include "test.h"
 
 #define SERVICES_COUNT 8
 
@@ -44,9 +43,7 @@ namespace ERROR_CODE
 
     const int APPOINTMENT_IS_DONE = 351;
     const int APPOINTMENT_IS_CANCELLED = 352;
-
-    const int APPOINTMENT_HAS_NULL_STYLIST = 401;
-    
+    const int APPOINTMENT_HAS_NULL_STYLIST = 353;   
 }
 
 enum Service{
@@ -80,6 +77,7 @@ bool IsDigit(const char& x);
 bool IsNumber(const std::string&);
 bool IsBetween(const int&, const int&, const int&);
 bool IsBetween(const char&, const char&, const char&);
+
 std::string Hash(const std::string& password);
 bool Pwd_match(const std::string& input,const std::string& hashed_password);
 

@@ -6,8 +6,6 @@
 
 #include "serviceDone.h"
 
-#include "test.h"
-
 template class Database<serviceDone>;
 template class Database<Appointment>;
 template class Database<Member>;
@@ -245,8 +243,8 @@ Database<T>& Database<T>::Query(const std::string& attr,const std::string& val) 
             for (const auto& [ID,obj] : this->_list) {
                 this->resultList.push_back(obj);
                 this->resultIDs.push_back(ID);
-                this->isQuerying = true;
             }
+            this->isQuerying = true;
         }
         for (const auto& obj : this->resultList) {
             if(equal(this->attributeMap.at(attr)(obj),val)) {
@@ -266,6 +264,7 @@ Database<T>& Database<T>::Query(const std::string& attr,const std::string& val) 
     std::back_inserter(tmp));
 
     for (const auto& ID : tmp) res.push_back(this->Get(ID));
+    this->resultIDs = move(tmp);
 
     this->resultList = move(res); // Hàm "move" là chuyển quyền sở hữu data từ res qua this->resultList  => Tăng hiệu suất
     return *this;
