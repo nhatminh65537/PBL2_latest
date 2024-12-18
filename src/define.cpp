@@ -2,6 +2,9 @@
 // Created by LONG on 11/7/2024.
 //
 #include "define.h"
+
+#include <algorithm>
+
 #include "stdexcept"
 
 
@@ -52,6 +55,16 @@ std::string Replace(const std::string& s, const char& oldChar, const char& newCh
         if (x == oldChar) {
             x = newChar;
         }
+    }
+    return result;
+}
+
+std::string Strip(const std::string& s) {
+    std::string result = s;
+    while (result.size() > 0 && result.front() == ' ') result.erase(0,1);
+    while (result.size() > 0 && result.back() == ' ') result.pop_back();
+    while (result.size() > 0 && result.find("  ") != std::string::npos) {
+        result.erase(result.find("  "),1);
     }
     return result;
 }
@@ -109,7 +122,7 @@ std::string Hash(const std::string& password) {
     const int BASE2 = 37;        // Cơ sở băm 2
     const int OUTPUT_LENGTH = 32; // Độ dài cố định của hashResult
     const int HASH_BASE = 16;
- 
+
     std::string hashResult="";
     unsigned long long hash1=0, hash2=0;
     for (int i=0;i<OUTPUT_LENGTH;i++) {
@@ -121,28 +134,28 @@ std::string Hash(const std::string& password) {
     auto toHex = [](int x) -> char {
         return (x < 10 ? x+'0' : x-10+'A');
     };
- 
+
     const unsigned long long hash1_tmp = hash1;
     const unsigned long long hash2_tmp = hash2;
- 
+
     while (hashResult.size()<OUTPUT_LENGTH) {
         int digit1 = hash1 % HASH_BASE;
         int digit2 = hash2 % HASH_BASE;
- 
+
         int val = digit1^digit2;
         //std::cout << val << ' ';
         hashResult += toHex(val);
- 
+
         hash1 /= HASH_BASE;
         hash2 /= HASH_BASE;
- 
+
         if (hash1 == 0 && hashResult.size()<OUTPUT_LENGTH) hash1 = hash1_tmp*hashResult.size();
         if (hash2 == 0 && hashResult.size()<OUTPUT_LENGTH) hash2 = hash2_tmp*hashResult.size();
     }
- 
+
     return hashResult;
 }
- 
+
 bool Pwd_match(const std::string& input,const std::string& hashed_password) {
     //std::cout << input << '\n' << hashed_password << '\n';
     return Hash(input) == hashed_password;

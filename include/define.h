@@ -13,7 +13,7 @@
 
 class Appointment;
 class Customer;
-class serviceDone;
+class ServiceDone;
 
 namespace ERROR_CODE
 {
@@ -68,6 +68,7 @@ Service StringToService(const std::string&);
 
 std::vector<std::string> Split(const std::string&,const char& );
 std::string Replace(const std::string&,const char&,const char&);
+std::string Strip(const std::string& s);
 int ToNum(const std::string&);
 char ToLower(const char&);
 char ToUpper(const char&);
@@ -77,6 +78,7 @@ bool IsDigit(const char& x);
 bool IsNumber(const std::string&);
 bool IsBetween(const int&, const int&, const int&);
 bool IsBetween(const char&, const char&, const char&);
+
 
 std::string Hash(const std::string& password);
 bool Pwd_match(const std::string& input,const std::string& hashed_password);

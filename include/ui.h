@@ -4,12 +4,11 @@
 #include <functional>
 #include "call.h"
 
-
 #define HIDE_CURSOR (std::cout << "\033[?25l")
 #define SHOW_CURSOR (std::cout << "\033[?25h")
 #define SCREEN_WIDTH 120
 #define STAR_COUNT 6
-#define SCREEN_HEIGHT 35
+#define SCREEN_HEIGHT 40
 
 extern std::function<void()> currentScreen;
 void screenWelcome();

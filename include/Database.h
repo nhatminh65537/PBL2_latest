@@ -55,8 +55,6 @@ class Database
         const std::string path;
         bool isQuerying = false;
 
-        int count = 0;
-
         std::map<std::string,T>_list;
         std::vector<T>resultList; // temporary result list for Query method
         std::vector<std::string> resultIDs; // temporary ID list for Query method
@@ -66,7 +64,7 @@ class Database
 
 };
 
-extern Database<serviceDone>& dbServiceDone;
+extern Database<ServiceDone>& dbServiceDone;
 extern Database<Appointment>& dbAppointment;
 extern Database<Member>& dbUser;
 

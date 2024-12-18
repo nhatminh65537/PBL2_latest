@@ -129,6 +129,7 @@ void Salon::ShowAllAppointment(const Datetime& dt) {
 
 void Salon::DeleteCustomer(const std::string &ID) {
     if (dbUser.Get(ID).GetRole() != 1) return;
+    ensurePermission("admin");
     std::vector<Appointment> appointments = dbAppointment.Query("customerID",ID).GetResults();
     for (const auto& appointment : appointments) {
         dbAppointment.Delete(appointment.GetID());
@@ -138,6 +139,7 @@ void Salon::DeleteCustomer(const std::string &ID) {
 
 void Salon::DeleteStylist(const std::string &stylistID) {
     if (dbUser.Get(stylistID).GetRole() != 2) return;
+    ensurePermission("admin");
     std::vector<Appointment> appointments = dbAppointment.Query("stylistID",stylistID).GetResults();
     for (const auto& appointment : appointments) {
         dbAppointment.Delete(appointment.GetID());
