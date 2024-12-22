@@ -6,12 +6,12 @@
 
 #include "serviceDone.h"
 
-template class Database<serviceDone>;
+template class Database<ServiceDone>;
 template class Database<Appointment>;
 template class Database<Member>;
 
 
-Database<serviceDone>& dbServiceDone = Database<serviceDone>::Connect(SERVICE_DONE_FILE);
+Database<ServiceDone>& dbServiceDone = Database<ServiceDone>::Connect(SERVICE_DONE_FILE);
 Database<Appointment>& dbAppointment = Database<Appointment>::Connect(APPOINTMENTS_FILE);
 Database<Member>& dbUser = Database<Member>::Connect(USERS_FILE);
 
@@ -335,7 +335,7 @@ void Database<T>::removeIndex(const std::string& id) {
 }
 
 template<>
-void Database<serviceDone>::initIndex() {
+void Database<ServiceDone>::initIndex() {
     index("customerID");
     index("stylistID");
 }
@@ -354,47 +354,47 @@ void Database<Member>::initIndex() {
 
 
 template<>
-void Database<serviceDone>::initMap(){
-    attributeMap["ID"] = [](const serviceDone& obj) -> std::string {
+void Database<ServiceDone>::initMap(){
+    attributeMap["ID"] = [](const ServiceDone& obj) -> std::string {
         return obj.GetID();
     };
-    attributeMap["customerID"] = [](const serviceDone& obj) -> std::string {
+    attributeMap["customerID"] = [](const ServiceDone& obj) -> std::string {
         return obj.GetCustomerID();
     };
-    attributeMap["stylistID"] = [](const serviceDone& obj) -> std::string {
+    attributeMap["stylistID"] = [](const ServiceDone& obj) -> std::string {
         return obj.GetStylistID();
     };
-    attributeMap["serviceID"] = [](const serviceDone& obj) -> std::string {
+    attributeMap["serviceID"] = [](const ServiceDone& obj) -> std::string {
         return std::to_string(obj.GetServiceID());
     };
-    attributeMap["rating"] = [](const serviceDone& obj) -> std::string {
+    attributeMap["rating"] = [](const ServiceDone& obj) -> std::string {
         return std::to_string(obj.GetRating());
     };
-    attributeMap["bookStatus"] = [](const serviceDone& obj) -> std::string {
+    attributeMap["bookStatus"] = [](const ServiceDone& obj) -> std::string {
         return std::to_string(obj.GetBookStatus());
     };
-    attributeMap["day"] = [](const serviceDone& obj) -> std::string {
+    attributeMap["day"] = [](const ServiceDone& obj) -> std::string {
         return std::to_string(obj.GetTime().GetDay());
     };
-    attributeMap["month"] = [](const serviceDone& obj) -> std::string {
+    attributeMap["month"] = [](const ServiceDone& obj) -> std::string {
         return std::to_string(obj.GetTime().GetMonth());
     };
-    attributeMap["year"] = [](const serviceDone& obj) -> std::string {
+    attributeMap["year"] = [](const ServiceDone& obj) -> std::string {
         return std::to_string(obj.GetTime().GetYear());
     };
-    updateMap["customerID"] = [](serviceDone& obj, const std::string& newVal) {
+    updateMap["customerID"] = [](ServiceDone& obj, const std::string& newVal) {
         obj.SetCustomerID(newVal);
     };
-    updateMap["stylistID"] = [](serviceDone& obj, const std::string& newVal) {
+    updateMap["stylistID"] = [](ServiceDone& obj, const std::string& newVal) {
         obj.SetStylistID(newVal);
     };
-    updateMap["serviceID"] = [](serviceDone& obj, const std::string& newVal) {
+    updateMap["serviceID"] = [](ServiceDone& obj, const std::string& newVal) {
         obj.SetServiceID(ToNum(newVal));
     };
-    updateMap["rating"] = [](serviceDone& obj, const std::string& newVal) {
+    updateMap["rating"] = [](ServiceDone& obj, const std::string& newVal) {
         obj.SetRating(ToNum(newVal));
     };
-    updateMap["bookStatus"] = [](serviceDone& obj, const std::string& newVal) {
+    updateMap["bookStatus"] = [](ServiceDone& obj, const std::string& newVal) {
         obj.SetBookStatus(static_cast<bool>(ToNum(newVal)));
     };
 }

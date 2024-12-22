@@ -79,6 +79,14 @@ std::string callCheckStylistBusy(std::string stylistID, int day, int month, int 
     return busyStatus;
 }
 
+std::string callCheckStylistBusy(std::string stylistID, std::string appointmentID) // Done
+{
+    std::string busyStatus = "";
+    if (stylistID == "null")
+        return busyStatus;
+    Datetime dt = dbAppointment.Get(appointmentID).GetStartTime();
+    return callCheckStylistBusy(stylistID, dt.GetDay() - 1, dt.GetMonth() - 1, dt.GetYear() - 2021, dt.GetHour(), dt.GetMinute() / 30);
+}
 
 // Current user call (Customer)
 
@@ -160,9 +168,7 @@ std::string callGetCurrentUserName() // Done
 
 std::string callGetCurrentUserID() // Done
 {
-    std::cerr << "callGetCurrentUserID\n";
     Salon& salon = Salon::StartUp();
-    std::cerr << "End callGetCurrentUserID\n";
     return salon.GetUserID();
 }
 
@@ -317,7 +323,6 @@ std::vector<std::string> callGetApointmentIDList(int day, int month, int year, i
     std::string dataMinute = std::to_string((minute - 1) * 30);
     std::string dataStatus = (status == 1? "Done": (status == 2? "Waiting": "Cancel"));
 
-    std::cerr << "callGetApointmentIDList\n";
     // filter by day, month, year, hour, minute
     if (minute > 0) {
         dbAppointment.Query("minute", dataMinute);
@@ -357,13 +362,13 @@ std::vector<std::string> callGetApointmentIDList(int day, int month, int year, i
     // filter by customerID
     if (!customerID.empty())
     {
-        std::cerr << "  Filter by customerID\n";
+        // std::cerr << "  Filter by customerID\n";
         dbAppointment.Query("customerID", customerID);
     }
     // filter by stylistID
     if (!stylistID.empty())
     {
-        std::cerr << "  Filter by stylistID\n";
+        // std::cerr << "  Filter by stylistID\n";
         dbAppointment.Query("stylistID", stylistID);
     }
     // filter by status
@@ -385,7 +390,7 @@ std::vector<std::string> callGetApointmentIDList(int day, int month, int year, i
         std::cerr << "    " << "Intersection size:" << temp.size() << '\n';
     }
     count = appointmentIDList.size();
-    std::cerr << "End callGetApointmentIDList\n";
+    // std::cerr << "End callGetApointmentIDList\n";
     return appointmentIDList;
 }
 
@@ -417,7 +422,7 @@ void callDoneAppointment(std::string id) // Done
         sid = std::string(10 - sid.length(), '0') + sid;
         Datetime now = Datetime::Now();
         Datetime dt = dbAppointment.Get(id).GetStartTime();
-        serviceDone newServiceDone(
+        ServiceDone newServiceDone(
             sid, 
             dbAppointment.Get(id).GetCustomerID(),
             dbAppointment.Get(id).GetStylistID(),
@@ -612,7 +617,7 @@ std::vector<std::string> callGetServiceDoneIDList(int day, int month, int year, 
         dbServiceDone.Query("stylistID", stylistID);
     }
 
-    std::vector<serviceDone> serviceDoneList = dbServiceDone.GetResults();
+    std::vector<ServiceDone> serviceDoneList = dbServiceDone.GetResults();
     // filter by rating, status, services
     std::vector<std::string> serviceDoneIDList;
     for (auto sDone : serviceDoneList)
@@ -671,12 +676,14 @@ void callRateServiceDone(std::string id, int rating ) // Done
 // Statistics call and auxiliary
 
 #include "Statistics.h"
+
 float callGetAverage(const std::vector<int>& intData) {
     std::vector<float> data;
     for (int i = 0; i < intData.size(); i++)
         data.push_back((float) intData[i]);
     return Statistics::GetAverage(data);
 }
+
 float callGetStandardDeviation(const std::vector<int>& intData) {
     std::vector<float> data;
     for (int i = 0; i < intData.size(); i++)
@@ -746,6 +753,7 @@ std::vector<float> callGetServiceFrequencyStatistics(int day, int month, int yea
         frequency.push_back((float) count[i] / sum * 100);
     return frequency;
 }
+
 std::vector<int> callGetServiceRateCountStatistics(int day, int month, int year)
 {
     std::vector<int> count(SERVICES_COUNT, 0);
@@ -866,6 +874,7 @@ std::vector<int> callGetStylistServiceCustomerCountStatistics(std::string stylis
     } 
     return count;
 }
+
 std::vector<float> callGetStylistServiceRateAverageStatistics(std::string stylistID, int day, int month, int year)
 {
     std::vector<int> count(SERVICES_COUNT, 0);

@@ -2,7 +2,7 @@
 
 #include <define.h>
 
-serviceDone::serviceDone(const std::string& ID, const std::string& customerID,const std::string& workerID,
+ServiceDone::ServiceDone(const std::string& ID, const std::string& customerID,const std::string& workerID,
                          const int& serviceID,const int& rating,const bool& bookStatus,const Datetime& time){
     this->ID = ID;
     this->customerID = customerID;
@@ -13,55 +13,55 @@ serviceDone::serviceDone(const std::string& ID, const std::string& customerID,co
     this->time=time;
 }
 
-serviceDone::~serviceDone(){
+ServiceDone::~ServiceDone(){
     //dtor
 }
 
-const std::string serviceDone::GetCustomerID() const{
+const std::string ServiceDone::GetCustomerID() const{
     return this->customerID;
 }
-void serviceDone::SetCustomerID(const std::string& customerID){
+void ServiceDone::SetCustomerID(const std::string& customerID){
     this->customerID = customerID;
 }
 
-const std::string serviceDone::GetStylistID() const{
+const std::string ServiceDone::GetStylistID() const{
     return this->workerID;
 }
-void serviceDone::SetStylistID(const std::string& workerID){
+void ServiceDone::SetStylistID(const std::string& workerID){
     this->workerID = workerID;
 }
-const int serviceDone::GetServiceID() const{
+const int ServiceDone::GetServiceID() const{
     return this->serviceID;
 }
-void serviceDone::SetServiceID(const int& serviceID){
+void ServiceDone::SetServiceID(const int& serviceID){
     this->serviceID = serviceID;
 }
 
-void serviceDone::SetRating(const int& rating){
+void ServiceDone::SetRating(const int& rating){
     this->rating = rating;
 }
 
-const int serviceDone::GetRating() const{
+const int ServiceDone::GetRating() const{
     return this->rating;
 }
 
-const bool serviceDone::GetBookStatus() const {
+const bool ServiceDone::GetBookStatus() const {
     return this->bookStatus;
 }
 
-void serviceDone::SetBookStatus(const bool& status) {
+void ServiceDone::SetBookStatus(const bool& status) {
     this->bookStatus = status;
 }
 
-Datetime serviceDone::GetTime() const {
+Datetime ServiceDone::GetTime() const {
     return this->time;
 }
 
-void serviceDone::SetTime(const Datetime& time) {
+void ServiceDone::SetTime(const Datetime& time) {
     this->time = time;
 }
 
-void serviceDone::Show() const {
+void ServiceDone::Show() const {
     std::cout << "ID: " << this->ID << '\n';
     std::cout << "CustomerID: " << this->customerID << '\n';
     std::cout << "WorkerID: " << this->workerID << '\n';
@@ -73,19 +73,19 @@ void serviceDone::Show() const {
 
 
 // operator overloading
-std::ostream& operator<<(std::ostream& os, const serviceDone& obj){
+std::ostream& operator<<(std::ostream& os, const ServiceDone& obj){
     os << obj.ID << " " << obj.customerID << " " << obj.workerID
         << " " << obj.serviceID << " " << obj.rating
         << " " << obj.bookStatus << " " << obj.time;
     return os;
 }
-std::istream& operator>>(std::istream& is,serviceDone& obj){
+std::istream& operator>>(std::istream& is,ServiceDone& obj){
     is >> obj.ID >> obj.customerID >> obj.workerID
         >> obj.serviceID >> obj.rating >> obj.bookStatus >> obj.time;
     return is;
 }
 
-bool operator<(const serviceDone& a,const serviceDone& b){
+bool operator<(const ServiceDone& a,const ServiceDone& b){
     if (a.ID.size() == b.ID.size())   return a.ID<b.ID;
     return a.ID.size()<b.ID.size();
 }

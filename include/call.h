@@ -17,6 +17,7 @@ void callRegister(std:: string firstname, std::string lastname, std::string user
 int callGetServiceList(std::vector<std::string>& services);  // return the number of services
 std::string makeName(std::string firstname, std::string lastname, bool reverse = REVERSE_NAME);
 std::string callCheckStylistBusy(std::string stylistID, int day, int month, int year, int hour, int minute);
+std::string callCheckStylistBusy(std::string stylistID, std::string appointmentID);
 
 
 // Current user call (Customer)

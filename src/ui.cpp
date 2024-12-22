@@ -2703,6 +2703,8 @@ void screenStylist()
         selectedTab = 1;
     }, buttonOptionTab);
     Component buttonServiceDone = Button("Service Done", [&] {
+        serviceDoneIDList = callGetServiceDoneIDList(filterServiceDoneDay, filterServiceDoneMonth, filterServiceDoneYear, filterServiceDoneCustomerID, currentUserID, filterServiceDoneRating, filterServiceDoneStatus, filterServiceDoneServices, countServiceDone);
+        reloadServiceDoneList();
         selectedTab = 2;
     }, buttonOptionTab);
     Component buttonProfile = Button("Profile", [&] { // Only can change pass and person info
@@ -2791,6 +2793,7 @@ void screenStylist()
 
     // delete
     delete[] filterServiceDoneServices;
+    delete[] filterScheduleServices;
 }
 
 void screenAdmin()
@@ -2840,6 +2843,7 @@ void screenAdmin()
     });
 
     // Statistics tab
+    #pragma region
     int selectedStatisticsTab = 0;
     bool firstTime = true;
     std::vector<std::string> listStatistics = {"Customer Count Statistics", "Service Statistics", "Stylist Statistics"};
@@ -3208,6 +3212,7 @@ void screenAdmin()
             last | center,
         });
     });
+    #pragma endregion
 
     // Appointment tab
     #pragma region Appointment
@@ -3342,7 +3347,7 @@ void screenAdmin()
                     errorAppointmentChangeStatus = "Appointment is cancelled";
                     break;
                 case ERROR_CODE::APPOINTMENT_HAS_NULL_STYLIST:
-                    errorAppointmentChangeStatus = "Appointment has null stylist";
+                    errorAppointmentChangeStatus = "Appointment has no stylist";
                     break;
                 default:
                     break;
@@ -3354,15 +3359,12 @@ void screenAdmin()
     int selectedButtonsAppointmentChooseStylist = 0;
     int selectedButtonsAppointmentDropdown = 0;
     Component buttonAppointmentDetailChoose = Button("Choose stylist", [&] {
-        if (detailAppointmentStylist == "null") {
+        if (detailAppointmentStatus == "Waiting") {
             tabDetail = 2;
             selectedButtonsAppointmentChooseStylist = 0;
             selectedButtonsAppointmentDropdown = 0;
-        } else if (detailAppointmentStatus == "Cancel") {
-            errorAppointmentChangeStatus = "Appointment is cancelled";
-        }
-        else {
-            errorAppointmentChangeStatus = "Stylist has been chosen";
+        } else {
+            errorAppointmentChangeStatus = "Appointment isn't waiting";
         }
     }, buttonOptionAll);
 
@@ -3442,7 +3444,12 @@ void screenAdmin()
         },
     });
 
+    std::string errorChooseStylist = "";
     Component buttonChooseStylist = Button("Choose", [&] {
+        errorChooseStylist = callCheckStylistBusy(stylistIDs[selectedStylist], detailAppointmentID);
+        if (errorChooseStylist.size() > 0) {
+            return;
+        }
         callAssignStylistToAppointment(detailAppointmentID, stylistIDs[selectedStylist]);
         detailAppointmentStylist = stylistNames[selectedStylist];
         // ~ setDetailAppointment(detailAppointmentID);
@@ -3460,6 +3467,12 @@ void screenAdmin()
             buttonChooseStylist,
         }, &selectedButtonsAppointmentChooseStylist),
     }, &selectedButtonsAppointmentDropdown), [&] {
+        auto textError = [&](std::string error) {
+            if (error.size() == 0) {
+                return text("") | size(HEIGHT, EQUAL, 0);
+            }
+            return paragraph(error) | align_right | color(Color::Red);
+        };
         return vbox({
             text("Choose a Stylist") | center,
             separator(),
@@ -3470,6 +3483,7 @@ void screenAdmin()
                 filler() | size(WIDTH, EQUAL, 5),
                 buttonChooseStylist->Render() | size(WIDTH, EQUAL, 10),
             }) | hcenter,
+            textError(errorChooseStylist),
         }) | borderRounded | size(WIDTH, EQUAL, 50);
     });
 
@@ -3824,7 +3838,7 @@ void screenAdmin()
         detailTabCustomer = 0;
     }, buttonOptionAll);
 
-    Component rendererCustomerDetail = Renderer(Container::Vertical({
+    Component rendererCustomerDetail = Renderer(Container::Horizontal({
         buttonCustomerDetailBack,
         buttonCustomerDetailDelete,
     }, &selectedButtonCustomerDetail), [&] {
@@ -4140,7 +4154,7 @@ void screenAdmin()
         inputUpdateStylistLastName,
         radioboxUpdateStylistGender,
         inputUpdateStylistPhonenumber,
-        inputUpdateStylistUsername,
+        // inputUpdateStylistUsername,
         inputUpdateStylistPassword,
         Container::Horizontal({
             buttonUpdateStylistBack,
@@ -4183,10 +4197,10 @@ void screenAdmin()
                 text("Phone Number: "),
                 inputUpdateStylistPhonenumber->Render(),
             }),
-            hbox({
-                text("Username: "),
-                inputUpdateStylistUsername->Render(),
-            }),
+            // hbox({
+            //     text("Username: "),
+            //     inputUpdateStylistUsername->Render(),
+            // }),
             hbox({
                 text("Password: "),
                 inputUpdateStylistPassword->Render(),
@@ -4238,12 +4252,31 @@ void screenAdmin()
     Component buttonAddStylistReset = Button("Reset", [&] {
         resetAddStylist();
     }, buttonOptionAll);
+    std::string errorAddStylist = "";
     Component buttonAddStylistAdd = Button("Add", [&] {
-        callAddStylist(stylistAddFirstName, stylistAddLastName, stylistAddGender, stylistAddPhonenumber, stylistAddUsername, stylistAddPassword);
-        stylistIDList = callGetStylistIDList(stylistFilterGender, stylistFilterName, countStylist);
-        reloadStylistList();
-        resetAddStylist();
-        selectedTabStylist = 0;
+        errorAddStylist = "";
+        try {
+            callAddStylist(stylistAddFirstName, stylistAddLastName, stylistAddGender, stylistAddPhonenumber, stylistAddUsername, stylistAddPassword);
+            stylistIDList = callGetStylistIDList(stylistFilterGender, stylistFilterName, countStylist);
+            reloadStylistList();
+            resetAddStylist();
+            selectedTabStylist = 0;
+        } catch (int errorCode) {
+            switch (errorCode)
+            {
+                case ERROR_CODE::REGISTER_SOME_FIELD_EMPTY:
+                    errorAddStylist = "Please fill all fields";
+                    break;
+                case ERROR_CODE::REGISTER_PASSWORD_NOT_MATCH:
+                    errorAddStylist = "Password not match";
+                    break;
+                case ERROR_CODE::REGISTER_USERNAME_EXIST:
+                    errorAddStylist = "Username already exist";
+                    break;
+                default:
+                    break;
+            }
+        }
     }, buttonOptionAll);
 
     Component containerAddStylist = Container::Vertical({
@@ -4277,6 +4310,12 @@ void screenAdmin()
     });
 
     Component rendererAddStylist = Renderer(containerAddStylist, [&] {
+        auto textError = [&](std::string error) {
+            if (error.size() == 0) {
+                return text("") | size(HEIGHT, EQUAL, 0);
+            }
+            return paragraph(error) | align_right | color(Color::Red);
+        };
         return vbox({
             text("Add stylist") | center,
             separator(),
@@ -4310,6 +4349,7 @@ void screenAdmin()
                 filler() | size(WIDTH, EQUAL, 5),
                 buttonAddStylistAdd->Render() | size(WIDTH, EQUAL, 10),
             }) | hcenter,
+            textError(errorAddStylist),
         }) | size(WIDTH, EQUAL, 40) | borderRounded;
     });
 
@@ -4737,7 +4777,7 @@ void screenAdmin()
 
     Component containerServiceDoneRating = Container::Vertical({});
     for (int i = 0; i < STAR_COUNT; ++i) {
-        containerServiceDoneRating->Add(Checkbox(std::to_string(i + 1) + whiteStar, &filterServiceDoneRating[i]) | size(WIDTH, EQUAL, 20));
+        containerServiceDoneRating->Add(Checkbox(std::to_string(i) + whiteStar, &filterServiceDoneRating[i]) | size(WIDTH, EQUAL, 20));
     }
 
     Component containerServiceDoneStatus = Container::Vertical({
