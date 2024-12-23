@@ -160,3 +160,14 @@ bool Pwd_match(const std::string& input,const std::string& hashed_password) {
     //std::cout << input << '\n' << hashed_password << '\n';
     return Hash(input) == hashed_password;
 }
+
+std::string toHex(int x) {
+    std::string result;
+    while (x > 0) {
+        int digit = x % 16;
+        if (digit < 10) result = static_cast<char>(digit+'0') + result;
+        else result = static_cast<char>(digit-10+'A') + result;
+        x /= 16;
+    }
+    return result;
+}
