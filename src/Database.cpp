@@ -344,7 +344,7 @@ void Database<T>::removeIndex(const std::string& id) {
 template<>
 std::string Database<User>::genID(const User& obj) {
     time_t now = time(nullptr);
-    std::string hashUserName = Hash(obj.GetID());
+    std::string hashUserName = Hash(obj.GetUserName());
     std::string baseID = std::to_string(now);
     std::string generatedID = baseID + hashUserName.substr(0,14-baseID.size()) + static_cast<char>(obj.GetGender()+'0') + static_cast<char>(obj.GetRole()+'0');
 
