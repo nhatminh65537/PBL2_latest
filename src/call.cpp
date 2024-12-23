@@ -248,8 +248,8 @@ std::string callGetNewAppointmentId() // Done
 
 void callAddNewAppointment() // Done
 {
-Salon& salon = Salon::StartUp();
-salon.AddAppointment();
+    Salon& salon = Salon::StartUp();
+    salon.AddAppointment();
 }
 
 std::string callGetAppointmentCustomerIDByID(std::string id) // Done

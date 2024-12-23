@@ -10,7 +10,7 @@ class ServiceDone : public Identifiable
     public:
         ServiceDone(const std::string& ID="null", 
                     const std::string& customerID="null",
-                    const std::string& workerID="null",
+                    const std::string& stylistID="null",
                     const int& serviceID=0,
                     const int& rating=0,
                     const bool& bookStatus=false,
@@ -40,7 +40,7 @@ class ServiceDone : public Identifiable
         friend bool operator<(const ServiceDone& a,const ServiceDone& b);
     private:
         std::string customerID;
-        std::string workerID;
+        std::string stylistID;
         int serviceID;
         int rating;
         bool bookStatus;
