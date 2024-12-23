@@ -5,12 +5,17 @@
 #include "Identifiable.h"
 #include "Datetime.h"
 
-class serviceDone : public Identifiable
+class ServiceDone : public Identifiable
 {
     public:
-        serviceDone(const std::string& ID="null", const std::string& customerID="null",const std::string& workerID="null",
-                    const int& serviceID=0,const int& rating=0,const bool& bookStatus=false,const Datetime& dt=Datetime::Now());
-        ~serviceDone() override;
+        ServiceDone(const std::string& ID="null", 
+                    const std::string& customerID="null",
+                    const std::string& workerID="null",
+                    const int& serviceID=0,
+                    const int& rating=0,
+                    const bool& bookStatus=false,
+                    const Datetime& dt=Datetime::Now());
+        ~ServiceDone() override;
         [[nodiscard]] const std::string GetCustomerID() const;
         void SetCustomerID(const std::string&);
 
@@ -30,9 +35,9 @@ class serviceDone : public Identifiable
         void SetTime(const Datetime&);
         [[nodiscard]] const Datetime GetDatetime() const;
         void Show() const override;
-        friend std::ostream& operator<<(std::ostream& os,const serviceDone& obj);
-        friend std::istream& operator>>(std::istream& is,serviceDone& obj);
-        friend bool operator<(const serviceDone& a,const serviceDone& b);
+        friend std::ostream& operator<<(std::ostream& os,const ServiceDone& obj);
+        friend std::istream& operator>>(std::istream& is,ServiceDone& obj);
+        friend bool operator<(const ServiceDone& a,const ServiceDone& b);
     private:
         std::string customerID;
         std::string workerID;

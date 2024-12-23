@@ -13,7 +13,7 @@
 
 class Appointment;
 class Customer;
-class serviceDone;
+class ServiceDone;
 
 namespace ERROR_CODE
 {
