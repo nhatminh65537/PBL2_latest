@@ -7,6 +7,7 @@
 #include <iostream>
 #include <fstream>
 #include <cmath>
+#include <unordered_set>
 
 Statistics::Statistics() {
     //ctor
@@ -33,11 +34,16 @@ int Statistics::GetCustomerCount(const Datetime& T){
     dbServiceDone.Query("year", std::to_string(T.GetYear()));
     dbServiceDone.Query("month", std::to_string(T.GetMonth()));
     dbServiceDone.Query("day", std::to_string(T.GetDay()));
-    return dbServiceDone.GetResults().size();
+
+    std::vector<ServiceDone> DB = dbServiceDone.GetResults();
+
+
+    return DB.size();
 }
 
 int Statistics::GetCustomerCount_UpToNow() {
     std::vector<ServiceDone> DB = dbServiceDone.GetResults();
+
     return DB.size();
 }
 

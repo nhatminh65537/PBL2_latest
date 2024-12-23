@@ -114,14 +114,17 @@ void Database<T>::Delete(const std::string& id){
 
 template<typename T>
 void Database<T>::Show() {
+    int cnt = 1;
     if (this->isQuerying==true) {
         for (const auto& it : this->resultList) {
+            std::cout << "No: " << cnt++ << '\n';
             it.Show();
         }
         resetQuery();
         return;
     }
     for (const auto& it : this->_list){
+        std::cout << "No: " << cnt++ << '\n';
         it.second.Show();
     }
 }

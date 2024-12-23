@@ -57,15 +57,9 @@ enum Service{
     GoiDau
 };
 
-enum Filter {
-    None,
-    CaseSensitive
-};
 
 std::string ServiceToString(const int&);
 Service StringToService(const std::string&);
-;
-
 std::vector<std::string> Split(const std::string&,const char& );
 std::string Replace(const std::string&,const char&,const char&);
 std::string Strip(const std::string& s);

@@ -64,7 +64,7 @@ void ServiceDone::SetTime(const Datetime& time) {
 void ServiceDone::Show() const {
     std::cout << "ID: " << this->ID << '\n';
     std::cout << "CustomerID: " << this->customerID << '\n';
-    std::cout << "WorkerID: " << this->workerID << '\n';
+    std::cout << "StylistID: " << this->workerID << '\n';
     std::cout << "Service: " << ServiceToString(this->serviceID) << '\n';
     std::cout << "Rating: " << this->rating << '\n';
     std::cout << "BookStatus: " << (this->bookStatus? "Yes" : "No") << '\n';
