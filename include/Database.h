@@ -5,7 +5,7 @@
 #include <functional>
 #include "serviceDone.h"
 #include "Appointment.h"
-#include "Member.h"
+#include "User.h"
 
 
 const std::string SERVICE_DONE_FILE = "../database/service-done.txt";
@@ -43,6 +43,7 @@ class Database
     private:
         explicit Database(const std::string& path); // Thêm keyword explicit để tránh implicit conversions (ép kiểu ngầm định)
 
+        std::string genID(const T& obj);
         void loadData();
         void save();
         void index(const std::string&);
@@ -66,6 +67,6 @@ class Database
 
 extern Database<ServiceDone>& dbServiceDone;
 extern Database<Appointment>& dbAppointment;
-extern Database<Member>& dbUser;
+extern Database<User>& dbUser;
 
 #endif // DATABASE_H

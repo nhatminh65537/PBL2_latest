@@ -26,7 +26,7 @@ add_executable(PBL2_Clion
         src/Database.cpp
         src/serviceDone.cpp
         src/Identifiable.cpp
-        src/Member.cpp
+        src/User.cpp
         src/Appointment.cpp
         src/define.cpp
         src/Datetime.cpp
