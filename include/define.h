@@ -77,4 +77,6 @@ bool IsBetween(const char&, const char&, const char&);
 std::string Hash(const std::string& password);
 bool Pwd_match(const std::string& input,const std::string& hashed_password);
 
+std::string toHex(int x);
+
 #endif //DEFINE_H
