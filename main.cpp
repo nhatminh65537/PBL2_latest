@@ -1,6 +1,10 @@
+#include <Database.h>
 #include <fstream>
+#include <iostream>
 #include <functional>
 #include "ui.h"
+#include "Salon.h"
+#include "Statistics.h"
 
 std::function<void()> currentScreen = screenWelcome;
 

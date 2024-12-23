@@ -26,7 +26,7 @@ class Salon {
         void ShowAllAppointment(const Datetime& = Datetime::Now());
         void ShowSchedule(const std::string& stylistID, const Datetime& = Datetime::Now());
         void ShowAllSchedule(const std::string& stylistID);
-        void DeleteCustomer(const std::string& ID);
+        void DeleteCustomer(const std::string& customerID);
         void DeleteStylist(const std::string& stylistID);
 
         [[nodiscard]] std::string GetUserID();

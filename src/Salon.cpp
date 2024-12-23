@@ -119,22 +119,22 @@ void Salon::DeleteAppointment(const std::string& appointmentID) {
 
 void Salon::ShowAppointment(const Datetime& dt) {
     ensurePermission("customer");
-    dbAppointment.Query("customerID",userID).Query("date",Datetime::TimeToString(dt)).Show();
+    dbAppointment.Query("customerID",this->userID).Query("date",Datetime::TimeToString(dt)).Query("status","Waiting").Show();
 }
 
 void Salon::ShowAllAppointment(const Datetime& dt) {
     ensurePermission("admin");
-    dbAppointment.Query("date",Datetime::TimeToString(dt)).Show();
+    dbAppointment.Query("date",Datetime::TimeToString(dt)).Query("status","Waiting").Show();
 }
 
-void Salon::DeleteCustomer(const std::string &ID) {
-    if (dbUser.Get(ID).GetRole() != 1) return;
+void Salon::DeleteCustomer(const std::string &customerID) {
+    if (dbUser.Get(customerID).GetRole() != 1) return;
     ensurePermission("admin");
-    std::vector<Appointment> appointments = dbAppointment.Query("customerID",ID).GetResults();
+    std::vector<Appointment> appointments = dbAppointment.Query("customerID",customerID).GetResults();
     for (const auto& appointment : appointments) {
         dbAppointment.Delete(appointment.GetID());
     }
-    dbUser.Delete(ID);
+    dbUser.Delete(customerID);
 }
 
 void Salon::DeleteStylist(const std::string &stylistID) {
@@ -142,15 +142,16 @@ void Salon::DeleteStylist(const std::string &stylistID) {
     ensurePermission("admin");
     std::vector<Appointment> appointments = dbAppointment.Query("stylistID",stylistID).GetResults();
     for (const auto& appointment : appointments) {
-        dbAppointment.Delete(appointment.GetID());
+        dbAppointment.Update(appointment.GetID(),"stylistID","null");
     }
     dbUser.Delete(stylistID);
 }
 
 
 void Salon::ShowSchedule(const std::string& stylistID, const Datetime& dt) {
-
+    dbAppointment.Query("stylistID",stylistID).Query("date",Datetime::TimeToString(dt)).Query("status","Waiting").Show();
 }
 void Salon::ShowAllSchedule(const std::string& stylistID) {
-
+    ensurePermission("admin");
+    dbAppointment.Query("stylistID",stylistID).Query("status","Waiting").Show();
 }
