@@ -88,7 +88,6 @@ void Database<T>::Update(const std::string& ID,const std::string& attributeName,
 template<typename T>
 void Database<T>::Insert(const T& obj) {
     // If object is already in map
-    time_t now = time(nullptr);
     std::string ID = this->genID(obj);
     if (ID == "null") {
         std::cerr << "Database::Insert: ID cannot be null\n";
