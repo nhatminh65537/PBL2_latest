@@ -200,11 +200,11 @@ void callUpdateCurrentUserName(std::string firstname, std::string lastname) // D
 
 void callUpdateCurrentPassword(std::string oldPassword, std::string newPassword, std::string confirmpassword) // Done
 {
-    if (oldPassword != dbUser.Get(callGetCurrentUserID()).GetPassword()) 
+    if (Hash(oldPassword) != dbUser.Get(callGetCurrentUserID()).GetPassword())
         throw ERROR_CODE::UPDATE_PROFILE_INVALID_PASSWORD;
     if (newPassword != confirmpassword)
         throw ERROR_CODE::UPDATE_PROFILE_PASSWORD_NOT_MATCH;
-    dbUser.Update(callGetCurrentUserID(), "password", newPassword);
+    dbUser.Update(callGetCurrentUserID(), "password", Hash(newPassword));
 }
 
 void callUpdateCurrentPersonInfo(std::string phonenumber, int gender) // Done
@@ -442,7 +442,7 @@ void callAssignStylistToAppointment(std::string appointmentID, std::string styli
 
 
 
-// Member call and auxiliary
+// User call and auxiliary
 
 std::string callGetMemberNameByID(std::string id) // Done
 {
@@ -497,7 +497,7 @@ std::vector<std::string> callGetStylistIDList(bool gender[2], std::string name, 
         dbUser.Query("name", name);
     }
 
-    std::vector<Member> stylistList = dbUser.GetResults();
+    std::vector<User> stylistList = dbUser.GetResults();
     for (auto stylist : stylistList) {
         stylistListID.push_back(stylist.GetID());
     }
@@ -561,7 +561,7 @@ std::vector<std::string> callGetCustomerIDList(bool gender[2], std::string name,
         dbUser.Query("name", name);
     }
 
-    std::vector<Member> customerList = dbUser.GetResults();
+    std::vector<User> customerList = dbUser.GetResults();
     for (auto customer : customerList) {
         customerListID.push_back(customer.GetID());
     }

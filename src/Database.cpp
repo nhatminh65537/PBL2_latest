@@ -8,12 +8,12 @@
 
 template class Database<ServiceDone>;
 template class Database<Appointment>;
-template class Database<Member>;
+template class Database<User>;
 
 
 Database<ServiceDone>& dbServiceDone = Database<ServiceDone>::Connect(SERVICE_DONE_FILE);
 Database<Appointment>& dbAppointment = Database<Appointment>::Connect(APPOINTMENTS_FILE);
-Database<Member>& dbUser = Database<Member>::Connect(USERS_FILE);
+Database<User>& dbUser = Database<User>::Connect(USERS_FILE);
 
 template<typename T>
 Database<T>& Database<T>::Connect(const std::string& path) {
@@ -88,16 +88,20 @@ void Database<T>::Update(const std::string& ID,const std::string& attributeName,
 template<typename T>
 void Database<T>::Insert(const T& obj) {
     // If object is already in map
-    if (this->_list.contains(obj.GetID())){
-        std::cerr << "ID " << obj.GetID() << " already exists\n";
+    std::string ID = this->genID(obj);
+    if (ID == "null") {
+        std::cerr << "Database::Insert: ID cannot be null\n";
         exit(1);
     }
-    time_t now = time(nullptr);
-    std::string ID = obj.GetID();
-    if (ID == "null") ID = std::to_string(now);
+    if (this->_list.contains(obj.GetID())){
+        std::cerr << "Database::Insert: ID " << obj.GetID() << " already exists\n";
+        exit(1);
+    }
+
     T tmpObj = obj;
     tmpObj.SetID(ID);
     this->_list[ID] = tmpObj;
+
     addIndex(ID);
 }
 
@@ -338,6 +342,50 @@ void Database<T>::removeIndex(const std::string& id) {
 }
 
 template<>
+std::string Database<User>::genID(const User& obj) {
+    time_t now = time(nullptr);
+    std::string hashUserName = Hash(obj.GetID());
+    std::string baseID = std::to_string(now);
+    std::string generatedID = baseID + hashUserName.substr(0,14-baseID.size()) + static_cast<char>(obj.GetGender()+'0') + static_cast<char>(obj.GetRole()+'0');
+
+    return generatedID;
+}
+
+template<>
+std::string Database<ServiceDone>::genID(const ServiceDone& obj) {
+    time_t now = time(nullptr);
+    std::string hashedMixedID = Hash(obj.GetCustomerID()+obj.GetStylistID());
+    std::string baseID = std::to_string(now);
+    std::string generatedID = baseID + hashedMixedID.substr(0,14-baseID.size()) + static_cast<char>(obj.GetServiceID()+'0')  + static_cast<char>(obj.GetBookStatus()+'0');
+
+    return generatedID;
+}
+
+template<>
+std::string Database<Appointment>::genID(const Appointment& obj) {
+    time_t now = time(nullptr);
+    std::string hashedMixedID = Hash(obj.GetCustomerID()+obj.GetStylistID());
+    std::string baseID = std::to_string(now);
+    std::string generatedID = baseID + hashedMixedID.substr(0,13-baseID.size());
+
+    std::vector<Service> serviceList = obj.GetServices();
+    std::sort(serviceList.begin(),serviceList.end());
+    int i=1;
+    for (const auto& service : serviceList) {
+        std::cerr << service << '\n';
+        while(i<static_cast<int>(service)) {
+            generatedID += '0';
+            i++;
+        }
+        generatedID += static_cast<char>(i+'0');
+        i++;
+    }
+
+    return generatedID;
+}
+
+
+template<>
 void Database<ServiceDone>::initIndex() {
     index("customerID");
     index("stylistID");
@@ -351,7 +399,7 @@ void Database<Appointment>::initIndex() {
 }
 
 template<>
-void Database<Member>::initIndex() {
+void Database<User>::initIndex() {
     index("firstName");
 }
 
@@ -456,53 +504,53 @@ void Database<Appointment>::initMap() {
 }
 
 template<>
-void Database<Member>::initMap() {
-    attributeMap["ID"] = [](const Member& obj) -> std::string {
+void Database<User>::initMap() {
+    attributeMap["ID"] = [](const User& obj) -> std::string {
         return obj.GetID();
     };
-    attributeMap["firstName"] = [](const Member& obj) -> std::string {
+    attributeMap["firstName"] = [](const User& obj) -> std::string {
         return obj.GetFirstName();
     };
-    attributeMap["lastName"] = [](const Member& obj) -> std::string {
+    attributeMap["lastName"] = [](const User& obj) -> std::string {
         return obj.GetLastName();
     };
-    attributeMap["name"] = [](const Member& obj) -> std::string {
+    attributeMap["name"] = [](const User& obj) -> std::string {
           return obj.GetFullName();
     };
-    attributeMap["gender"] = [](const Member& obj) -> std::string {
+    attributeMap["gender"] = [](const User& obj) -> std::string {
         return (obj.GetGender() == 1 ? "Male" : "Female");
     };
-    attributeMap["username"] = [](const Member& obj) -> std::string {
+    attributeMap["username"] = [](const User& obj) -> std::string {
         return obj.GetUserName();
     };
-    attributeMap["password"] = [](const Member& obj) -> std::string {
+    attributeMap["password"] = [](const User& obj) -> std::string {
         return obj.GetPassword();
     };
-    attributeMap["role"] = [](const Member& obj) -> std::string {
+    attributeMap["role"] = [](const User& obj) -> std::string {
         return std::to_string(obj.GetRole());
     };
-    attributeMap["phoneNumber"] = [](const Member& obj) -> std::string {
+    attributeMap["phoneNumber"] = [](const User& obj) -> std::string {
         return obj.GetPhoneNumber();
     };
-    updateMap["firstName"] = [](Member& obj, const std::string& newVal) {
-        obj.SetFirstName(newVal);
+    updateMap["firstName"] = [](User& obj, const std::string& newVal) {
+        obj.SetFirstName(Strip(newVal));
     };
-    updateMap["lastName"] = [](Member& obj, const std::string& newVal) {
-        obj.SetLastName(newVal);
+    updateMap["lastName"] = [](User& obj, const std::string& newVal) {
+        obj.SetLastName(Strip(newVal));
     };
-    updateMap["gender"] = [](Member& obj, const std::string& newVal) {
+    updateMap["gender"] = [](User& obj, const std::string& newVal) {
         obj.SetGender(newVal == "Male" ? true : false);
     };
-    updateMap["username"] = [](Member& obj, const std::string& newVal) {
+    updateMap["username"] = [](User& obj, const std::string& newVal) {
         obj.SetUserName(newVal);
     };
-    updateMap["password"] = [](Member& obj, const std::string& newVal) {
+    updateMap["password"] = [](User& obj, const std::string& newVal) {
         obj.SetPassword(newVal);
     };
-    updateMap["role"] = [](Member& obj, const std::string& newVal) {
+    updateMap["role"] = [](User& obj, const std::string& newVal) {
         obj.SetRole(ToNum(newVal));
     };
-    updateMap["phoneNumber"] = [](Member& obj, const std::string& newVal) {
+    updateMap["phoneNumber"] = [](User& obj, const std::string& newVal) {
         obj.SetPhoneNumber(newVal);
     };
 }

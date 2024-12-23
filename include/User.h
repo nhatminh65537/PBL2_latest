@@ -4,9 +4,9 @@
 #include "Identifiable.h"
 
 
-class Member : public Identifiable {
+class User : public Identifiable {
     public:
-        explicit Member(const std::string& ID="null",
+        explicit User(const std::string& ID="null",
             const std::string& firstName="null",
             const std::string& lastName="null",
             const std::string& username="null",
@@ -15,7 +15,7 @@ class Member : public Identifiable {
             const std::string& phoneNumber="null",
             const int& role = 0);
 
-        ~Member() override;
+        ~User() override;
 
         // [[nodiscard]] để cảnh báo cho compiler khi ta không sử dụng value được trả về từ getter, hoặc không lưu lại = 1 biến khác
         [[nodiscard]] std::string GetFirstName() const;
@@ -35,8 +35,8 @@ class Member : public Identifiable {
         void SetRole(const int&);
         void Show() const override;
 
-        friend std::ostream& operator<<(std::ostream& os, const Member& obj);
-        friend std::istream& operator>>(std::istream& is,Member& obj);
+        friend std::ostream& operator<<(std::ostream& os, const User& obj);
+        friend std::istream& operator>>(std::istream& is,User& obj);
 
     protected:
         std::string firstName;

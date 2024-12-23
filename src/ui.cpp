@@ -467,7 +467,7 @@ void screenCustomer()
     std::string errorApointmentTime = "";
 
     std::string newAppointmentId;
-    int tabComfirm = 0;
+    int tabConfirm = 0;
 
     // Services
     bool* selectedServices = new bool[serviceCount];
@@ -618,7 +618,7 @@ void screenCustomer()
         try {
             callCreateNewAppointment(selectedServices, toStylistID(selectedStylist), selectedDay, selectedMonth, selectedYear, selectedHour, selectedMinute);
             newAppointmentId = callGetNewAppointmentId();
-            tabComfirm = 1;
+            tabConfirm = 1;
         }
         catch (int errorCode) {
             switch (errorCode)
@@ -732,7 +732,7 @@ void screenCustomer()
             }) | size(WIDTH, EQUAL, 40) | borderRounded;
     });
 
-    // Comfirm appointment
+    // Confirm appointment
     auto resetAppointment = [&] {
         for (int i = 0; i < serviceCount; ++i) {
             selectedServices[i] = false;
@@ -762,13 +762,13 @@ void screenCustomer()
     int selectedButtonsAppointment = 0;
     ButtonOption buttonOptionConfirm(buttonOptionAll);
     Component buttonAppointmentConfirm = Button("Confirm", [&] {
-        tabComfirm = 0;
+        tabConfirm = 0;
         resetAppointment();
         selectedButtonsAppointment = 0;
         callAddNewAppointment();
     }, buttonOptionConfirm);
     Component buttonAppointmentCancel = Button("Back", [&] {
-        tabComfirm = 0;
+        tabConfirm = 0;
         selectedButtonsAppointment = 0;
     }, buttonOptionConfirm);
     Component tabAppointmentConfirm = Renderer(Container::Horizontal({
@@ -786,7 +786,7 @@ void screenCustomer()
             textServiceList.push_back(textService(i));
         }
         return vbox({
-            text("Comfirm appointment") | center,
+            text("Confirm appointment") | center,
             separator(),
             text("Appointment ID") | bold,
             text("  " + newAppointmentId),
@@ -817,12 +817,12 @@ void screenCustomer()
         Container::Tab({
             tabAppointmentInput,
             tabAppointmentConfirm
-        }, &tabComfirm), [&] {
+        }, &tabConfirm), [&] {
         auto document = hbox({
             filler() | size(WIDTH, EQUAL, 2),
             tabAppointmentInput->Render(),
         });
-        if (tabComfirm == 1) {
+        if (tabConfirm == 1) {
             document = dbox({
                 hbox({
                 filler() | size(WIDTH, EQUAL, 2),
