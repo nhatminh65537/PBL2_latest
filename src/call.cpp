@@ -446,7 +446,7 @@ void callAssignStylistToAppointment(std::string appointmentID, std::string styli
 
 std::string callGetMemberNameByID(std::string id) // Done
 {
-    if (dbUser.IsExist("id", id))
+    if (dbUser.IsExist("ID", id))
         return dbUser.Get(id).GetFullName();
     return "deleted";
 }
