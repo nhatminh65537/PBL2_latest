@@ -65,6 +65,10 @@ void screenWelcome()
         return element;
     };
     auto buttons = Container::Vertical({
+        Button("PBL", [&] {
+            currentScreen = screenPBL;
+            screen.Exit();
+        }, myButtonOption) | size(WIDTH, EQUAL, 20),
         Button("Login", [&] {
             currentScreen = screenLogin;
             screen.Exit();
@@ -85,6 +89,45 @@ void screenWelcome()
         }) | center;
     });
     screen.Loop(welcome);
+}
+
+void screenPBL()
+{
+    // PBL screen
+    auto screen = ScreenInteractive::FixedSize(SCREEN_WIDTH, SCREEN_HEIGHT);
+    ButtonOption buttonOptionTab;
+    buttonOptionTab.transform = [](const EntryState& s) {
+        auto element = text(s.label) | center ;
+        if (s.focused) {
+            element |= inverted;
+        }
+        return element;
+    };
+    Component buttonBack = Button("Back", [&] {
+        currentScreen = screenWelcome;
+        screen.Exit();
+    }, buttonOptionTab);
+
+    auto pbl = Renderer(
+        buttonBack,
+        [&] {
+        return vbox({
+            filler() | size(HEIGHT, EQUAL, 2),
+            text("PBL2  : Dự án cơ sở lập trình     ") | hcenter,
+            text("Đề tài: Ứng dụng quản lí salon tóc") | hcenter,
+            filler() | size(HEIGHT, EQUAL, 1),
+            text("  Giáo viên hướng dẫn: Trần Hồ Thủy Tiên  "),
+            filler() | size(HEIGHT, EQUAL, 1),
+            text("  Sinh viên thực hiện:"),
+            text("      Trần Đức Long         (23T_Nhat1) - MSV: 102230027  ") | hcenter,
+            text("      Thái Nhật Minh        (23T_Nhat1) - MSV: 102230030  ") | hcenter,
+            text("      Nguyễn Hữu Hoàng Luân (23T_Nhat1) - MSV: 102230028  ") | hcenter,
+            filler() | size(HEIGHT, EQUAL, 2),
+            separator(),
+            buttonBack->Render(),
+        }) | borderRounded | center;
+    });
+    screen.Loop(pbl);
 }
 
 void screenLogin()

@@ -248,8 +248,8 @@ std::string callGetNewAppointmentId() // Done
 
 void callAddNewAppointment() // Done
 {
-Salon& salon = Salon::StartUp();
-salon.AddAppointment();
+    Salon& salon = Salon::StartUp();
+    salon.AddAppointment();
 }
 
 std::string callGetAppointmentCustomerIDByID(std::string id) // Done
@@ -441,11 +441,14 @@ void callAssignStylistToAppointment(std::string appointmentID, std::string styli
 }
 
 
+
 // Member call and auxiliary
 
 std::string callGetMemberNameByID(std::string id) // Done
 {
-    return dbUser.Get(id).GetFullName();
+    if (dbUser.IsExist("ID", id))
+        return dbUser.Get(id).GetFullName();
+    return "deleted";
 }
 
 std::string callGetMemberFirstNameByID(std::string id) // Done

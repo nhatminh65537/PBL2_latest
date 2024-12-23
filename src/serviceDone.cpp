@@ -2,11 +2,11 @@
 
 #include <define.h>
 
-ServiceDone::ServiceDone(const std::string& ID, const std::string& customerID,const std::string& workerID,
+ServiceDone::ServiceDone(const std::string& ID, const std::string& customerID,const std::string& stylistID,
                          const int& serviceID,const int& rating,const bool& bookStatus,const Datetime& time){
     this->ID = ID;
     this->customerID = customerID;
-    this->workerID = workerID;
+    this->stylistID = stylistID;
     this->serviceID = serviceID;
     this->rating = rating; // Thêm cặp dấu " để đúng với format của feedback. "content"
     this->bookStatus = bookStatus;
@@ -25,10 +25,10 @@ void ServiceDone::SetCustomerID(const std::string& customerID){
 }
 
 const std::string ServiceDone::GetStylistID() const{
-    return this->workerID;
+    return this->stylistID;
 }
-void ServiceDone::SetStylistID(const std::string& workerID){
-    this->workerID = workerID;
+void ServiceDone::SetStylistID(const std::string& stylistID){
+    this->stylistID = stylistID;
 }
 const int ServiceDone::GetServiceID() const{
     return this->serviceID;
@@ -64,7 +64,7 @@ void ServiceDone::SetTime(const Datetime& time) {
 void ServiceDone::Show() const {
     std::cout << "ID: " << this->ID << '\n';
     std::cout << "CustomerID: " << this->customerID << '\n';
-    std::cout << "StylistID: " << this->workerID << '\n';
+    std::cout << "WorkerID: " << this->stylistID << '\n';
     std::cout << "Service: " << ServiceToString(this->serviceID) << '\n';
     std::cout << "Rating: " << this->rating << '\n';
     std::cout << "BookStatus: " << (this->bookStatus? "Yes" : "No") << '\n';
@@ -74,13 +74,13 @@ void ServiceDone::Show() const {
 
 // operator overloading
 std::ostream& operator<<(std::ostream& os, const ServiceDone& obj){
-    os << obj.ID << " " << obj.customerID << " " << obj.workerID
+    os << obj.ID << " " << obj.customerID << " " << obj.stylistID
         << " " << obj.serviceID << " " << obj.rating
         << " " << obj.bookStatus << " " << obj.time;
     return os;
 }
 std::istream& operator>>(std::istream& is,ServiceDone& obj){
-    is >> obj.ID >> obj.customerID >> obj.workerID
+    is >> obj.ID >> obj.customerID >> obj.stylistID
         >> obj.serviceID >> obj.rating >> obj.bookStatus >> obj.time;
     return is;
 }
