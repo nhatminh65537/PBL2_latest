@@ -345,8 +345,8 @@ template<>
 std::string Database<User>::genID(const User& obj) {
     time_t now = time(nullptr);
     std::string hashUserName = Hash(obj.GetUserName());
-    std::string baseID = std::to_string(now);
-    std::string generatedID = baseID + hashUserName.substr(0,14-baseID.size()) + static_cast<char>(obj.GetGender()+'0') + static_cast<char>(obj.GetRole()+'0');
+    std::string baseID = toHex(now);
+    std::string generatedID = baseID + hashUserName.substr(0, 10-baseID.size());
 
     return generatedID;
 }
@@ -355,8 +355,8 @@ template<>
 std::string Database<ServiceDone>::genID(const ServiceDone& obj) {
     time_t now = time(nullptr);
     std::string hashedMixedID = Hash(obj.GetCustomerID()+obj.GetStylistID());
-    std::string baseID = std::to_string(now);
-    std::string generatedID = baseID + hashedMixedID.substr(0,14-baseID.size()) + static_cast<char>(obj.GetServiceID()+'0')  + static_cast<char>(obj.GetBookStatus()+'0');
+    std::string baseID = toHex(now);
+    std::string generatedID = baseID + hashedMixedID.substr(0, 9 - baseID.size()) + static_cast<char>(obj.GetServiceID()+'0');
 
     return generatedID;
 }
@@ -365,21 +365,16 @@ template<>
 std::string Database<Appointment>::genID(const Appointment& obj) {
     time_t now = time(nullptr);
     std::string hashedMixedID = Hash(obj.GetCustomerID()+obj.GetStylistID());
-    std::string baseID = std::to_string(now);
-    std::string generatedID = baseID + hashedMixedID.substr(0,13-baseID.size());
+    std::string baseID = toHex(now);
+    std::string generatedID = baseID.substr(0, 7) + hashedMixedID.substr(0, 9 - baseID.size());
 
     std::vector<Service> serviceList = obj.GetServices();
-    std::sort(serviceList.begin(),serviceList.end());
-    int i=1;
+    int n = 0;
     for (const auto& service : serviceList) {
-        std::cerr << service << '\n';
-        while(i<static_cast<int>(service)) {
-            generatedID += '0';
-            i++;
-        }
-        generatedID += static_cast<char>(i+'0');
-        i++;
+        n += 1 << service;
     }
+    std::string hn = toHex(n);
+    generatedID += hn.size() == 1 ? "0" + hn : hn;
 
     return generatedID;
 }
