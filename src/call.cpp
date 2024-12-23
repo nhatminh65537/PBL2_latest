@@ -700,7 +700,7 @@ std::vector<int> callGetCustomerCountStatistics(int day, int month, int year)
             int cnt = 0;
             for (int j = 0; j < 7; j++) {
                 Datetime dt = begin + i * 7 + j;
-                cnt += Statistics::GetCustomerCount(dt);
+                cnt += Statistics::GetServiceDoneCount(dt);
             }
             count.push_back(cnt);
         }
@@ -708,11 +708,11 @@ std::vector<int> callGetCustomerCountStatistics(int day, int month, int year)
         Datetime begin(0, 0, 1, month, year + 2020);
         for (int i = 0; i < begin.MonthDays(); i++) {
             Datetime dt = begin + i;
-            count.push_back(Statistics::GetCustomerCount(dt));
+            count.push_back(Statistics::GetServiceDoneCount(dt));
         }
     } else {
         Datetime dt(0, 0, day, month, year + 2020);
-        count.push_back(Statistics::GetCustomerCount(dt));
+        count.push_back(Statistics::GetServiceDoneCount(dt));
     }
     return count;
 }

@@ -30,7 +30,7 @@ float Statistics::GetStandardDeviation(const std::vector<float> vt) {
     return std::sqrt(sum/vt.size());
 }
 
-int Statistics::GetCustomerCount(const Datetime& T){
+int Statistics::GetServiceDoneCount(const Datetime& T){
     dbServiceDone.Query("year", std::to_string(T.GetYear()));
     dbServiceDone.Query("month", std::to_string(T.GetMonth()));
     dbServiceDone.Query("day", std::to_string(T.GetDay()));
@@ -41,7 +41,7 @@ int Statistics::GetCustomerCount(const Datetime& T){
     return DB.size();
 }
 
-int Statistics::GetCustomerCount_UpToNow() {
+int Statistics::GetServiceDoneCount_UpToNow() {
     std::vector<ServiceDone> DB = dbServiceDone.GetResults();
 
     return DB.size();

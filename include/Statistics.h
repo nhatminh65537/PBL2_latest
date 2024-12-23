@@ -21,8 +21,8 @@ class Statistics {
         static float GetStandardDeviation(const std::vector<float>);
 
         //Lượng khách hàng trong 1 ngày
-        static int GetCustomerCount(const Datetime& = Datetime::Now()); // OK
-        static int GetCustomerCount_UpToNow(); // CHO ĐẾN NAY 
+        static int GetServiceDoneCount(const Datetime& = Datetime::Now()); // OK
+        static int GetServiceDoneCount_UpToNow(); // CHO ĐẾN NAY
  
         //Tần số sử dụng của mỗi dịch vụ trong 1 ngày
         static std::vector<int> GetServiceCount(const Datetime& = Datetime::Now()); // OK
