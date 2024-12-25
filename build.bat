@@ -4,5 +4,5 @@ mkdir build
 cd build
 cmake ../ -G "MinGW Makefiles"
 cmake --build .
-echo "Enter PBL2_Clion.exe in terminal to run (screen size 120*35)"
+echo "Open folder build and run Salon_Management.exe (screen size 120*40)"
 pause
