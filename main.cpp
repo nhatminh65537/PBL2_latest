@@ -5,6 +5,7 @@
 #include <csignal> 
 #include "ui.h"
 #include "Salon.h"
+#include <windows.h>
 
 std::function<void()> currentScreen = screenWelcome;
 

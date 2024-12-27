@@ -31,6 +31,7 @@ Database<T>::Database(const std::string&  path) : path(path) {
 template<typename T>
 Database<T>::~Database() {
     this->save();
+    std::cerr << "Destructor of Database called. Data successfully saved\n";
 }
 
 

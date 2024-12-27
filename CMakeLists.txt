@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.29)
-project(PBL2_Clion)
+project(Salon_Management)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -21,7 +21,7 @@ include_directories(include)
 add_definitions(-DMY_CODE) # Cho phép biên dịch các đoạn code được chỉnh sửa trong thư viện FTXUI
 add_subdirectory(FTXUI)
 
-add_executable(PBL2_Clion
+add_executable(Salon_Management
         main.cpp
         src/Database.cpp
         src/serviceDone.cpp
@@ -38,7 +38,7 @@ add_executable(PBL2_Clion
 )
 
 # Dùng các thành phần trong thư viện FTXUI
-target_link_libraries(PBL2_Clion
+target_link_libraries(Salon_Management
         PRIVATE ftxui::screen
         PRIVATE ftxui::dom
         PRIVATE ftxui::component
